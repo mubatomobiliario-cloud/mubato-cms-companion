@@ -1,0 +1,23 @@
+{
+  "name": "mubato-cms-companion",
+  "productName": "MUBATO CMS Companion",
+  "version": "0.2.0",
+  "description": "Asistente editorial para la administración del CMS de MUBATO en Wix.",
+  "author": "Juan Germán Barreto",
+  "license": "MIT",
+  "private": true,
+  "main": "src/electron/main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron ."
+  },
+  "devDependencies": {
+    "electron": "^37.3.1"
+  },
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "image-size": "^2.0.2",
+    "openai": "^7.4.0",
+    "papaparse": "^5.5.4"
+  }
+}
