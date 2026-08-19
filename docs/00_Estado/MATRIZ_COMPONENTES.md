@@ -12,11 +12,11 @@
 | `vision/analizadorFotografias.js` | Ejecutar observación visual por fotografía | 🟢 Comprobado | Conocido | Sí |
 | `vision/promptVision.js` | Contrato de observación visual | 🟢 Comprobado | Conocido | Sí |
 | `direccionEditorial/expedienteProyecto.js` | Consolidar observaciones del proyecto | 🟢 Comprobado | Conocido | Sí |
-| `direccionEditorial/contextoMarca.js` | Doctrina editorial MUBATO | 🟢 Preparado | Conocido | Sí |
-| `direccionEditorial/ConstructorContexto.js` | Construir contexto para generación editorial | 🟡 Parcial | Parcial | Sí |
-| `direccionEditorial/directorEditorial.js` | Orquestar generación editorial | 🟡 Parcial | Parcial | Sí |
+| `direccionEditorial/contextoMarca.js` | Doctrina editorial MUBATO | 🟢 Preparado | **Única exportación estructurada; corregida** | Sí |
+| `direccionEditorial/ConstructorContexto.js` | Construir contexto por contrato para cada plantilla | 🟢 Preparado / parcialmente conectado | `CONTRATO_PROMPTS_EDITORIAL_V0.1`; métodos separados por salida | Sí |
+| `direccionEditorial/directorEditorial.js` | Orquestar generación editorial | 🟡 Parcial | Hero conectado; demás salidas preparadas en ConstructorContexto | Sí |
 | `direccionEditorial/generadorEditorial.js` | Motor genérico contexto + plantilla → contenido | 🟡 Preparado/desconectado | Conocido | Sí |
-| `direccionEditorial/promptTemplates.js` | Contratos Hero, Historia, SEO, ALT, Keywords, Slug y otros | 🔴 Revisar exportación | Conocido | Sí |
+| `direccionEditorial/promptTemplates.js` | Contratos Hero, Historia, SEO, ALT, Keywords, Slug y campos estructurados | 🟢 Reconstruido / preparado | `docs/01_Arquitectura/CONTRATO_PROMPTS_EDITORIAL_V0.1.md` | Sí |
 | `Exportadores/actualizadorCSV.js` | Escribir resultados en CSV | 🟡 Parcial | **Contrato V0.1 definido; implementación pendiente** | Sí |
 | `workflow/directorProyecto.js` | Orquestar fases del proyecto | 🟡 Parcial | Análisis conectado; ejecución completa no apta para UI todavía | Sí |
 | `electron/main.js` | Exponer operaciones de proyecto mediante IPC | 🟢 Análisis conectado | Conocido | Sí |
@@ -29,6 +29,7 @@
 | Identidad multimedia Wix | Referencias `slug`/`src` de imágenes | 🟢 Comportamiento comprobado | Wix genera/conserva la identidad; Companion no debe inventarla | Sí |
 | Integridad básica del registro Wix | Campos estructurales del item | 🟡 Evidencia de prueba | En prueba controlada, completar campos básicos vacíos permitió que Hero y Galería se materializaran; conjunto mínimo definitivo pendiente | Sí |
 | **Contrato de salida CSV V0.1** | Definir propiedad de campos y reglas de preservación | 🟢 **Definido** | `docs/01_Arquitectura/CONTRATO_SALIDA_CSV_V0.1.md` | Sí |
+| **Contrato de prompts editoriales V0.1** | Definir entrada/salida y responsabilidad de cada plantilla | 🟢 **Definido** | `docs/01_Arquitectura/CONTRATO_PROMPTS_EDITORIAL_V0.1.md` | Sí |
 | Clasificación automática | Recomendar/decidir selección | ⚪ Fuera del MVP | No bloquea | No |
 
 ## Regla de actualización
@@ -37,8 +38,8 @@ Cada modificación significativa debe actualizar esta matriz, registrar la decis
 
 ## Último cambio significativo
 
-Se formalizó el **Contrato de Salida CSV V0.1**. La salida debe partir de la fila Wix existente, preservarla y modificar únicamente campos propiedad de Companion. Se congeló además la diferencia física entre `Galería General` (JSON serializado de objetos multimedia Wix) y `Hero Imagen` (URI `wix:image://...`). Los campos técnicos Wix y la identidad multimedia existente quedan fuera de la escritura editorial.
+Se reconstruyó `promptTemplates.js` con una única exportación y contratos separados para Hero, Historia, SEO, ALT, Keywords, Slug, Código, Categoría, Servicios y Espacios. Se corrigió además `contextoMarca.js`, que contenía un segundo `module.exports` que sobrescribía la doctrina estructurada. `ConstructorContexto.js` ahora dispone de métodos de contexto separados para estas salidas.
 
 ## Próximo punto de validación
 
-Implementar el adaptador de salida conforme al contrato y probarlo primero sobre una sola fila, verificando que los campos no propiedad de Companion permanezcan byte/valor-equivalentes cuando sea posible y que las referencias multimedia Wix no sean reconstruidas.
+Conectar las salidas editoriales preparadas al `DirectorEditorial`/`GeneradorEditorial`, ejecutar una prueba controlada con un proyecto ya analizado y validar primero el objeto editorial interno antes de tocar el adaptador CSV.
