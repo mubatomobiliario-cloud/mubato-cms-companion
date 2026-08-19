@@ -43,6 +43,24 @@ class ProyectoManager {
 
     }
 
+    extraerNombreDesdeWixImage(src) {
+
+        if (!src) {
+            return "";
+        }
+
+        const sinFragmento = src.split("#")[0];
+        const partes = sinFragmento.split("/");
+        const nombre = partes[partes.length - 1] || "";
+
+        try {
+            return decodeURIComponent(nombre);
+        } catch (error) {
+            return nombre;
+        }
+
+    }
+
     buscarFotografiaPorNombre(nombreArchivo) {
 
         if (!nombreArchivo) {
@@ -68,19 +86,16 @@ class ProyectoManager {
             filaCSV["Hero Imágen"] ||
             "";
 
+        //--------------------------------------------------
+        // GALERÍA GENERAL
+        // Contrato físico comprobado: JSON serializado
+        // de un array de objetos Wix.
+        //--------------------------------------------------
+
         const galeriaWix = this.parsearCampoWix(
             campoGaleria,
             "Galería General"
         );
-
-        const heroWix = this.parsearCampoWix(
-            campoHero,
-            "Hero Imagen"
-        );
-
-        //--------------------------------------------------
-        // Galería: conservar exactamente el orden del CSV.
-        //--------------------------------------------------
 
         galeriaWix.forEach(itemWix => {
 
@@ -92,7 +107,7 @@ class ProyectoManager {
                 return;
             }
 
-            // Conservamos el objeto físico Wix recibido del CSV.
+            // Conservamos intacto el objeto físico Wix.
             foto.wixMedia = itemWix;
 
             this.proyecto.agregarGaleria(foto);
@@ -100,21 +115,27 @@ class ProyectoManager {
         });
 
         //--------------------------------------------------
-        // Hero: selección independiente de la Galería.
+        // HERO IMAGEN
+        // Contrato físico comprobado: string Wix image URI.
+        // Ejemplo:
+        // wix:image://v1/.../TEST_0007.jpeg#originWidth=...
+        // NO es JSON.
         //--------------------------------------------------
 
-        if (heroWix.length > 0) {
+        if (campoHero.trim() !== "") {
 
-            const itemHero = heroWix[0];
+            const nombreHero =
+                this.extraerNombreDesdeWixImage(campoHero);
 
             const fotoHero = this.buscarFotografiaPorNombre(
-                itemHero.fileName
+                nombreHero
             );
 
             if (fotoHero) {
 
-                // Conservamos también la identidad física Wix del Hero.
-                fotoHero.wixMedia = itemHero;
+                // Conservamos exactamente la referencia física que
+                // Wix exportó para el Hero.
+                fotoHero.wixHeroSrc = campoHero;
 
                 this.proyecto.definirHero(fotoHero);
 
