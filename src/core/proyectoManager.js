@@ -13,6 +13,117 @@ class ProyectoManager {
 
     }
 
+    //--------------------------------------------------
+    // Utilidades Wix
+    //--------------------------------------------------
+
+    parsearCampoWix(campo, nombreCampo) {
+
+        if (!campo || campo.trim() === "") {
+            return [];
+        }
+
+        try {
+
+            const valor = JSON.parse(campo);
+
+            if (Array.isArray(valor)) {
+                return valor;
+            }
+
+            return [valor];
+
+        } catch (error) {
+
+            throw new Error(
+                `No se pudo interpretar el campo Wix "${nombreCampo}" como JSON.`
+            );
+
+        }
+
+    }
+
+    buscarFotografiaPorNombre(nombreArchivo) {
+
+        if (!nombreArchivo) {
+            return null;
+        }
+
+        return this.proyecto.fotografias.find(
+            foto => foto.nombre === nombreArchivo
+        ) || null;
+
+    }
+
+    //--------------------------------------------------
+    // Importar selección editorial ya definida en Wix
+    //--------------------------------------------------
+
+    importarHeroYGaleria(filaCSV) {
+
+        const campoGaleria = filaCSV["Galería General"] || "";
+
+        const campoHero =
+            filaCSV["Hero Imagen"] ||
+            filaCSV["Hero Imágen"] ||
+            "";
+
+        const galeriaWix = this.parsearCampoWix(
+            campoGaleria,
+            "Galería General"
+        );
+
+        const heroWix = this.parsearCampoWix(
+            campoHero,
+            "Hero Imagen"
+        );
+
+        //--------------------------------------------------
+        // Galería: conservar exactamente el orden del CSV.
+        //--------------------------------------------------
+
+        galeriaWix.forEach(itemWix => {
+
+            const foto = this.buscarFotografiaPorNombre(
+                itemWix.fileName
+            );
+
+            if (!foto) {
+                return;
+            }
+
+            // Conservamos el objeto físico Wix recibido del CSV.
+            foto.wixMedia = itemWix;
+
+            this.proyecto.agregarGaleria(foto);
+
+        });
+
+        //--------------------------------------------------
+        // Hero: selección independiente de la Galería.
+        //--------------------------------------------------
+
+        if (heroWix.length > 0) {
+
+            const itemHero = heroWix[0];
+
+            const fotoHero = this.buscarFotografiaPorNombre(
+                itemHero.fileName
+            );
+
+            if (fotoHero) {
+
+                // Conservamos también la identidad física Wix del Hero.
+                fotoHero.wixMedia = itemHero;
+
+                this.proyecto.definirHero(fotoHero);
+
+            }
+
+        }
+
+    }
+
     importarProyecto(
 
         filaCSV,
@@ -74,6 +185,12 @@ class ProyectoManager {
             }
 
         );
+
+        //--------------------------------------------------
+        // Hero + Galería seleccionados por MUBATO en Wix
+        //--------------------------------------------------
+
+        this.importarHeroYGaleria(filaCSV);
 
         return this.proyecto;
 
