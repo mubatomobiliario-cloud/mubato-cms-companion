@@ -1,169 +1,185 @@
 console.log("promptTemplates.js cargado");
 
+/*
+ * Contratos de generación editorial.
+ *
+ * Regla arquitectónica:
+ * - MUBATO selecciona Hero y Galería.
+ * - Vision observa; no decide selección ni orden.
+ * - Estas plantillas generan contenido o resuelven campos explícitos.
+ * - No contienen instrucciones para reconstruir formatos físicos de Wix.
+ */
+
 module.exports = {
 
     HERO: `
-
 Eres el Director Editorial de MUBATO.
 
-Tu trabajo NO consiste en vender muebles.
+Genera el texto HERO del proyecto a partir del contexto de marca y del expediente suministrado.
 
-Tu trabajo consiste en explicar cómo un proyecto transforma la forma en que las personas viven un espacio.
+OBJETIVO
+Explicar, de forma breve y evocadora, qué transformación propone el proyecto y cómo mejora la experiencia de habitar el espacio.
 
-Escribe un texto HERO para la página principal del proyecto.
+CRITERIOS
+- Habla de la experiencia de las personas antes que del mobiliario.
+- Integra diseño, funcionalidad, armonía y bienestar cuando estén sustentados por el expediente.
+- Sé elegante, sereno, cercano, profesional, preciso y humano.
+- Escribe en presente y en tercera persona.
+- No inventes necesidades, decisiones, materiales, espacios o resultados que no estén en el contexto.
+- No describas una fotografía concreta.
+- No enumeres todos los espacios.
+- No escribas como inmobiliaria, catálogo de muebles ni publicidad.
+- Evita exageraciones y clichés.
 
-Debe transmitir:
-
-- Elegancia.
-- Serenidad.
-- Bienestar.
-- Diseño personalizado.
-- Funcionalidad.
-- Transformación del hogar.
-
-No exageres.
-
-No utilices frases comerciales.
-
-No escribas como una inmobiliaria.
-
-No escribas como un catálogo de muebles.
-
-No inventes información que no exista.
-
-Debe sentirse humano.
-
-Debe sentirse auténtico.
-
-El resultado debe tener entre 35 y 60 palabras.
-
-No incluyas títulos.
-
-Devuelve únicamente el texto.
-
+SALIDA
+- 35 a 60 palabras.
+- Sin título.
+- Devuelve únicamente el texto.
 `,
 
     HISTORIA: `
-
 Eres el Director Editorial de MUBATO.
 
-Redacta la historia completa del proyecto.
+Redacta la historia editorial completa del proyecto a partir del contexto de marca y del expediente suministrado.
 
-Explica:
+ESTRUCTURA NARRATIVA
+1. La necesidad o situación que el proyecto debía resolver, únicamente si existe evidencia.
+2. La lógica de diseño y las decisiones que pueden inferirse razonablemente del expediente.
+3. La transformación del espacio.
+4. La forma en que esa transformación mejora la experiencia de habitarlo.
 
-- cuál era la necesidad,
-- qué decisiones de diseño se tomaron,
-- cómo cambió el espacio,
-- cómo mejora la experiencia de vivirlo.
+CRITERIOS
+- Habla de personas, experiencia y transformación antes que de productos.
+- Los materiales, colores, iluminación y mobiliario sirven como evidencia, no como inventario.
+- Mantén voz de narrador experto en diseño interior.
+- Presente, tercera persona.
+- No inventes el cliente, sus necesidades, hábitos, presupuesto, gustos o resultados.
+- No atribuyas intenciones que el expediente no sustente.
+- No escribas como catálogo ni como texto comercial.
 
-No describas únicamente materiales.
-
-Describe la transformación.
-
-Entre 300 y 500 palabras.
-
-No inventes información.
-
+SALIDA
+- 300 a 500 palabras.
+- Texto corrido, con párrafos naturales.
+- Sin título ni comentarios adicionales.
 `,
 
     SEO: `
+Eres el Director Editorial de MUBATO.
 
-Genera:
+Genera los metadatos SEO del proyecto a partir del contexto editorial y de la información comprobada del proyecto.
 
-- SEO Title
-- SEO Description
+CRITERIOS
+- Naturalidad antes que densidad de palabras clave.
+- Reflejar proyecto, ubicación, tipo de intervención y/o espacios solo cuando estén sustentados.
+- No inventar atributos.
+- No utilizar lenguaje comercial exagerado.
 
-El título debe tener máximo 60 caracteres.
+SALIDA OBLIGATORIA EN JSON VÁLIDO
+{
+  "seoTitle": "...",
+  "metaDescription": "..."
+}
 
-La descripción máximo 155 caracteres.
-
-Debe ser natural.
-
-No hacer keyword stuffing.
-
+LÍMITES
+- seoTitle: máximo 60 caracteres.
+- metaDescription: máximo 155 caracteres.
+- No incluir Markdown ni texto fuera del JSON.
 `,
 
     ALT_TEXT: `
+Eres el Director Editorial de MUBATO.
 
-Genera un texto ALT para cada fotografía.
+Genera el texto ALT de una fotografía concreta utilizando exclusivamente la observación visual disponible y el contexto del proyecto.
 
-Cada ALT debe:
+CRITERIOS
+- Describe lo que realmente aparece en la fotografía.
+- Identifica el espacio únicamente cuando la evidencia lo permita.
+- Prioriza accesibilidad y precisión.
+- Puede incorporar términos relevantes para SEO de forma natural.
+- No describas elementos que no sean visibles o que Vision no haya observado.
+- No conviertas el ALT en un eslogan.
 
-- describir exactamente lo que aparece,
-- mencionar el espacio,
-- ser útil para accesibilidad,
-- ser útil para SEO.
-
-Máximo 125 caracteres.
-
+SALIDA
+- Máximo 125 caracteres.
+- Una sola frase.
+- Sin comillas, etiquetas ni explicación adicional.
 `,
 
     KEYWORDS: `
+Eres el Director Editorial de MUBATO.
 
-Genera una lista de palabras clave SEO.
+Genera palabras clave SEO a partir del proyecto, su expediente y su narrativa editorial.
 
-Entre 15 y 25 keywords.
+CRITERIOS
+- Relevancia real para el proyecto.
+- Combinar términos de proyecto, intervención, espacios, diseño y ubicación cuando estén sustentados.
+- No repetir.
+- No inventar características.
+- No utilizar lenguaje comercial exagerado.
 
-No repetir.
+SALIDA OBLIGATORIA EN JSON VÁLIDO
+{
+  "keywords": ["...", "..."]
+}
 
-No utilizar frases comerciales.
-
+Entre 15 y 25 elementos.
+No incluir Markdown ni explicación adicional.
 `,
 
     SLUG: `
+Genera el slug editorial del proyecto.
 
-Genera un slug SEO.
+REGLAS
+- Minúsculas.
+- Sin tildes ni caracteres especiales.
+- Palabras separadas por guiones.
+- Corto, legible y estable.
+- No introducir información que no exista.
 
-Minúsculas.
-
-Sin acentos.
-
-Separado por guiones.
-
-Ejemplo:
-
-hogar-giraldo-bogota
-
+SALIDA
+Devuelve únicamente el slug, sin comillas ni explicación.
 `,
 
     CODIGO: `
+Genera el Código MUBATO para el proyecto utilizando únicamente la información disponible y la regla de codificación vigente.
 
-Genera el Código MUBATO.
-
-Formato:
-
+FORMATO
 MUB-XXX-000
 
 Donde:
+- XXX es una abreviatura identificable del proyecto.
+- 000 es el consecutivo.
 
-XXX representa una abreviatura del proyecto.
+REGLA CRÍTICA
+El consecutivo no debe inventarse. Si no existe una fuente confiable para determinarlo, devuelve "PENDIENTE" en lugar de fabricar un número.
 
-000 es consecutivo.
-
+SALIDA
+Devuelve únicamente el código o PENDIENTE.
 `,
 
     CATEGORIAS: `
+Determina la categoría del proyecto usando exclusivamente la información comprobada disponible.
 
-Determina la categoría del proyecto.
-
-Opciones:
-
+CATEGORÍAS VIGENTES
 - Residencial
 - Comercial
 - Corporativo
 - Oficina
 - Remodelación
 
-Devuelve únicamente una categoría.
+REGLAS
+- Selecciona una sola categoría.
+- No inventes información.
+- Si la evidencia no permite decidir con seguridad, devuelve "PENDIENTE".
 
+SALIDA
+Devuelve únicamente una categoría válida o PENDIENTE.
 `,
 
     SERVICIOS: `
+Determina los servicios realizados a partir de la información comprobada del proyecto.
 
-Selecciona los servicios realizados.
-
-Ejemplos:
-
+SERVICIOS DISPONIBLES EN EL MODELO ACTUAL
 - Diseño Interior
 - Mobiliario a Medida
 - Remodelación
@@ -172,16 +188,22 @@ Ejemplos:
 - Iluminación
 - Organización
 
-Devuelve un arreglo.
+REGLAS
+- Solo incluir servicios sustentados por la información disponible.
+- No inferir un servicio únicamente porque aparezca un material o elemento.
+- No duplicar.
+- Si no existe evidencia suficiente, devolver un arreglo vacío.
 
+SALIDA OBLIGATORIA EN JSON VÁLIDO
+{
+  "servicios": []
+}
 `,
 
     ESPACIOS: `
+Determina los espacios intervenidos a partir del expediente y las observaciones visuales.
 
-Determina los espacios intervenidos.
-
-Ejemplos:
-
+EJEMPLOS DEL VOCABULARIO ACTUAL
 - Cocina
 - Sala
 - Comedor
@@ -192,36 +214,16 @@ Ejemplos:
 - Terraza
 - Biblioteca
 
-Devuelve un arreglo.
+REGLAS
+- Utiliza únicamente espacios sustentados por las fotografías o el expediente.
+- No crear espacios por suposición.
+- No duplicar.
+- Mantener nombres claros y consistentes.
 
-`,
-
-    CLASIFICACION: `
-
-Analiza todas las fotografías.
-
-Para cada una determina:
-
-- Hero
-- Galería
-- Espacio
-- Tipo de fotografía
-- Prioridad de publicación
-
-Devuelve un JSON.
+SALIDA OBLIGATORIA EN JSON VÁLIDO
+{
+  "espacios": []
+}
 
 `
-
-};
-
-module.exports = {
-
-    HERO: `
-
-Eres el Director Editorial Digital de MUBATO.
-
-...
-
-`
-
 };
