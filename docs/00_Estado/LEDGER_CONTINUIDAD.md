@@ -78,7 +78,7 @@ Se realizó un experimento controlado con un proyecto de laboratorio `MUBATO Tes
 - Se seleccionó una fotografía como Hero y dos como Galería General.
 - El CSV exportado por Wix contiene `Galería General` como JSON serializado de un array de objetos multimedia Wix.
 - Los objetos observados contienen, entre otros, `fileName`, `slug`, `src`, `title`, `alt`, `description`, `type` y `settings`.
-- `Hero Imágen` contiene un objeto multimedia Wix separado de `Galería General`.
+- `Hero Imagen` contiene un objeto multimedia Wix separado de `Galería General`.
 - El orden de los objetos de la galería coincide con el orden editorial seleccionado.
 - `slug` y `src` son identidades generadas/conservadas por Wix; no deben ser inventadas por Companion.
 
@@ -96,6 +96,50 @@ Se realizó un experimento controlado con un proyecto de laboratorio `MUBATO Tes
 - El adaptador de salida debe preservar las propiedades Wix no gestionadas por Companion y modificar únicamente los campos que correspondan al flujo editorial.
 - La selección de Hero y Galería sigue siendo exclusivamente humana.
 
+## 2026-08-19 — Incisión 4: importar Hero y Galería desde CSV en ProyectoManager
+
+### Implementación
+
+Se modificó `src/core/proyectoManager.js` para que, después de cargar las fotografías locales:
+
+- Parseé `Galería General` como JSON Wix.
+- Recorra el array respetando exactamente el orden recibido.
+- Vincule cada elemento con la fotografía local mediante `fileName`.
+- Marque la fotografía con `enGaleria` y la agregue a `proyecto.galeria[]` mediante el modelo existente.
+- Preserve el objeto multimedia Wix completo en `foto.wixMedia`.
+- Parseé `Hero Imagen` de forma independiente.
+- Vincule el Hero con la fotografía local mediante `fileName`.
+- Marque `esHero` y asigne `proyecto.heroImagen` mediante el modelo existente.
+- Preserve también el objeto multimedia Wix del Hero en `foto.wixMedia`.
+- No genere IA.
+- No modifique ni escriba el CSV.
+
+### Contrato utilizado
+
+`Galería General` = JSON serializado de array de objetos multimedia Wix.
+
+`Hero Imagen` = objeto multimedia Wix serializado, aceptando también array por tolerancia de lectura.
+
+La identidad multimedia se conserva; Companion no genera `slug` ni `src`.
+
+### Commit
+
+- `d6ce97ef542b00115d2e844d5c8ce6789473627c` — importación de Hero/Galería Wix en `ProyectoManager`.
+
+### Estado de validación
+
+- Implementación en GitHub: 🟢
+- Prueba real desde la aplicación: 🔴 pendiente
+- CSV modificado por esta fase: 🟢 no
+- Selección humana de Hero/Galería alterada: 🟢 no
+
 ### Próximo paso
 
-Formalizar el contrato mínimo de la fila Wix y modificar incrementalmente `ProyectoManager`/el modelo de importación para conservar Hero y Galería existentes. Después conectar Dirección Editorial sin permitir todavía escritura accidental del CSV durante el análisis.
+Ejecutar la aplicación con `MUBATO Test` y verificar en el objeto `Proyecto` que:
+
+- `heroImagen` apunta a `TEST_0007.jpeg`.
+- `galeria[]` contiene `TEST_0003.jpeg` y `TEST_0004.jpeg` en ese orden.
+- Cada fotografía conserva `wixMedia`.
+- Las banderas `esHero` / `enGaleria` son correctas.
+
+Si la prueba es correcta, conectar Dirección Editorial de forma incremental.
