@@ -60,13 +60,42 @@ Se implementó el primer tramo ejecutable del pipeline, deliberadamente separado
 - `e574b76e40c4e573f85a51290652456a41ffdc7e` — actualización del estado del proyecto.
 - Este commit — actualización del Ledger.
 
-### Estado de validación
+### Validación real posterior
 
-- Código conectado en GitHub: 🟢
-- Prueba de ejecución real desde la aplicación: 🔴 pendiente
-- Modificación del CSV durante la fase de análisis: 🟢 no ocurre por diseño
-- Selección humana de Hero/Galería alterada: 🟢 no ocurre
+- Se ejecutó la aplicación localmente desde el repositorio con `npm start`.
+- Se probó `Analizar fotografías` sobre `Hogar Araque` con 3 fotografías.
+- Resultado observado en la aplicación: `ANÁLISIS COMPLETADO`, expediente construido y observaciones Vision visibles en consola/UI.
+- La prueba consumió IA real: una llamada de Vision por fotografía; el usuario observó un costo aproximado de US$0,10 para las tres fotografías. Este valor se conserva como observación de prueba, no como tarifa fija.
+- El CSV no fue modificado por esta fase.
+
+## 2026-08-19 — Incisión 3: descubrimiento y validación del contrato físico Wix
+
+Se realizó un experimento controlado con un proyecto de laboratorio `MUBATO Test` en Wix.
+
+### Evidencia
+
+- Se subieron tres fotografías al Media Manager de Wix.
+- Se seleccionó una fotografía como Hero y dos como Galería General.
+- El CSV exportado por Wix contiene `Galería General` como JSON serializado de un array de objetos multimedia Wix.
+- Los objetos observados contienen, entre otros, `fileName`, `slug`, `src`, `title`, `alt`, `description`, `type` y `settings`.
+- `Hero Imágen` contiene un objeto multimedia Wix separado de `Galería General`.
+- El orden de los objetos de la galería coincide con el orden editorial seleccionado.
+- `slug` y `src` son identidades generadas/conservadas por Wix; no deben ser inventadas por Companion.
+
+### Prueba de integridad del registro
+
+- La primera importación del proyecto de prueba dejó la fila con campos básicos incompletos y la página no materializó correctamente la Galería.
+- Se creó un CSV de prueba modificando únicamente campos básicos que estaban vacíos en esa fila (`Proyecto`, `Código MUBATO`, `Servicios`, `Slug`, `Orden Home`), preservando íntegramente los JSON de Hero y Galería y todas las demás filas/celdas.
+- Tras cargar el CSV corregido en Wix, `MUBATO Test` apareció correctamente en el CMS y la página mostró Hero y las imágenes de Galería General; las imágenes fueron navegables en la página.
+- Conclusión: el JSON de Galería no era el problema. La integridad de los campos estructurales del registro afecta la correcta materialización del item. El conjunto mínimo formal de campos todavía debe determinarse.
+
+### Decisiones arquitectónicas derivadas
+
+- Companion debe conservar los objetos/identidades multimedia Wix existentes, no fabricar `slug` ni `src`.
+- El modelo interno `proyecto.galeria[]` sigue siendo independiente del JSON físico Wix.
+- El adaptador de salida debe preservar las propiedades Wix no gestionadas por Companion y modificar únicamente los campos que correspondan al flujo editorial.
+- La selección de Hero y Galería sigue siendo exclusivamente humana.
 
 ### Próximo paso
 
-Ejecutar una prueba real desde la aplicación con un proyecto de prueba. Si el análisis funciona, documentar el resultado y continuar con Dirección Editorial de forma incremental.
+Formalizar el contrato mínimo de la fila Wix y modificar incrementalmente `ProyectoManager`/el modelo de importación para conservar Hero y Galería existentes. Después conectar Dirección Editorial sin permitir todavía escritura accidental del CSV durante el análisis.
