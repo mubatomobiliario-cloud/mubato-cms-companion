@@ -7,9 +7,10 @@ on:
   push:
     paths:
       - 'src/**'
-      - 'docs/**'
       - 'package.json'
       - 'package-lock.json'
+      - 'scripts/**'
+      - '.github/workflows/project-state.yml'
 
 permissions:
   contents: write
