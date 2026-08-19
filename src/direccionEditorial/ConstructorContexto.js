@@ -6,107 +6,115 @@ const promptTemplates = require("./promptTemplates");
 class ConstructorContexto {
 
     construirHero(proyecto) {
+        return this.construirProyecto(proyecto, promptTemplates.HERO, "HERO");
+    }
 
-        const expediente = proyecto.expediente;
+    construirHistoria(proyecto) {
+        return this.construirProyecto(proyecto, promptTemplates.HISTORIA, "HISTORIA");
+    }
 
-        return `
+    construirSEO(proyecto, historia = "") {
+        return this.construirProyecto(
+            proyecto,
+            promptTemplates.SEO,
+            "SEO",
+            `\n====================================================\nHISTORIA EDITORIAL\n====================================================\n\n${historia || "Sin historia editorial disponible."}\n`
+        );
+    }
 
-${contextoMarca}
+    construirKeywords(proyecto, historia = "") {
+        return this.construirProyecto(
+            proyecto,
+            promptTemplates.KEYWORDS,
+            "KEYWORDS",
+            `\n====================================================\nHISTORIA EDITORIAL\n====================================================\n\n${historia || "Sin historia editorial disponible."}\n`
+        );
+    }
 
-${promptTemplates.HERO}
+    construirSlug(proyecto) {
+        return this.construirProyecto(proyecto, promptTemplates.SLUG, "SLUG");
+    }
 
-====================================================
-EXPEDIENTE DEL PROYECTO
-====================================================
+    construirCodigo(proyecto) {
+        return this.construirProyecto(proyecto, promptTemplates.CODIGO, "CODIGO");
+    }
 
-Proyecto
+    construirCategoria(proyecto) {
+        return this.construirProyecto(proyecto, promptTemplates.CATEGORIAS, "CATEGORIA");
+    }
 
-${proyecto.nombre}
+    construirServicios(proyecto) {
+        return this.construirProyecto(proyecto, promptTemplates.SERVICIOS, "SERVICIOS");
+    }
 
-Código
+    construirEspacios(proyecto) {
+        return this.construirProyecto(proyecto, promptTemplates.ESPACIOS, "ESPACIOS");
+    }
 
-${proyecto.codigo || "Pendiente"}
+    construirAltText(proyecto, fotografia) {
+        const expediente = proyecto.expediente || {};
 
-Cliente
+        return this.encabezado("ALT_TEXT") +
+            this.seccionMarca() +
+            promptTemplates.ALT_TEXT +
+            this.seccionProyecto(proyecto) +
+            this.seccionExpediente(expediente) +
+            this.seccionFotografia(fotografia);
+    }
 
-${proyecto.cliente}
+    construirProyecto(proyecto, plantilla, nombreContrato, adicional = "") {
+        const expediente = proyecto.expediente || {};
 
-Ciudad
+        return this.encabezado(nombreContrato) +
+            this.seccionMarca() +
+            plantilla +
+            this.seccionProyecto(proyecto) +
+            this.seccionExpediente(expediente) +
+            adicional;
+    }
 
-${proyecto.ciudad}
+    encabezado(nombre) {
+        return `\n====================================================\nCONTRATO EDITORIAL: ${nombre}\n====================================================\n`;
+    }
 
-Estado
+    seccionMarca() {
+        return `\n====================================================\nCONTEXTO DE MARCA MUBATO\n====================================================\n\n${JSON.stringify(contextoMarca, null, 2)}\n`;
+    }
 
-${proyecto.estado}
+    seccionProyecto(proyecto) {
+        return `\n====================================================\nDATOS DEL PROYECTO\n====================================================\n\nProyecto\n${this.valor(proyecto.nombre)}\n\nCódigo\n${this.valor(proyecto.codigo || "Pendiente")}\n\nCliente\n${this.valor(proyecto.cliente)}\n\nCiudad\n${this.valor(proyecto.ciudad)}\n\nEstado\n${this.valor(proyecto.estado)}\n\nCategoría\n${this.valor(proyecto.categoria)}\n`;
+    }
 
-Categoría
+    seccionExpediente(expediente) {
+        return `\n====================================================\nEXPEDIENTE DEL PROYECTO\n====================================================\n\nEspacios\n${this.lista(expediente.espacios)}\n\nMateriales\n${this.lista(expediente.materiales)}\n\nColores\n${this.lista(expediente.colores)}\n\nElementos\n${this.lista(expediente.elementos)}\n\nEstilos\n${this.lista(expediente.estilos)}\n\nIluminación\n${this.lista(expediente.iluminacion)}\n\nSensaciones\n${this.lista(expediente.sensaciones)}\n`;
+    }
 
-${proyecto.categoria}
+    seccionFotografia(fotografia) {
+        if (!fotografia) {
+            return `\n====================================================\nFOTOGRAFÍA\n====================================================\n\nSin fotografía disponible.\n`;
+        }
 
-====================================================
-IDENTIDAD DEL PROYECTO
-====================================================
-
-Espacios
-
-${this.lista(expediente.espacios)}
-
-Materiales
-
-${this.lista(expediente.materiales)}
-
-Colores
-
-${this.lista(expediente.colores)}
-
-Elementos
-
-${this.lista(expediente.elementos)}
-
-Estilos
-
-${this.lista(expediente.estilos)}
-
-Iluminación
-
-${this.lista(expediente.iluminacion)}
-
-Sensaciones
-
-${this.lista(expediente.sensaciones)}
-
-====================================================
-INSTRUCCIÓN
-====================================================
-
-Redacta únicamente el HERO.
-
-No describas cada fotografía.
-
-No enumeres espacios.
-
-Interpreta el proyecto completo.
-
-Escribe como el Director Editorial de MUBATO.
-
-`;
-
+        return `\n====================================================\nFOTOGRAFÍA\n====================================================\n\nNombre\n${this.valor(fotografia.nombre)}\n\nEspacio\n${this.valor(fotografia.espacio)}\n\nPlano\n${this.valor(fotografia.plano)}\n\nEstilo\n${this.valor(fotografia.estilo)}\n\nMateriales\n${this.lista(fotografia.materiales)}\n\nColores\n${this.lista(fotografia.colores)}\n\nElementos\n${this.lista(fotografia.elementos)}\n\nIluminación\n${this.valor(fotografia.iluminacion)}\n\nSensación\n${this.valor(fotografia.sensacion)}\n\nConfianza Vision\n${this.valor(fotografia.confianza)}\n`;
     }
 
     lista(valores) {
-
-        if (!valores || valores.length === 0) {
-
+        if (!Array.isArray(valores) || valores.length === 0) {
             return "Sin información";
-
         }
 
         return valores
+            .filter(Boolean)
             .map(item => `• ${item}`)
             .join("\n");
-
     }
 
+    valor(valor) {
+        if (valor === undefined || valor === null || valor === "") {
+            return "Sin información";
+        }
+
+        return String(valor);
+    }
 }
 
 module.exports = ConstructorContexto;
