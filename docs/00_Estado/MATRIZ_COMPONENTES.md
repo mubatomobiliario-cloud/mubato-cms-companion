@@ -18,6 +18,10 @@
 | `direccionEditorial/generadorEditorial.js` | Motor genérico contexto + plantilla → contenido | 🟡 Preparado/desconectado | Conocido | Sí |
 | `direccionEditorial/promptTemplates.js` | Contratos Hero, Historia, SEO, ALT, Keywords, Slug y otros | 🔴 Revisar exportación | Conocido | Sí |
 | `Exportadores/actualizadorCSV.js` | Escribir resultados en CSV | 🟡 Parcial | Parcial | Sí |
+| `workflow/directorProyecto.js` | Orquestar fases del proyecto | 🟡 Parcial | Análisis conectado; ejecución completa no apta para UI todavía | Sí |
+| `electron/main.js` | Exponer operaciones de proyecto mediante IPC | 🟡 Parcial | Importación + análisis conectados | Sí |
+| `electron/preload.js` | Puente seguro Renderer → Main | 🟢 Análisis conectado | Conocido | Sí |
+| `renderer/script.js` | Interfaz y disparo del análisis | 🟢 Análisis conectado | Conocido | Sí |
 | `proyecto.galeria[]` | Selección humana de fotografías para Galería | 🟢 Modelo definido | Wix físico conocido | Sí |
 | Hero | Selección humana + contenido editorial | 🟡 Parcial | Parcial | Sí |
 | Clasificación automática | Recomendar/decidir selección | ⚪ Fuera del MVP | No bloquea | No |
@@ -25,3 +29,11 @@
 ## Regla de actualización
 
 Cada modificación significativa debe actualizar esta matriz, registrar la decisión correspondiente y crear un commit identificable.
+
+## Último cambio significativo
+
+Se conectó el primer tramo ejecutable del pipeline a la aplicación:
+
+`Renderer → preload → IPC → DirectorProyecto.analizar() → Vision → Expediente`
+
+Este tramo es **análisis solamente**. No genera Hero, no modifica el CSV y no altera la selección humana de Hero/Galería.
