@@ -7,6 +7,7 @@ const projectPanel = document.getElementById("projectPanel");
 const photoPanel = document.getElementById("photoPanel");
 
 let proyectoSeleccionado = null;
+let carpetaSeleccionada = null;
 
 
 //==================================================
@@ -28,6 +29,8 @@ selectProjectButton.addEventListener("click", async () => {
             return;
 
         }
+
+        carpetaSeleccionada = carpeta;
 
         status.innerHTML = "Importando proyecto...";
 
@@ -51,6 +54,7 @@ selectProjectButton.addEventListener("click", async () => {
         console.error(error);
 
         proyectoSeleccionado = null;
+        carpetaSeleccionada = null;
 
         analyzeButton.disabled = true;
 
@@ -99,6 +103,12 @@ function mostrarProyecto(proyecto) {
             ${proyecto.listaFotografias.length}
         </p>
 
+        ${proyecto.expediente ? `
+            <p><strong>Espacios detectados:</strong>
+                ${(proyecto.expediente.espacios || []).join(", ") || "Ninguno"}
+            </p>
+        ` : ""}
+
     `;
 
 
@@ -131,6 +141,13 @@ function mostrarProyecto(proyecto) {
 
                 </div>
 
+                ${foto.analizada ? `
+                    <div class="photoAnalysis">
+                        ${foto.espacio || ""}
+                        ${foto.plano ? ` · ${foto.plano}` : ""}
+                    </div>
+                ` : ""}
+
             </div>
 
         `;
@@ -152,15 +169,10 @@ function mostrarProyecto(proyecto) {
 //==================================================
 // ANALIZAR FOTOGRAFÍAS
 //==================================================
-//
-// ESTE BOTÓN TODAVÍA NO EJECUTA IA.
-// Será conectado en el siguiente micro-hito.
-//
 
-analyzeButton.addEventListener("click", () => {
+analyzeButton.addEventListener("click", async () => {
 
-
-    if (!proyectoSeleccionado) {
+    if (!proyectoSeleccionado || !carpetaSeleccionada) {
 
         status.innerHTML =
             "⚠️ Primero debes seleccionar un proyecto.";
@@ -169,22 +181,51 @@ analyzeButton.addEventListener("click", () => {
 
     }
 
-    status.innerHTML = `
+    try {
 
-        <strong>Proyecto seleccionado:</strong>
+        analyzeButton.disabled = true;
+        exportButton.disabled = true;
 
-        ${proyectoSeleccionado.nombre}
+        status.innerHTML = `
+            Analizando fotografías de
+            <strong>${proyectoSeleccionado.nombre}</strong>...
+            <br><br>
+            Vision está trabajando. Esto puede tardar.
+        `;
 
-        <br>
+        const resultado =
+            await window.companion.analizarProyecto(carpetaSeleccionada);
 
-        <strong>Fotografías:</strong>
+        proyectoSeleccionado = resultado;
 
-        ${proyectoSeleccionado.listaFotografias.length}
+        mostrarProyecto(resultado);
 
-        <br><br>
+        status.innerHTML = `
+            <strong>✓ Análisis completado.</strong>
+            <br><br>
+            Fotografías analizadas:
+            ${resultado.listaFotografias.length}
+            <br>
+            Expediente construido correctamente.
+        `;
 
-        El análisis con IA será conectado en el siguiente paso.
+        analyzeButton.disabled = false;
 
-    `;
+    }
+
+    catch (error) {
+
+        console.error(error);
+
+        analyzeButton.disabled = false;
+        exportButton.disabled = true;
+
+        status.innerHTML = `
+            ❌ Error durante el análisis.
+            <br>
+            Revisa la consola para ver el detalle.
+        `;
+
+    }
 
 });
