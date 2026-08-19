@@ -39,6 +39,12 @@ selectProjectButton.addEventListener("click", async () => {
 
         proyectoSeleccionado = proyecto;
 
+        console.log("IMPORTACIÓN COMPLETADA — RENDERER");
+        console.log("Proyecto:", proyecto.nombre);
+        console.log("Hero:", proyecto.heroImagen);
+        console.log("Galería:", proyecto.galeria);
+        console.log("Fotografías:", proyecto.listaFotografias);
+
         mostrarProyecto(proyecto);
 
         analyzeButton.disabled = false;
@@ -101,6 +107,20 @@ function mostrarProyecto(proyecto) {
         <p>
             <strong>Fotografías:</strong>
             ${proyecto.listaFotografias.length}
+        </p>
+
+        <p>
+            <strong>Hero:</strong>
+            ${proyecto.heroImagen?.nombre || "No definido"}
+        </p>
+
+        <p>
+            <strong>Galería:</strong>
+            ${proyecto.galeria?.length || 0}
+            ${proyecto.galeria?.length
+                ? ` — ${proyecto.galeria.map(foto => foto.nombre).join(", ")}`
+                : ""
+            }
         </p>
 
         ${proyecto.expediente ? `
