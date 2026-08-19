@@ -17,17 +17,18 @@
 | `direccionEditorial/directorEditorial.js` | Orquestar generación editorial | 🟡 Parcial | Parcial | Sí |
 | `direccionEditorial/generadorEditorial.js` | Motor genérico contexto + plantilla → contenido | 🟡 Preparado/desconectado | Conocido | Sí |
 | `direccionEditorial/promptTemplates.js` | Contratos Hero, Historia, SEO, ALT, Keywords, Slug y otros | 🔴 Revisar exportación | Conocido | Sí |
-| `Exportadores/actualizadorCSV.js` | Escribir resultados en CSV | 🟡 Parcial | Parcial | Sí |
+| `Exportadores/actualizadorCSV.js` | Escribir resultados en CSV | 🟡 Parcial | **Contrato V0.1 definido; implementación pendiente** | Sí |
 | `workflow/directorProyecto.js` | Orquestar fases del proyecto | 🟡 Parcial | Análisis conectado; ejecución completa no apta para UI todavía | Sí |
 | `electron/main.js` | Exponer operaciones de proyecto mediante IPC | 🟢 Análisis conectado | Conocido | Sí |
 | `electron/preload.js` | Puente seguro Renderer → Main | 🟢 Análisis conectado | Conocido | Sí |
 | `renderer/script.js` | Interfaz y disparo del análisis | 🟢 Análisis conectado | Conocido | Sí |
 | `proyecto.galeria[]` | Selección humana de fotografías para Galería | 🟢 Modelo definido | Selección humana + orden; no decide Vision | Sí |
 | Hero | Selección humana + contenido editorial | 🟡 Parcial | Imagen seleccionada por MUBATO; texto editorial pendiente | Sí |
-| `Galería General` Wix | Representación física de galería en CSV | 🟢 Contrato físico comprobado | Celda CSV = JSON serializado de array de objetos multimedia Wix; conserva `fileName`, `slug`, `src`, `title`, `alt`, `description`, `type`, `settings` | Sí |
-| `Hero Imagen` Wix | Representación física del Hero en CSV | 🟢 Contrato físico comprobado | Celda CSV = string `wix:image://...`; no es JSON. El nombre del archivo se puede extraer de la URI y la URI completa debe preservarse | Sí |
+| `Galería General` Wix | Representación física de galería en CSV | 🟢 Contrato físico comprobado | Celda CSV = JSON serializado de array de objetos multimedia Wix; conserva identidad y metadatos físicos | Sí |
+| `Hero Imagen` Wix | Representación física del Hero en CSV | 🟢 Contrato físico comprobado | Celda CSV = string `wix:image://...`; no es JSON; la URI completa debe preservarse | Sí |
 | Identidad multimedia Wix | Referencias `slug`/`src` de imágenes | 🟢 Comportamiento comprobado | Wix genera/conserva la identidad; Companion no debe inventarla | Sí |
-| Integridad básica del registro Wix | Campos estructurales del item | 🟡 Evidencia de prueba | En prueba controlada, completar campos básicos vacíos permitió que Hero y Galería se materializaran en la página; contrato mínimo completo aún por formalizar | Sí |
+| Integridad básica del registro Wix | Campos estructurales del item | 🟡 Evidencia de prueba | En prueba controlada, completar campos básicos vacíos permitió que Hero y Galería se materializaran; conjunto mínimo definitivo pendiente | Sí |
+| **Contrato de salida CSV V0.1** | Definir propiedad de campos y reglas de preservación | 🟢 **Definido** | `docs/01_Arquitectura/CONTRATO_SALIDA_CSV_V0.1.md` | Sí |
 | Clasificación automática | Recomendar/decidir selección | ⚪ Fuera del MVP | No bloquea | No |
 
 ## Regla de actualización
@@ -36,6 +37,8 @@ Cada modificación significativa debe actualizar esta matriz, registrar la decis
 
 ## Último cambio significativo
 
-La prueba real del CSV Wix reveló que `Galería General` y `Hero Imagen` NO tienen el mismo contrato físico: `Galería General` es JSON serializado de un array de objetos multimedia Wix, mientras `Hero Imagen` es directamente una URI `wix:image://...`. `ProyectoManager` fue corregido para no ejecutar `JSON.parse()` sobre Hero. La URI completa del Hero se conserva en `foto.wixHeroSrc`, mientras que la Galería conserva sus objetos Wix completos en `foto.wixMedia`.
+Se formalizó el **Contrato de Salida CSV V0.1**. La salida debe partir de la fila Wix existente, preservarla y modificar únicamente campos propiedad de Companion. Se congeló además la diferencia física entre `Galería General` (JSON serializado de objetos multimedia Wix) y `Hero Imagen` (URI `wix:image://...`). Los campos técnicos Wix y la identidad multimedia existente quedan fuera de la escritura editorial.
 
-La aplicación todavía debe validar esta reconstrucción en `MUBATO Test` después de sincronizar el nuevo commit.
+## Próximo punto de validación
+
+Implementar el adaptador de salida conforme al contrato y probarlo primero sobre una sola fila, verificando que los campos no propiedad de Companion permanezcan byte/valor-equivalentes cuando sea posible y que las referencias multimedia Wix no sean reconstruidas.
