@@ -1,6 +1,7 @@
 const { app, BrowserWindow, ipcMain, dialog } = require("electron");
 const path = require("path");
 const Parser = require("../core/parser");
+const DirectorProyecto = require("../workflow/directorProyecto");
 
 let ventanaPrincipal = null;
 
@@ -115,6 +116,68 @@ ipcMain.handle("importarProyecto", async (event, carpeta) => {
             extension: foto.extension,
 
             tamano: foto.tamano
+
+        }))
+
+    };
+
+});
+
+ipcMain.handle("analizarProyecto", async (event, carpeta) => {
+
+    const parser = new Parser();
+
+    const proyecto = parser.importarCarpeta(carpeta);
+
+    const director = new DirectorProyecto();
+
+    const resultado = await director.analizar(proyecto);
+
+    return {
+
+        nombre: resultado.nombre,
+
+        codigo: resultado.codigo,
+
+        cliente: resultado.cliente,
+
+        ciudad: resultado.ciudad,
+
+        estado: resultado.estado,
+
+        expediente: resultado.expediente,
+
+        listaFotografias: resultado.obtenerFotografias().map(foto => ({
+
+            nombre: foto.nombre,
+
+            ruta: foto.ruta,
+
+            extension: foto.extension,
+
+            tamano: foto.tamano,
+
+            analizada: foto.analizada,
+
+            espacio: foto.espacio,
+
+            tipo: foto.tipo,
+
+            plano: foto.plano,
+
+            estilo: foto.estilo,
+
+            materiales: foto.materiales,
+
+            colores: foto.colores,
+
+            elementos: foto.elementos,
+
+            iluminacion: foto.iluminacion,
+
+            sensacion: foto.sensacion,
+
+            confianza: foto.confianza
 
         }))
 
