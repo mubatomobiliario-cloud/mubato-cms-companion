@@ -117,6 +117,8 @@ function serializarProyecto(proyecto) {
 
             esHero: hero.esHero,
 
+            wixHeroSrc: hero.wixHeroSrc || null,
+
             wixMedia: hero.wixMedia || null
 
         } : null,
