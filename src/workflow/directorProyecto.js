@@ -22,6 +22,37 @@ class DirectorProyecto {
 
     }
 
+    async analizar(proyecto) {
+
+        console.log("");
+        console.log("======================================");
+        console.log("ANÁLISIS DEL PROYECTO");
+        console.log("======================================");
+        console.log("");
+
+        console.log("1. Analizando fotografías...");
+
+        proyecto = await this.vision.analizar(proyecto);
+
+        console.log("✓ Fotografías analizadas.");
+        console.log("");
+
+        console.log("2. Construyendo expediente...");
+
+        proyecto.expediente = this.expedienteProyecto.construir(proyecto);
+
+        console.log("✓ Expediente construido.");
+        console.log("");
+
+        console.log("======================================");
+        console.log("ANÁLISIS DEL PROYECTO FINALIZADO");
+        console.log("======================================");
+        console.log("");
+
+        return proyecto;
+
+    }
+
     async ejecutar(proyecto) {
 
         console.log("");
