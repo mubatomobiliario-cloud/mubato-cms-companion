@@ -5,7 +5,7 @@
 ## Última generación
 
 - Generado automáticamente: pendiente de primera ejecución
-- Commit observado: `62d55aa486016f551fe286e93a632011a9e23c2f`
+- Commit observado: `17de3d262a9bd6466d4c9dc5179fd18755424b14`
 - Rama: `main`
 
 ## Estado ejecutivo vigente
@@ -18,6 +18,9 @@
 - Expediente de proyecto.
 - Contexto editorial MUBATO.
 - Flujo UI de análisis: Renderer → preload → IPC → `DirectorProyecto.analizar()` → Vision → Expediente.
+- Ejecución real desde la aplicación sobre `Hogar Araque` con 3 fotografías: análisis Vision y Expediente completados.
+- Prueba Wix de laboratorio `MUBATO Test`: Hero y Galería General materializados correctamente en la página después de completar campos básicos vacíos del registro, sin modificar los JSON multimedia.
+- Contrato físico observado de `Galería General`: JSON serializado en CSV con objetos multimedia Wix.
 
 ### 🟡 Arquitectura preparada / parcialmente conectada
 - Dirección Editorial.
@@ -26,11 +29,14 @@
 - Plantillas editoriales.
 - Actualización/exportación CSV.
 - Ejecución completa de `DirectorProyecto.ejecutar()`; no debe conectarse todavía al botón de análisis porque escribe CSV y exporta expediente.
+- `ProyectoManager`: importa datos básicos y fotografías; falta modelar/preservar explícitamente Hero y Galería existentes desde el CSV de Wix.
+- Integridad completa del registro Wix: la prueba demuestra que ciertos campos básicos vacíos impidieron inicialmente la correcta materialización de la galería; el conjunto mínimo de campos aún debe formalizarse.
 
 ### 🔴 Contrato o implementación pendiente
 - Flujo editorial completo Historia → SEO → contenido de fotografías → CSV.
-- Exportación completa de Galería General conservando la selección Wix.
-- Prueba real end-to-end del nuevo flujo de análisis desde la aplicación.
+- Adaptador de salida que preserve objetos multimedia Wix existentes (`fileName`, `slug`, `src`, `title`, `alt`, `description`, `type`, `settings`) y modifique solo los campos que corresponden al Companion.
+- Prueba end-to-end completa: proyecto real → análisis → editorial → CSV de una sola fila → Wix.
+- Determinar formalmente el conjunto mínimo de campos estructurales que debe contener una fila para que Wix materialice correctamente el item.
 
 ### ⚪ Fuera del camino crítico del MVP
 - Clasificación automática de selección de fotografías.
@@ -43,9 +49,12 @@
 3. `proyecto.fotografias[]` y `proyecto.galeria[]` son conjuntos distintos.
 4. El modelo interno Companion permanece independiente del formato físico Wix.
 5. `Galería General` en el CSV de Wix es JSON serializado: un array de objetos multimedia Wix.
-6. Companion debe preservar la identidad multimedia Wix recibida en el CSV.
-7. El orden de la galería no se modifica en el MVP.
-8. La fase de análisis debe poder ejecutarse sin modificar el CSV.
+6. El objeto multimedia Wix observado contiene identidad y metadatos como `fileName`, `slug`, `src`, `title`, `alt`, `description`, `type` y `settings`.
+7. Wix genera/conserva `slug` y `src`; Companion no debe inventarlos.
+8. Companion debe preservar la identidad multimedia Wix recibida en el CSV.
+9. El orden de la galería no se modifica en el MVP.
+10. La fase de análisis debe poder ejecutarse sin modificar el CSV.
+11. En la prueba `MUBATO Test`, completar campos básicos vacíos del registro permitió la correcta materialización de Hero y Galería sin alterar los objetos multimedia.
 
 ## Camino crítico
 
@@ -53,12 +62,8 @@
 
 ## Último cambio significativo
 
-Se conectó el primer tramo ejecutable del pipeline a la aplicación:
-
-`Renderer → preload → IPC → DirectorProyecto.analizar() → Vision → Expediente`
-
-Este tramo es **análisis solamente**. No genera Hero, no modifica el CSV y no altera la selección humana de Hero/Galería.
+Se validó mediante un experimento controlado en Wix el contrato físico de `Galería General` y la necesidad de conservar la identidad multimedia Wix. El proyecto de laboratorio contenía tres imágenes: una seleccionada como Hero y dos como Galería. El CSV exportado conservó los objetos multimedia Wix; al completar únicamente campos básicos vacíos y recargar el CSV, Hero y Galería se materializaron correctamente en la página.
 
 ## Próximo objetivo
 
-Ejecutar una prueba real del flujo de análisis desde la aplicación y, una vez validado, conectar Dirección Editorial de forma incremental sin tocar todavía la exportación Wix de Galería General.
+Formalizar el contrato mínimo de la fila Wix y adaptar `ProyectoManager`/el modelo interno para importar y preservar Hero y Galería existentes. Después conectar Dirección Editorial de forma incremental, sin permitir todavía que el flujo de análisis escriba CSV.
