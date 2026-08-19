@@ -3,8 +3,8 @@ console.log("directorProyecto.js cargado");
 const AnalizadorFotografias = require("../vision/analizadorFotografias");
 const ExpedienteProyecto = require("../direccionEditorial/expedienteProyecto");
 const DirectorEditorial = require("../direccionEditorial/directorEditorial");
-const ActualizadorCSV = require("../exportadores/actualizadorCSV");
-const ExportadorEditorial = require("../exportadores/exportadorEditorial");
+const ActualizadorCSV = require("../Exportadores/actualizadorCSV");
+const ExportadorEditorial = require("../Exportadores/exportadorEditorial");
 
 class DirectorProyecto {
 
