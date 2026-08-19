@@ -5,7 +5,7 @@
 ## Última generación
 
 - Generado automáticamente: pendiente de primera ejecución
-- Commit observado: `17de3d262a9bd6466d4c9dc5179fd18755424b14`
+- Commit observado: `d6ce97ef542b00115d2e844d5c8ce6789473627c`
 - Rama: `main`
 
 ## Estado ejecutivo vigente
@@ -29,7 +29,7 @@
 - Plantillas editoriales.
 - Actualización/exportación CSV.
 - Ejecución completa de `DirectorProyecto.ejecutar()`; no debe conectarse todavía al botón de análisis porque escribe CSV y exporta expediente.
-- `ProyectoManager`: importa datos básicos y fotografías; falta modelar/preservar explícitamente Hero y Galería existentes desde el CSV de Wix.
+- `ProyectoManager`: ahora importa y vincula Hero/Galería Wix existentes mediante `fileName` y conserva el objeto multimedia Wix en `foto.wixMedia`; validación real desde la aplicación pendiente.
 - Integridad completa del registro Wix: la prueba demuestra que ciertos campos básicos vacíos impidieron inicialmente la correcta materialización de la galería; el conjunto mínimo de campos aún debe formalizarse.
 
 ### 🔴 Contrato o implementación pendiente
@@ -55,6 +55,7 @@
 9. El orden de la galería no se modifica en el MVP.
 10. La fase de análisis debe poder ejecutarse sin modificar el CSV.
 11. En la prueba `MUBATO Test`, completar campos básicos vacíos del registro permitió la correcta materialización de Hero y Galería sin alterar los objetos multimedia.
+12. `ProyectoManager` vincula los objetos multimedia Wix importados con las fotografías locales por `fileName`; la validación real de esta implementación queda pendiente antes de avanzar.
 
 ## Camino crítico
 
@@ -62,8 +63,8 @@
 
 ## Último cambio significativo
 
-Se validó mediante un experimento controlado en Wix el contrato físico de `Galería General` y la necesidad de conservar la identidad multimedia Wix. El proyecto de laboratorio contenía tres imágenes: una seleccionada como Hero y dos como Galería. El CSV exportado conservó los objetos multimedia Wix; al completar únicamente campos básicos vacíos y recargar el CSV, Hero y Galería se materializaron correctamente en la página.
+Se implementó `ProyectoManager.importarHeroYGaleria()`: parsea `Galería General` y `Hero Imagen` desde el CSV Wix, vincula cada asset con la fotografía local por `fileName`, conserva el orden de la galería, marca Hero/Galería mediante el modelo existente y conserva el objeto físico Wix en `foto.wixMedia`. No se genera IA ni se escribe/modifica el CSV en esta fase.
 
 ## Próximo objetivo
 
-Formalizar el contrato mínimo de la fila Wix y adaptar `ProyectoManager`/el modelo interno para importar y preservar Hero y Galería existentes. Después conectar Dirección Editorial de forma incremental, sin permitir todavía que el flujo de análisis escriba CSV.
+Validar desde la aplicación la reconstrucción de Hero y Galería sobre `MUBATO Test`. Si la validación es correcta, conectar Dirección Editorial de forma incremental, manteniendo separado el modelo interno del adaptador físico Wix y sin permitir que la fase de análisis escriba CSV.
