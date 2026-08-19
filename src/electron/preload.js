@@ -12,10 +12,19 @@ contextBridge.exposeInMainWorld("companion", {
 
     importarProyecto(carpeta) {
 
-    return ipcRenderer.invoke(
-        "importarProyecto",
-        carpeta
-    );
+        return ipcRenderer.invoke(
+            "importarProyecto",
+            carpeta
+        );
 
-}
+    },
+
+    analizarProyecto(carpeta) {
+
+        return ipcRenderer.invoke(
+            "analizarProyecto",
+            carpeta
+        );
+
+    }
 });
