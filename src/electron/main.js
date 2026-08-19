@@ -31,7 +31,7 @@ function crearVentanaPrincipal() {
     );
     ventanaPrincipal.webContents.on("did-finish-load", () => {
 
-    console.log("Renderer cargado correctamente.");
+        console.log("Renderer cargado correctamente.");
 
     });
     ventanaPrincipal.once("ready-to-show", () => {
@@ -85,13 +85,11 @@ app.on("window-all-closed", () => {
     }
 
 });
-ipcMain.handle("importarProyecto", async (event, carpeta) => {
 
-    const Parser = require("../core/parser");
+function serializarProyecto(proyecto) {
 
-    const parser = new Parser();
-
-    const proyecto = parser.importarCarpeta(carpeta);
+    const hero = proyecto.obtenerHero();
+    const galeria = proyecto.obtenerGaleria();
 
     return {
 
@@ -105,6 +103,36 @@ ipcMain.handle("importarProyecto", async (event, carpeta) => {
 
         estado: proyecto.estado,
 
+        categoria: proyecto.categoria,
+
+        servicios: proyecto.servicios,
+
+        espacios: proyecto.espacios,
+
+        heroImagen: hero ? {
+
+            nombre: hero.nombre,
+
+            enGaleria: hero.enGaleria,
+
+            esHero: hero.esHero,
+
+            wixMedia: hero.wixMedia || null
+
+        } : null,
+
+        galeria: galeria.map(foto => ({
+
+            nombre: foto.nombre,
+
+            enGaleria: foto.enGaleria,
+
+            esHero: foto.esHero,
+
+            wixMedia: foto.wixMedia || null
+
+        })),
+
         fotografias: proyecto.cantidadFotografias(),
 
         listaFotografias: proyecto.obtenerFotografias().map(foto => ({
@@ -115,11 +143,34 @@ ipcMain.handle("importarProyecto", async (event, carpeta) => {
 
             extension: foto.extension,
 
-            tamano: foto.tamano
+            tamano: foto.tamano,
+
+            enGaleria: foto.enGaleria,
+
+            esHero: foto.esHero
 
         }))
 
     };
+
+}
+
+ipcMain.handle("importarProyecto", async (event, carpeta) => {
+
+    const Parser = require("../core/parser");
+
+    const parser = new Parser();
+
+    const proyecto = parser.importarCarpeta(carpeta);
+
+    const resultado = serializarProyecto(proyecto);
+
+    console.log("IMPORTACIÓN COMPLETADA");
+    console.log("Proyecto:", resultado.nombre);
+    console.log("Hero:", resultado.heroImagen ? resultado.heroImagen.nombre : "NINGUNO");
+    console.log("Galería:", resultado.galeria.map(foto => foto.nombre));
+
+    return resultado;
 
 });
 
