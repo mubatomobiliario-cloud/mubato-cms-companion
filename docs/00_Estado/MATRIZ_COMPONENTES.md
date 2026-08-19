@@ -5,7 +5,7 @@
 | Componente | Responsabilidad | Estado | Contrato | Camino crítico |
 |---|---|---|---|---|
 | `core/parser.js` | Encontrar CSV/proyecto e iniciar importación | 🟢 Comprobado | Conocido | Sí |
-| `core/proyectoManager.js` | Construir `Proyecto` desde CSV y carpeta | 🟢 Comprobado | Importación básica comprobada; preservación completa de Hero/Galería Wix pendiente | Sí |
+| `core/proyectoManager.js` | Construir `Proyecto` desde CSV y carpeta | 🟡 Implementado; validación pendiente | Importa datos básicos/fotografías y ahora intenta preservar Hero/Galería Wix por `fileName`; validación real pendiente | Sí |
 | `core/proyecto.js` | Modelo central de proyecto, Hero, Galería y fotografías | 🟢 Comprobado | Conocido | Sí |
 | `core/fotografiaManager.js` | Ingestar fotografías locales | 🟢 Comprobado | Conocido | Sí |
 | `core/fotografia.js` | Modelo de fotografía y contenido editorial | 🟢 Comprobado | Conocido | Sí |
@@ -35,6 +35,6 @@ Cada modificación significativa debe actualizar esta matriz, registrar la decis
 
 ## Último cambio significativo
 
-Se validó con un proyecto Wix de laboratorio que `Galería General` y `Hero Imagen` llegan al CMS como objetos multimedia Wix, y que una fila inicialmente incompleta no materializaba correctamente la galería en la página. Al completar únicamente campos básicos vacíos y recargar el CSV, el registro `MUBATO Test` mostró Hero y Galería correctamente en la página. El JSON multimedia existente no fue modificado.
+Se implementó en `core/proyectoManager.js` la importación de la selección Wix existente: `Galería General` se parsea como array JSON, se conserva su orden, cada elemento se vincula con la fotografía local mediante `fileName` y se conserva el objeto multimedia Wix en `foto.wixMedia`; `Hero Imagen` se importa de forma independiente y conserva su objeto Wix. La implementación todavía requiere validación real desde la aplicación.
 
-La prueba también confirmó que Companion no debe generar `slug` ni `src` Wix: debe conservar las referencias multimedia que Wix ya creó.
+La prueba Wix previa sigue siendo la evidencia del contrato físico: Companion no genera `slug` ni `src`; preserva la identidad multimedia que Wix ya creó.
