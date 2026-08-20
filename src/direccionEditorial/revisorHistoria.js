@@ -5,57 +5,115 @@ console.log("revisorHistoria.js cargado");
  * Director Editorial y fue evaluada por el ValidadorHistoria.
  *
  * Este componente NO llama a OpenAI por sí mismo.
- * Su responsabilidad es convertir los hallazgos del validador en un brief
- * preciso para una única revisión editorial.
+ * Su responsabilidad es convertir los hallazgos del validador y el contexto
+ * de transformación documentado en un brief preciso para una única revisión.
  */
 class RevisorHistoria {
 
-    construirBrief(historia, resultadoValidacion) {
+    normalizarContexto(contexto = {}) {
+        return {
+            transformacionDocumentada: contexto.transformacionDocumentada === true,
+            puntoDePartida: String(contexto.puntoDePartida || "").trim(),
+            intencion: String(contexto.intencion || "").trim(),
+            transformacion: String(contexto.transformacion || "").trim(),
+            nuevaManeraDeHabitar: String(contexto.nuevaManeraDeHabitar || "").trim(),
+            evidencia: Array.isArray(contexto.evidencia)
+                ? contexto.evidencia.map(item => String(item || "").trim()).filter(Boolean)
+                : [],
+            restricciones: Array.isArray(contexto.restricciones)
+                ? contexto.restricciones.map(item => String(item || "").trim()).filter(Boolean)
+                : []
+        };
+    }
+
+    construirBrief(historia, resultadoValidacion, contexto = {}) {
         const errores = resultadoValidacion?.errores || [];
         const advertencias = resultadoValidacion?.advertencias || [];
+        const contextoNormalizado = this.normalizarContexto(contexto);
+
+        const instrucciones = [
+            "Conservar únicamente hechos sustentados por el contexto editorial disponible.",
+            "Eliminar lenguaje meta/editorial sobre expedientes, fotografías, observaciones, archivos o datos suministrados.",
+            "Reducir enumeraciones de muebles, materiales y elementos técnicos; conservarlos solo cuando sean evidencia necesaria de la experiencia.",
+            "Mantener una narrativa centrada en personas, experiencia y manera de habitar, no en un inventario de objetos.",
+            "Reforzar la relación entre situación inicial, intención, transformación y nueva manera de habitar únicamente cuando exista evidencia para hacerlo.",
+            "Mantener una voz serena, humana, precisa y contenida.",
+            "No introducir atributos, emociones, necesidades, actividades, problemas, causas o resultados que no estén sustentados.",
+            "No utilizar lenguaje comercial, promocional ni palabras o expresiones prohibidas por el validador.",
+            "No convertir la historia en una ficha técnica ni en una descripción exhaustiva del espacio.",
+            "Mantener entre 300 y 500 palabras, sin escribir para alcanzar una cifra objetivo: usar solo la extensión necesaria para contar la transformación.",
+            "Entregar únicamente la Historia revisada, sin explicación del proceso de revisión."
+        ];
+
+        if (contextoNormalizado.transformacionDocumentada) {
+            instrucciones.push(
+                "La transformación está documentada: puede y debe explicitarse el punto de partida cuando esté sustentado por el contexto."
+            );
+        } else {
+            instrucciones.push(
+                "La transformación NO está documentada: no inventar un antes, una necesidad del cliente, un problema previo ni una condición histórica que no esté sustentada. Trabajar únicamente con la condición espacial observable y los hechos disponibles."
+            );
+        }
 
         return {
             objetivo: "Revisar una Historia Editorial MUBATO sin cambiar su verdad ni inventar información.",
             historiaOriginal: String(historia || "").trim(),
             errores,
             advertencias,
-            instrucciones: [
-                "Conservar únicamente hechos sustentados por el contexto editorial disponible.",
-                "Eliminar lenguaje meta/editorial sobre expedientes, fotografías, observaciones, archivos o datos suministrados.",
-                "Reducir enumeraciones de muebles, materiales y elementos técnicos; conservarlos solo cuando sean evidencia necesaria de la experiencia.",
-                "Reforzar la relación entre situación inicial, transformación y nueva manera de habitar cuando el contexto lo permita.",
-                "Mantener una voz serena, humana, precisa y contenida.",
-                "No introducir atributos, emociones, necesidades, actividades o resultados que no estén sustentados.",
-                "No utilizar lenguaje comercial, promocional ni palabras prohibidas.",
-                "Mantener entre 300 y 500 palabras.",
-                "Entregar únicamente la Historia revisada, sin explicación del proceso de revisión."
-            ]
+            contexto: contextoNormalizado,
+            instrucciones
         };
     }
 
-    construirPrompt(historia, resultadoValidacion) {
-        const brief = this.construirBrief(historia, resultadoValidacion);
+    construirPrompt(historia, resultadoValidacion, contexto = {}) {
+        const brief = this.construirBrief(historia, resultadoValidacion, contexto);
+        const contextoEditorial = brief.contexto;
+
+        const seccion = (titulo, contenido, fallback = "- No disponible") => [
+            titulo,
+            ...(contenido ? [contenido] : [fallback]),
+            ""
+        ];
 
         return [
-            "DIRECTOR EDITORIAL MUBATO — REVISIÓN DE HISTORIA",
+            "DIRECTOR EDITORIAL MUBATO — REVISIÓN CONTEXTUAL DE HISTORIA",
             "",
             "OBJETIVO",
             brief.objetivo,
             "",
-            "HISTORIA ORIGINAL",
-            brief.historiaOriginal,
-            "",
+            ...seccion("HISTORIA ORIGINAL", brief.historiaOriginal),
             "ERRORES DEL VALIDADOR",
             ...(brief.errores.length ? brief.errores.map(e => `- ${e}`) : ["- Ninguno"]),
             "",
             "ADVERTENCIAS DEL VALIDADOR",
             ...(brief.advertencias.length ? brief.advertencias.map(a => `- ${a}`) : ["- Ninguna"]),
             "",
+            "CONTEXTO DE TRANSFORMACIÓN",
+            `Transformación documentada: ${contextoEditorial.transformacionDocumentada ? "SÍ" : "NO"}`,
+            ...seccion("PUNTO DE PARTIDA DOCUMENTADO", contextoEditorial.puntoDePartida),
+            ...seccion("INTENCIÓN DOCUMENTADA", contextoEditorial.intencion),
+            ...seccion("TRANSFORMACIÓN DOCUMENTADA", contextoEditorial.transformacion),
+            ...seccion("NUEVA MANERA DE HABITAR DOCUMENTADA", contextoEditorial.nuevaManeraDeHabitar),
+            "EVIDENCIA DISPONIBLE",
+            ...(contextoEditorial.evidencia.length
+                ? contextoEditorial.evidencia.map(item => `- ${item}`)
+                : ["- No se ha suministrado evidencia adicional."]),
+            "",
+            "RESTRICCIONES ADICIONALES",
+            ...(contextoEditorial.restricciones.length
+                ? contextoEditorial.restricciones.map(item => `- ${item}`)
+                : ["- Ninguna."]),
+            "",
             "INSTRUCCIONES DE REVISIÓN",
             ...brief.instrucciones.map(i => `- ${i}`),
             "",
+            "REGLA DE VERDAD",
+            contextoEditorial.transformacionDocumentada
+                ? "Puedes narrar el antes, la intención, la transformación y el después solo cuando cada afirmación esté respaldada por el contexto documentado."
+                : "No existe documentación suficiente para afirmar un antes histórico. No lo inventes ni lo simules. La historia debe construirse desde la condición espacial disponible, la intervención observable y la experiencia que sí pueda sostenerse.",
+            "",
             "REGLA FINAL",
-            "La revisión debe corregir únicamente los incumplimientos detectados. No debe convertir la Historia en una ficha técnica ni agregar información que no exista en el contexto editorial."
+            "La revisión debe corregir únicamente los incumplimientos detectados y mejorar la narrativa sin agregar información inexistente."
         ].join("\n");
     }
 }
