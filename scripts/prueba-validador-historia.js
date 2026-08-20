@@ -18,7 +18,9 @@ La intención fue recuperar esa calma sin separar la funcionalidad de la experie
 
 La transformación aparece en una composición más clara y contenida. El almacenamiento se integra sin interrumpir la lectura del espacio, la luz acompaña el descanso y las superficies de apoyo permiten resolver las necesidades cotidianas con discreción. Cada decisión responde a una forma concreta de vivir el dormitorio.
 
-Ahora el espacio se percibe más tranquilo y habitable. Las rutinas encuentran un orden natural y el descanso deja de competir con aquello que antes generaba ruido visual. La habitación no busca llamar la atención: acompaña, recibe y permite vivirla con mayor serenidad.`;
+Ahora el espacio se percibe más tranquilo y habitable. Las rutinas encuentran un orden natural y el descanso deja de competir con aquello que antes generaba ruido visual. La habitación no busca llamar la atención: acompaña, recibe y permite vivirla con mayor serenidad.
+
+Al comenzar y terminar el día, el ambiente ofrece una relación más sencilla con las actividades que ocurren en él. El descanso encuentra continuidad, guardar y encontrar lo necesario resulta más natural y la circulación deja de sentirse condicionada por el desorden. La transformación se reconoce menos en un elemento aislado que en la tranquilidad con la que el espacio responde a quienes lo habitan.`;
 
 function ejecutar() {
     const validador = new ValidadorHistoria();
