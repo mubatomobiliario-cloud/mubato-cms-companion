@@ -20,7 +20,9 @@ La transformación aparece en una composición más clara y contenida. El almace
 
 Ahora el espacio se percibe más tranquilo y habitable. Las rutinas encuentran un orden natural y el descanso deja de competir con aquello que antes generaba ruido visual. La habitación no busca llamar la atención: acompaña, recibe y permite vivirla con mayor serenidad.
 
-Al comenzar y terminar el día, el ambiente ofrece una relación más sencilla con las actividades que ocurren en él. El descanso encuentra continuidad, guardar y encontrar lo necesario resulta más natural y la circulación deja de sentirse condicionada por el desorden. La transformación se reconoce menos en un elemento aislado que en la tranquilidad con la que el espacio responde a quienes lo habitan.`;
+Al comenzar y terminar el día, el ambiente ofrece una relación más sencilla con las actividades que ocurren en él. El descanso encuentra continuidad, guardar y encontrar lo necesario resulta más natural y la circulación deja de sentirse condicionada por el desorden. La transformación se reconoce menos en un elemento aislado que en la tranquilidad con la que el espacio responde a quienes lo habitan.
+
+Esa continuidad también permite que el dormitorio conserve una lectura serena cuando cambian las actividades. La organización facilita pequeñas rutinas sin convertirlas en una secuencia de obstáculos, y la atmósfera mantiene una relación equilibrada entre privacidad, descanso y funcionalidad. El espacio deja de depender de una única forma de uso y puede acompañar distintos momentos con la misma claridad.`;
 
 function ejecutar() {
     const validador = new ValidadorHistoria();
