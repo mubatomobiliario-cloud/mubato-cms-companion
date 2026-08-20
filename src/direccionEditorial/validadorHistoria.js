@@ -83,6 +83,13 @@ class ValidadorHistoria {
         return lista.filter(item => texto.includes(this.normalizar(item)));
     }
 
+    contienePalabraExacta(texto, lista) {
+        return lista.filter(item => {
+            const palabra = this.normalizar(item).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+            return new RegExp(`(^|\\s)${palabra}(?=\\s|[,.!?;:()¿¡]|$)`, "i").test(texto);
+        });
+    }
+
     contarPalabras(texto) {
         const limpio = String(texto || "").trim();
         return limpio ? limpio.split(/\s+/).length : 0;
@@ -107,17 +114,18 @@ class ValidadorHistoria {
 
         if (!textoOriginal) errores.push("La historia está vacía.");
 
-        if (palabras < 250 || palabras > 500) {
-            errores.push(`Longitud fuera de contrato: ${palabras} palabras. Debe estar entre 250 y 500.`);
+        // Alineado con el contrato HISTORIA vigente: 300–500 palabras.
+        if (palabras < 300 || palabras > 500) {
+            errores.push(`Longitud fuera de contrato: ${palabras} palabras. Debe estar entre 300 y 500.`);
         }
 
         if (parrafos < 3) {
             errores.push(`Estructura insuficiente: ${parrafos} párrafos. Se requieren párrafos naturales y separados.`);
         }
 
-        const prohibidas = this.contieneAlguna(texto, this.palabrasProhibidas);
-        const expresiones = this.contieneAlguna(texto, this.expresionesProhibidas);
-        const meta = this.contieneAlguna(texto, this.lenguajeMeta);
+        const prohibidas = this.contienePalabraExacta(texto, this.palabrasProhibidas);
+        const expresiones = this.contienePalabraExacta(texto, this.expresionesProhibidas);
+        const meta = this.contienePalabraExacta(texto, this.lenguajeMeta);
 
         if (prohibidas.length) {
             errores.push(`Palabras o conceptos prohibidos detectados: ${prohibidas.join(", ")}.`);
