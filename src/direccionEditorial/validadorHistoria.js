@@ -6,6 +6,10 @@ console.log("validadorHistoria.js cargado");
  * Este componente NO utiliza IA.
  * Su función es detectar incumplimientos objetivos del contrato editorial
  * antes de que una historia pueda considerarse aprobada.
+ *
+ * Puede recibir contexto editorial para distinguir entre:
+ * - transformación documentada: exige evidencia de situación previa;
+ * - transformación no documentada: no obliga a inventar un "antes".
  */
 class ValidadorHistoria {
 
@@ -30,7 +34,6 @@ class ValidadorHistoria {
             "conoce", "aprovecha", "cotiza"
         ];
 
-        // Una historia publicada no debe revelar la maquinaria editorial que la produjo.
         this.lenguajeMeta = [
             "el expediente", "según el expediente", "el expediente no registra",
             "el expediente plantea", "las observaciones", "la observación visual",
@@ -61,6 +64,13 @@ class ValidadorHistoria {
             "habitantes", "quien lo habita", "quienes lo habitan", "vida cotidiana",
             "rutina cotidiana", "día a día", "descanso", "compartir", "reunirse",
             "vivir", "habitar"
+        ];
+
+        this.senalesCondicionInicial = [
+            "espacio", "ambiente", "composición", "composicion", "atmósfera", "atmosfera",
+            "base cromática", "base cromatica", "lectura del espacio", "condición", "condicion",
+            "estado", "distribución", "distribucion", "relación", "relacion", "se percibe",
+            "se concentra", "parte de", "se organiza", "se apoya"
         ];
 
         this.senalesInventario = [
@@ -103,7 +113,7 @@ class ValidadorHistoria {
             .length;
     }
 
-    validar(historia) {
+    validar(historia, contexto = {}) {
         const textoOriginal = String(historia || "").trim();
         const texto = this.normalizar(textoOriginal);
         const palabras = this.contarPalabras(textoOriginal);
@@ -114,7 +124,6 @@ class ValidadorHistoria {
 
         if (!textoOriginal) errores.push("La historia está vacía.");
 
-        // Alineado con el contrato HISTORIA vigente: 300–500 palabras.
         if (palabras < 300 || palabras > 500) {
             errores.push(`Longitud fuera de contrato: ${palabras} palabras. Debe estar entre 300 y 500.`);
         }
@@ -143,12 +152,31 @@ class ValidadorHistoria {
         const transformacion = this.contieneAlguna(texto, this.senalesTransformacion);
         const despues = this.contieneAlguna(texto, this.senalesDespues);
         const humanas = this.contieneAlguna(texto, this.senalesHumanas);
+        const condicionInicial = this.contieneAlguna(texto, this.senalesCondicionInicial);
         const inventario = this.contieneAlguna(texto, this.senalesInventario);
 
-        if (!antes.length) errores.push("No se identifica con suficiente evidencia el punto de partida o situación previa.");
-        if (!transformacion.length) errores.push("No se identifica una transformación o respuesta del diseño.");
-        if (!despues.length) errores.push("No se identifica con suficiente claridad una nueva manera de habitar o un estado posterior.");
-        if (!humanas.length) errores.push("No aparece una referencia suficiente a personas, vida cotidiana o experiencia de habitar.");
+        const transformacionDocumentada = contexto.transformacionDocumentada === true;
+        const modo = transformacionDocumentada ? "TRANSFORMACION_DOCUMENTADA" : "TRANSFORMACION_NO_DOCUMENTADA";
+
+        if (transformacionDocumentada && !antes.length) {
+            errores.push("La transformación está documentada, pero no se identifica con suficiente evidencia el punto de partida o situación previa.");
+        }
+
+        if (!transformacion.length) {
+            errores.push("No se identifica una transformación o respuesta del diseño.");
+        }
+
+        if (!despues.length) {
+            errores.push("No se identifica con suficiente claridad una nueva manera de habitar o un estado posterior.");
+        }
+
+        if (!humanas.length) {
+            errores.push("No aparece una referencia suficiente a personas, vida cotidiana o experiencia de habitar.");
+        }
+
+        if (!transformacionDocumentada && !condicionInicial.length) {
+            errores.push("No se identifica una condición inicial suficiente para comprender desde dónde se desarrolla la intervención.");
+        }
 
         const frases = textoOriginal.split(/[.!?]+/).map(s => s.trim()).filter(Boolean);
         const frasesConInventario = frases.filter(frase => {
@@ -172,10 +200,13 @@ class ValidadorHistoria {
             metricas: {
                 palabras,
                 parrafos,
+                modo,
+                transformacionDocumentada,
                 senalesAntes: antes,
                 senalesTransformacion: transformacion,
                 senalesDespues: despues,
                 senalesHumanas: humanas,
+                condicionInicialDetectada: condicionInicial,
                 inventarioDetectado: inventario,
                 lenguajeMetaDetectado: meta
             },
