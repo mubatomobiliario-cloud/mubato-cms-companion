@@ -2,6 +2,10 @@ const RevisorHistoria = require("../src/direccionEditorial/revisorHistoria");
 const ValidadorHistoria = require("../src/direccionEditorial/validadorHistoria");
 const OpenAIClient = require("../src/direccionEditorial/openAIClient");
 
+const contextoEditorial = {
+    transformacionDocumentada: false
+};
+
 const historiaOriginal = `En Hogar Araque, el expediente no registra una necesidad declarada por el cliente, por lo que la lectura del proyecto parte de lo que el espacio revela: una intervención residencial en Bogotá donde el diseño se concentra en construir una atmósfera de calma, orden y calidez. La presencia de cama, cabecero, mesas de noche, armario, repisas, gabinete y mueble suspendido permite reconocer un ambiente íntimo, asociado al descanso y a la vida cotidiana dentro del hogar.
 
 La lógica de diseño se apoya en una composición contemporánea, serena y contenida. Los tonos blanco, beige, gris, marrón y negro establecen una base visual equilibrada, sin contrastes excesivos. La madera natural aporta cercanía y temperatura; el mármol, la piedra, el vidrio y el metal introducen precisión y estructura. Estos materiales no aparecen como protagonistas aislados, sino como recursos para ordenar el espacio y darle una lectura más integrada.
@@ -19,7 +23,7 @@ async function ejecutar() {
     const revisor = new RevisorHistoria();
     const openAI = new OpenAIClient();
 
-    const validacionInicial = validador.validar(historiaOriginal);
+    const validacionInicial = validador.validar(historiaOriginal, contextoEditorial);
     if (validacionInicial.aprobado) {
         throw new Error("La historia original ya fue aprobada; no corresponde ejecutar revisión.");
     }
@@ -30,12 +34,13 @@ async function ejecutar() {
     console.log("REVISIÓN EDITORIAL CONTROLADA — HOGAR ARAQUE");
     console.log("======================================\n");
     console.log(`Validación inicial: ${validacionInicial.estado}`);
+    console.log(`Modo editorial: ${validacionInicial.metricas.modo}`);
     console.log("IA: 1 llamada máxima");
     console.log("CSV/Wix: NO");
     console.log("\nGENERANDO REVISIÓN...\n");
 
     const historiaRevisada = (await openAI.generarTexto(prompt)).trim();
-    const validacionFinal = validador.validar(historiaRevisada);
+    const validacionFinal = validador.validar(historiaRevisada, contextoEditorial);
 
     console.log("======================================");
     console.log("HISTORIA REVISADA");
@@ -53,6 +58,7 @@ async function ejecutar() {
     console.log(JSON.stringify({
         estadoInicial: validacionInicial.estado,
         estadoFinal: validacionFinal.estado,
+        modo: validacionFinal.metricas.modo,
         aprobada: validacionFinal.aprobado,
         palabrasOriginal: validacionInicial.metricas.palabras,
         palabrasRevisada: validacionFinal.metricas.palabras,
