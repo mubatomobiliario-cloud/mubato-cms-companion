@@ -14,21 +14,11 @@ class ConstructorContexto {
     }
 
     construirSEO(proyecto, historia = "") {
-        return this.construirProyecto(
-            proyecto,
-            promptTemplates.SEO,
-            "SEO",
-            `\n====================================================\nHISTORIA EDITORIAL\n====================================================\n\n${historia || "Sin historia editorial disponible."}\n`
-        );
+        return this.construirProyecto(proyecto, promptTemplates.SEO, "SEO", `\n====================================================\nHISTORIA EDITORIAL\n====================================================\n\n${historia || "Sin historia editorial disponible."}\n`);
     }
 
     construirKeywords(proyecto, historia = "") {
-        return this.construirProyecto(
-            proyecto,
-            promptTemplates.KEYWORDS,
-            "KEYWORDS",
-            `\n====================================================\nHISTORIA EDITORIAL\n====================================================\n\n${historia || "Sin historia editorial disponible."}\n`
-        );
+        return this.construirProyecto(proyecto, promptTemplates.KEYWORDS, "KEYWORDS", `\n====================================================\nHISTORIA EDITORIAL\n====================================================\n\n${historia || "Sin historia editorial disponible."}\n`);
     }
 
     construirSlug(proyecto) {
@@ -53,24 +43,12 @@ class ConstructorContexto {
 
     construirAltText(proyecto, fotografia) {
         const expediente = proyecto.expediente || {};
-
-        return this.encabezado("ALT_TEXT") +
-            this.seccionMarca() +
-            promptTemplates.ALT_TEXT +
-            this.seccionProyecto(proyecto) +
-            this.seccionExpediente(expediente) +
-            this.seccionFotografia(fotografia);
+        return this.encabezado("ALT_TEXT") + this.seccionMarca() + promptTemplates.ALT_TEXT + this.seccionProyecto(proyecto) + this.seccionExpediente(expediente) + this.seccionFotografia(fotografia);
     }
 
     construirProyecto(proyecto, plantilla, nombreContrato, adicional = "") {
         const expediente = proyecto.expediente || {};
-
-        return this.encabezado(nombreContrato) +
-            this.seccionMarca() +
-            plantilla +
-            this.seccionProyecto(proyecto) +
-            this.seccionExpediente(expediente) +
-            adicional;
+        return this.encabezado(nombreContrato) + this.seccionMarca() + plantilla + this.seccionProyecto(proyecto) + this.seccionExpediente(expediente) + adicional;
     }
 
     encabezado(nombre) {
@@ -86,33 +64,39 @@ class ConstructorContexto {
     }
 
     seccionExpediente(expediente) {
-        return `\n====================================================\nEXPEDIENTE DEL PROYECTO\n====================================================\n\nEspacios\n${this.lista(expediente.espacios)}\n\nMateriales\n${this.lista(expediente.materiales)}\n\nColores\n${this.lista(expediente.colores)}\n\nElementos\n${this.lista(expediente.elementos)}\n\nEstilos\n${this.lista(expediente.estilos)}\n\nIluminación\n${this.lista(expediente.iluminacion)}\n\nSensaciones\n${this.lista(expediente.sensaciones)}\n`;
+        const observaciones = Array.isArray(expediente.observacionesVision) ? expediente.observacionesVision : [];
+        const agregados = this.agregarObservaciones(observaciones);
+        const espacios = expediente.proyecto?.espacios || agregados.espacios;
+
+        return `\n====================================================\nEXPEDIENTE DEL PROYECTO\n====================================================\n\nVersión\n${this.valor(expediente.version)}\n\nEspacios\n${this.lista(espacios)}\n\nMateriales observados\n${this.lista(agregados.materiales)}\n\nColores observados\n${this.lista(agregados.colores)}\n\nElementos observados\n${this.lista(agregados.elementos)}\n\nEstilos observados\n${this.lista(agregados.estilos)}\n\nIluminación observada\n${this.lista(agregados.iluminacion)}\n\nSensaciones observadas\n${this.lista(agregados.sensaciones)}\n\nFotografías analizadas\n${observaciones.filter(f => f.analizada).length} de ${observaciones.length}\n`;
+    }
+
+    agregarObservaciones(observaciones) {
+        const unicos = valores => [...new Set(valores.filter(Boolean))];
+        return {
+            espacios: unicos(observaciones.map(o => o.espacio)),
+            materiales: unicos(observaciones.flatMap(o => Array.isArray(o.materiales) ? o.materiales : [])),
+            colores: unicos(observaciones.flatMap(o => Array.isArray(o.colores) ? o.colores : [])),
+            elementos: unicos(observaciones.flatMap(o => Array.isArray(o.elementos) ? o.elementos : [])),
+            estilos: unicos(observaciones.map(o => o.estilo)),
+            iluminacion: unicos(observaciones.map(o => o.iluminacion)),
+            sensaciones: unicos(observaciones.map(o => o.sensacion))
+        };
     }
 
     seccionFotografia(fotografia) {
-        if (!fotografia) {
-            return `\n====================================================\nFOTOGRAFÍA\n====================================================\n\nSin fotografía disponible.\n`;
-        }
+        if (!fotografia) return `\n====================================================\nFOTOGRAFÍA\n====================================================\n\nSin fotografía disponible.\n`;
 
-        return `\n====================================================\nFOTOGRAFÍA\n====================================================\n\nNombre\n${this.valor(fotografia.nombre)}\n\nEspacio\n${this.valor(fotografia.espacio)}\n\nPlano\n${this.valor(fotografia.plano)}\n\nEstilo\n${this.valor(fotografia.estilo)}\n\nMateriales\n${this.lista(fotografia.materiales)}\n\nColores\n${this.lista(fotografia.colores)}\n\nElementos\n${this.lista(fotografia.elementos)}\n\nIluminación\n${this.valor(fotografia.iluminacion)}\n\nSensación\n${this.valor(fotografia.sensacion)}\n\nConfianza Vision\n${this.valor(fotografia.confianza)}\n`;
+        return `\n====================================================\nFOTOGRAFÍA\n====================================================\n\nNombre\n${this.valor(fotografia.nombre)}\n\nEspacio\n${this.valor(fotografia.espacio)}\n\nTipo\n${this.valor(fotografia.tipo)}\n\nPlano\n${this.valor(fotografia.plano)}\n\nEstilo\n${this.valor(fotografia.estilo)}\n\nMateriales\n${this.lista(fotografia.materiales)}\n\nColores\n${this.lista(fotografia.colores)}\n\nElementos\n${this.lista(fotografia.elementos)}\n\nIluminación\n${this.valor(fotografia.iluminacion)}\n\nSensación\n${this.valor(fotografia.sensacion)}\n\nConfianza Vision\n${this.valor(fotografia.confianza)}\n`;
     }
 
     lista(valores) {
-        if (!Array.isArray(valores) || valores.length === 0) {
-            return "Sin información";
-        }
-
-        return valores
-            .filter(Boolean)
-            .map(item => `• ${item}`)
-            .join("\n");
+        if (!Array.isArray(valores) || valores.length === 0) return "Sin información";
+        return valores.filter(Boolean).map(item => `• ${item}`).join("\n");
     }
 
     valor(valor) {
-        if (valor === undefined || valor === null || valor === "") {
-            return "Sin información";
-        }
-
+        if (valor === undefined || valor === null || valor === "") return "Sin información";
         return String(valor);
     }
 }
