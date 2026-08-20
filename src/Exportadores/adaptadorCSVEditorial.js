@@ -3,13 +3,22 @@ console.log("adaptadorCSVEditorial.js cargado");
 const fs = require("fs");
 const path = require("path");
 const Papa = require("papaparse");
+const ContratoCSVEditorial = require("./contratoCSVEditorial");
 
 class AdaptadorCSVEditorial {
 
-    exportar({ rutaEntrada, rutaSalida, filaProyecto, camposEditoriales = {} }) {
+    exportar({
+        rutaEntrada,
+        rutaSalida,
+        filaProyecto,
+        camposEditoriales = {},
+        decision,
+        historia,
+        candidatosColumna
+    }) {
         console.log("");
         console.log("======================================");
-        console.log("ADAPTADOR CSV EDITORIAL V0.2");
+        console.log("ADAPTADOR CSV EDITORIAL V0.3");
         console.log("======================================");
         console.log("");
 
@@ -29,6 +38,7 @@ class AdaptadorCSVEditorial {
         const encabezados = filas[0];
         const filasDatos = filas.slice(1);
         const indice = this.crearIndiceEncabezados(encabezados);
+        const contrato = new ContratoCSVEditorial();
 
         const nombreProyecto = filaProyecto["Proyecto"] || "(sin nombre)";
         const codigoAntes = filaProyecto["Código MUBATO"] || "";
@@ -43,6 +53,28 @@ class AdaptadorCSVEditorial {
         }
 
         const fila = filasDatos[posicionFila];
+
+        // La historia de transformación solo puede entrar al CSV después
+        // de superar el contrato editorial. La IA nunca escribe directamente.
+        let preparacionHistoria = null;
+        if (historia !== undefined || decision !== undefined) {
+            preparacionHistoria = contrato.prepararEscritura({
+                encabezados,
+                decision,
+                historia,
+                candidatosColumna
+            });
+
+            if (!preparacionHistoria.permitido) {
+                const error = new Error(
+                    `Escritura editorial bloqueada: ${preparacionHistoria.estado}. ${preparacionHistoria.errores.join(" | ")}`
+                );
+                error.codigo = preparacionHistoria.estado;
+                error.detalleContrato = preparacionHistoria;
+                throw error;
+            }
+        }
+
         const cambiosPermitidos = {
             "Código MUBATO": camposEditoriales.codigo,
             "SEO Title": camposEditoriales.seoTitle,
@@ -62,6 +94,11 @@ class AdaptadorCSVEditorial {
             cambiosAplicados.push(campo);
         }
 
+        if (preparacionHistoria) {
+            fila[preparacionHistoria.columnaHistoria.posicion] = preparacionHistoria.valor;
+            cambiosAplicados.push(preparacionHistoria.columnaHistoria.nombre);
+        }
+
         const salida = Papa.unparse([encabezados, ...filasDatos], { quotes: false });
         fs.mkdirSync(path.dirname(rutaSalida), { recursive: true });
         fs.writeFileSync(rutaSalida, salida, "utf8");
@@ -69,6 +106,9 @@ class AdaptadorCSVEditorial {
         console.log(`✓ Fila pendiente confirmada: ${nombreProyecto}`);
         console.log(`✓ Posición de fila: ${posicionFila + 2}`);
         console.log(`✓ Campos Companion actualizados: ${cambiosAplicados.length}`);
+        if (preparacionHistoria) {
+            console.log(`✓ Historia escrita mediante contrato: ${preparacionHistoria.columnaHistoria.nombre}`);
+        }
         console.log(`✓ CSV generado: ${rutaSalida}`);
         console.log("");
 
@@ -76,7 +116,8 @@ class AdaptadorCSVEditorial {
             rutaSalida,
             proyecto: nombreProyecto,
             posicionFila: posicionFila + 2,
-            camposActualizados: cambiosAplicados
+            camposActualizados: cambiosAplicados,
+            contratoHistoria: preparacionHistoria
         };
     }
 
