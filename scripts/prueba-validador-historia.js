@@ -44,6 +44,22 @@ function ejecutar() {
     });
     console.log(JSON.stringify(resultadoValido, null, 2));
 
+    console.log("\n--------------------------------------\n");
+    console.log("CASO 3 — REGRESIÓN — 'NECESIDADES' NO ES 'ANTES'\n");
+    const resultadoRegresion = validador.contieneSenalAntes(
+        validador.normalizar("El diseño responde a las necesidades cotidianas del espacio y acompaña el descanso.")
+    );
+    console.log(JSON.stringify({
+        senalesAntesDetectadas: resultadoRegresion,
+        esperado: []
+    }, null, 2));
+
+    if (resultadoRegresion.length !== 0) {
+        throw new Error("REGRESIÓN FALLIDA: 'necesidades' fue detectado como señal de situación previa.");
+    }
+
+    console.log("✓ Regresión superada.");
+
     console.log("\n======================================");
     console.log("RESULTADO DE LA PRUEBA");
     console.log("======================================");
@@ -51,6 +67,7 @@ function ejecutar() {
     console.log(`Modo Araque: ${resultadoAraque.metricas.modo}`);
     console.log(`Control: ${resultadoValido.estado}`);
     console.log(`Modo Control: ${resultadoValido.metricas.modo}`);
+    console.log("Regresión: SUPERADA");
     console.log("IA utilizada: NO");
     console.log("======================================\n");
 }
