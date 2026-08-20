@@ -31,20 +31,26 @@ function ejecutar() {
     console.log("PRUEBA CONTROLADA — VALIDADOR DE HISTORIAS");
     console.log("======================================\n");
 
-    console.log("CASO 1 — HISTORIA REAL GENERADA: HOGAR ARAQUE\n");
-    const resultadoAraque = validador.validar(historiaAraque);
+    console.log("CASO 1 — HOGAR ARAQUE — TRANSFORMACIÓN NO DOCUMENTADA\n");
+    const resultadoAraque = validador.validar(historiaAraque, {
+        transformacionDocumentada: false
+    });
     console.log(JSON.stringify(resultadoAraque, null, 2));
 
     console.log("\n--------------------------------------\n");
-    console.log("CASO 2 — HISTORIA DE CONTROL EDITORIAL\n");
-    const resultadoValido = validador.validar(historiaValida);
+    console.log("CASO 2 — HISTORIA DE CONTROL — TRANSFORMACIÓN DOCUMENTADA\n");
+    const resultadoValido = validador.validar(historiaValida, {
+        transformacionDocumentada: true
+    });
     console.log(JSON.stringify(resultadoValido, null, 2));
 
     console.log("\n======================================");
     console.log("RESULTADO DE LA PRUEBA");
     console.log("======================================");
     console.log(`Araque: ${resultadoAraque.estado}`);
+    console.log(`Modo Araque: ${resultadoAraque.metricas.modo}`);
     console.log(`Control: ${resultadoValido.estado}`);
+    console.log(`Modo Control: ${resultadoValido.metricas.modo}`);
     console.log("IA utilizada: NO");
     console.log("======================================\n");
 }
