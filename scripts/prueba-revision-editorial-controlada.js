@@ -74,6 +74,12 @@ async function ejecutar() {
     console.log("======================================\n");
     console.log(JSON.stringify(validacionFinal, null, 2));
 
+    if (validacionFinal.estado !== "REQUIERE_DOCUMENTACION" || validacionFinal.aprobado) {
+        throw new Error("CONTRATO FALLIDO: Araque no puede quedar aprobada como transformación sin documentación del antes.");
+    }
+
+    console.log("✓ Bloqueo de publicación superado: Araque requiere documentación.");
+
     console.log("\n======================================");
     console.log("RESULTADO");
     console.log("======================================\n");
