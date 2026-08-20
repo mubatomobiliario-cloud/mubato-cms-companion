@@ -3,13 +3,15 @@ console.log("validadorHistoria.js cargado");
 /**
  * Validador determinista de Historias Editoriales MUBATO.
  *
- * Este componente NO utiliza IA.
- * Su función es detectar incumplimientos objetivos del contrato editorial
- * antes de que una historia pueda considerarse aprobada.
+ * Contrato de transformación:
+ * - TRANSFORMACION_DOCUMENTADA: existe evidencia suficiente del punto de partida,
+ *   la intervención y el estado posterior.
+ * - TRANSFORMACION_NO_DOCUMENTADA: puede describirse la condición espacial y la
+ *   intervención observable, pero no puede afirmarse un "antes" histórico.
+ * - REQUIERE_DOCUMENTACION: una pieza destinada a publicarse como Historia de
+ *   Transformación no puede quedar aprobada si el antes no está documentado.
  *
- * Puede recibir contexto editorial para distinguir entre:
- * - transformación documentada: exige evidencia de situación previa;
- * - transformación no documentada: no obliga a inventar un "antes".
+ * Este componente NO utiliza IA.
  */
 class ValidadorHistoria {
 
@@ -131,8 +133,8 @@ class ValidadorHistoria {
 
         if (!textoOriginal) errores.push("La historia está vacía.");
 
-        if (palabras < 300 || palabras > 500) {
-            errores.push(`Longitud fuera de contrato: ${palabras} palabras. Debe estar entre 300 y 500.`);
+        if (palabras < 250 || palabras > 500) {
+            errores.push(`Longitud fuera de contrato: ${palabras} palabras. Debe estar entre 250 y 500.`);
         }
 
         if (parrafos < 3) {
@@ -155,9 +157,6 @@ class ValidadorHistoria {
             errores.push(`Lenguaje meta/editorial detectado: ${meta.join(" | ")}. La historia debe leerse como una narración publicada, no como un informe del expediente.`);
         }
 
-        // Las señales de "antes" requieren coincidencia de palabra/frase completa.
-        // No deben confundir "necesidad" con "necesidades", ni otras formas
-        // derivadas que no prueban por sí mismas una condición previa.
         const antes = this.contieneSenalAntes(texto);
         const transformacion = this.contieneAlguna(texto, this.senalesTransformacion);
         const despues = this.contieneAlguna(texto, this.senalesDespues);
@@ -166,7 +165,12 @@ class ValidadorHistoria {
         const inventario = this.contieneAlguna(texto, this.senalesInventario);
 
         const transformacionDocumentada = contexto.transformacionDocumentada === true;
+        const puntoDePartidaDocumentado = String(contexto.puntoDePartida || "").trim().length > 0;
         const modo = transformacionDocumentada ? "TRANSFORMACION_DOCUMENTADA" : "TRANSFORMACION_NO_DOCUMENTADA";
+
+        if (transformacionDocumentada && !puntoDePartidaDocumentado) {
+            errores.push("El contexto declara una transformación documentada, pero no aporta un punto de partida documentado.");
+        }
 
         if (transformacionDocumentada && !antes.length) {
             errores.push("La transformación está documentada, pero no se identifica con suficiente evidencia el punto de partida o situación previa.");
@@ -185,7 +189,7 @@ class ValidadorHistoria {
         }
 
         if (!transformacionDocumentada && !condicionInicial.length) {
-            errores.push("No se identifica una condición inicial suficiente para comprender desde dónde se desarrolla la intervención.");
+            errores.push("No se identifica una condición espacial suficiente para comprender la intervención disponible.");
         }
 
         const frases = textoOriginal.split(/[.!?]+/).map(s => s.trim()).filter(Boolean);
@@ -203,6 +207,30 @@ class ValidadorHistoria {
         }
 
         advertencias.push("Revisión humana pendiente: verificar que la historia sea específica del proyecto y no pueda pertenecer a cualquier estudio de interiorismo.");
+
+        // Regla editorial crítica: una Historia de Transformación no puede aprobarse
+        // como transformación publicable cuando el antes no está documentado.
+        if (!transformacionDocumentada && errores.length === 0) {
+            return {
+                aprobado: false,
+                estado: "REQUIERE_DOCUMENTACION",
+                metricas: {
+                    palabras,
+                    parrafos,
+                    modo,
+                    transformacionDocumentada,
+                    senalesAntes: antes,
+                    senalesTransformacion: transformacion,
+                    senalesDespues: despues,
+                    senalesHumanas: humanas,
+                    condicionInicialDetectada: condicionInicial,
+                    inventarioDetectado: inventario,
+                    lenguajeMetaDetectado: meta
+                },
+                errores: ["La historia no puede aprobarse como Historia de Transformación porque el punto de partida no está documentado. No debe inventarse ni inferirse como hecho histórico."],
+                advertencias
+            };
+        }
 
         return {
             aprobado: errores.length === 0,
