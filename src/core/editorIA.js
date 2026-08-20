@@ -1,12 +1,13 @@
 console.log("editorIA.js cargado");
 
+const ExpedienteProyecto = require("../direccionEditorial/expedienteProyecto");
+
 class EditorIA {
 
     constructor() {
-
         this.proyecto = null;
         this.expediente = null;
-
+        this.expedienteProyecto = new ExpedienteProyecto();
     }
 
     async analizar(proyecto) {
@@ -15,11 +16,11 @@ class EditorIA {
 
         console.log("");
         console.log("======================================");
-        console.log("EDITOR IA MUBATO");
+        console.log("EXPEDIENTE EDITORIAL MUBATO");
         console.log("======================================");
         console.log("");
 
-        this.crearExpediente();
+        this.expediente = this.expedienteProyecto.construir(proyecto);
 
         this.mostrarResumen();
 
@@ -28,97 +29,49 @@ class EditorIA {
         console.log("");
 
         return this.expediente;
-
     }
 
     crearExpediente() {
+        if (!this.proyecto) {
+            throw new Error("No hay proyecto cargado.");
+        }
 
-        this.expediente = {
-
-            proyecto: {
-
-                nombre: this.proyecto.nombre,
-
-                codigo: this.proyecto.codigo,
-
-                cliente: this.proyecto.cliente,
-
-                ciudad: this.proyecto.ciudad,
-
-                estado: this.proyecto.estado,
-
-                categoria: this.proyecto.categoria,
-
-                servicios: this.proyecto.servicios,
-
-                espacios: this.proyecto.espacios
-
-            },
-
-            fotografias: []
-
-        };
-
-        this.proyecto.listaFotografias.forEach(foto => {
-
-            this.expediente.fotografias.push({
-
-                nombre: foto.nombre,
-
-                ruta: foto.ruta,
-
-                extension: foto.extension,
-
-                tamano: foto.tamano,
-
-                ancho: foto.ancho,
-
-                alto: foto.alto,
-
-                orientacion: foto.orientacion,
-
-                esHero: foto.esHero,
-
-                enGaleria: foto.enGaleria
-
-            });
-
-        });
-
+        this.expediente = this.expedienteProyecto.construir(this.proyecto);
+        return this.expediente;
     }
 
     mostrarResumen() {
 
-        console.log("Proyecto");
+        if (!this.expediente) {
+            return;
+        }
 
+        console.log("Hechos del proyecto");
         console.log("-------------------------");
-
         console.log(this.expediente.proyecto);
 
         console.log("");
-
-        console.log("Fotografías");
-
+        console.log("Selección editorial");
         console.log("-------------------------");
-
-        this.expediente.fotografias.forEach((foto, indice) => {
-
-            console.log(
-
-                `${indice + 1}. ${foto.nombre}`
-
-            );
-
-        });
+        console.log(
+            "Hero:",
+            this.expediente.seleccionEditorial.hero
+                ? this.expediente.seleccionEditorial.hero.nombre
+                : "NO"
+        );
+        console.log(
+            "Galería:",
+            this.expediente.seleccionEditorial.galeria.map(f => f.nombre)
+        );
 
         console.log("");
-
+        console.log("Observaciones Vision");
+        console.log("-------------------------");
         console.log(
-
-            "Total fotografías:",
-
-            this.expediente.fotografias.length
-
+            "Fotografías observadas:",
+            this.expediente.observacionesVision.filter(f => f.analizada).length,
+            "/",
+            this.expediente.observacionesVision.length
         );
 
     }
