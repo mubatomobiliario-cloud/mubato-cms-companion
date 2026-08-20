@@ -44,10 +44,13 @@ class ValidadorHistoria {
             "el archivo indica", "no se registra", "no se dispone de información"
         ];
 
+        // Señales de un ANTES real. No incluir "necesidad" ni "situación" aisladas:
+        // ambas pueden aparecer en una narración sin significar un estado histórico previo.
         this.senalesAntes = [
-            "antes", "partía", "partía de", "necesidad", "necesitaba", "limitaba",
-            "dificultad", "problema", "situación", "no acompañaba", "había dejado de",
-            "no respondía", "no permitía"
+            "antes", "partía", "partía de", "necesitaba", "limitaba",
+            "dificultad", "problema", "no acompañaba", "había dejado de",
+            "no respondía", "no permitía", "previo", "previamente", "estado anterior",
+            "situación previa", "condición anterior"
         ];
 
         this.senalesTransformacion = [
@@ -208,8 +211,9 @@ class ValidadorHistoria {
 
         advertencias.push("Revisión humana pendiente: verificar que la historia sea específica del proyecto y no pueda pertenecer a cualquier estudio de interiorismo.");
 
-        // Regla editorial crítica: una Historia de Transformación no puede aprobarse
-        // como transformación publicable cuando el antes no está documentado.
+        // Una historia con errores editoriales debe pasar primero por REVISAR.
+        // Solo cuando el texto está limpio puede activarse el bloqueo semántico
+        // de publicación por falta de documentación histórica.
         if (!transformacionDocumentada && errores.length === 0) {
             return {
                 aprobado: false,
