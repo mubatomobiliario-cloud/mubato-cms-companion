@@ -1,12 +1,10 @@
 console.log("revisorHistoria.js cargado");
 
 /**
- * Construye instrucciones de revisión para una Historia que ya pasó por el
- * Director Editorial y fue evaluada por el ValidadorHistoria.
+ * Construye instrucciones de revisión para una Historia evaluada por
+ * ValidadorHistoria.
  *
  * Este componente NO llama a OpenAI por sí mismo.
- * Su responsabilidad es convertir los hallazgos del validador y el contexto
- * de transformación documentado en un brief preciso para una única revisión.
  */
 class RevisorHistoria {
 
@@ -41,7 +39,7 @@ class RevisorHistoria {
             "No introducir atributos, emociones, necesidades, actividades, problemas, causas o resultados que no estén sustentados.",
             "No utilizar lenguaje comercial, promocional ni palabras o expresiones prohibidas por el validador.",
             "No convertir la historia en una ficha técnica ni en una descripción exhaustiva del espacio.",
-            "Mantener entre 300 y 500 palabras, sin escribir para alcanzar una cifra objetivo: usar solo la extensión necesaria para contar la transformación.",
+            "Mantener entre 250 y 500 palabras, usando solo la extensión necesaria para contar la historia.",
             "Entregar únicamente la Historia revisada, sin explicación del proceso de revisión."
         ];
 
@@ -51,7 +49,7 @@ class RevisorHistoria {
             );
         } else {
             instrucciones.push(
-                "La transformación NO está documentada: no inventar un antes, una necesidad del cliente, un problema previo ni una condición histórica que no esté sustentada. Trabajar únicamente con la condición espacial observable y los hechos disponibles."
+                "La transformación NO está documentada: no inventar un antes, una necesidad del cliente, un problema previo ni una condición histórica. La revisión puede limpiar y ordenar la narrativa, pero no puede convertir una inferencia visual en un hecho histórico."
             );
         }
 
@@ -111,6 +109,11 @@ class RevisorHistoria {
             contextoEditorial.transformacionDocumentada
                 ? "Puedes narrar el antes, la intención, la transformación y el después solo cuando cada afirmación esté respaldada por el contexto documentado."
                 : "No existe documentación suficiente para afirmar un antes histórico. No lo inventes ni lo simules. La historia debe construirse desde la condición espacial disponible, la intervención observable y la experiencia que sí pueda sostenerse.",
+            "",
+            "REGLA DE PUBLICACIÓN",
+            contextoEditorial.transformacionDocumentada
+                ? "La historia puede continuar al flujo de validación editorial si cumple el resto del contrato."
+                : "La historia NO puede aprobarse como Historia de Transformación publicable hasta documentar el punto de partida.",
             "",
             "REGLA FINAL",
             "La revisión debe corregir únicamente los incumplimientos detectados y mejorar la narrativa sin agregar información inexistente."
