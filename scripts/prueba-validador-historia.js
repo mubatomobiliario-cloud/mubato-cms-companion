@@ -12,6 +12,12 @@ La transformación se percibe en la manera como los elementos construyen una atm
 
 El resultado es un espacio residencial que transmite calma sin perder carácter. La experiencia de habitarlo mejora porque cada decisión favorece el orden, la comodidad visual y la sensación de refugio. Hogar Araque muestra cómo una intervención medida puede transformar un ambiente cotidiano en un lugar más claro, cálido y funcional para vivirlo.`;
 
+// Misma historia, pero sin lenguaje meta. Sigue sin documentación del "antes".
+const historiaAraqueLimpia = historiaAraque.replace(
+    "el expediente no registra una necesidad declarada por el cliente, por lo que la lectura del proyecto parte de lo que el espacio revela:",
+    "la lectura del proyecto parte de lo que el espacio revela:"
+);
+
 const historiaValida = `Antes, el dormitorio necesitaba acompañar mejor los momentos de descanso y las rutinas que ocurrían a su alrededor. La vida cotidiana pedía un lugar más sereno, donde guardar lo necesario, descansar y moverse por el espacio no implicara competir con aquello que debía permanecer en orden.
 
 La intención fue recuperar esa calma sin separar la funcionalidad de la experiencia. El diseño organiza el ambiente para que cada actividad encuentre su lugar y para que la habitación pueda sentirse acogedora durante distintos momentos del día.
@@ -31,18 +37,33 @@ function ejecutar() {
     console.log("PRUEBA CONTROLADA — CONTRATO DE TRANSFORMACIONES");
     console.log("======================================\n");
 
-    console.log("CASO 1 — HOGAR ARAQUE — TRANSFORMACIÓN NO DOCUMENTADA\n");
+    console.log("CASO 1 — HOGAR ARAQUE — HISTORIA CON ERROR EDITORIAL\n");
     const resultadoAraque = validador.validar(historiaAraque, {
         transformacionDocumentada: false
     });
     console.log(JSON.stringify(resultadoAraque, null, 2));
 
-    if (resultadoAraque.estado !== "REQUIERE_DOCUMENTACION" || resultadoAraque.aprobado) {
-        throw new Error("CONTRATO FALLIDO: una transformación no documentada no puede aprobarse para publicación.");
+    if (resultadoAraque.estado !== "REVISAR" || resultadoAraque.aprobado) {
+        throw new Error("CONTRATO FALLIDO: una historia con lenguaje meta debe quedar en REVISAR antes de evaluar publicación.");
     }
 
+    console.log("✓ Capa editorial superada: Araque queda en REVISAR.");
+
     console.log("\n--------------------------------------\n");
-    console.log("CASO 2 — HISTORIA DE CONTROL — TRANSFORMACIÓN DOCUMENTADA\n");
+    console.log("CASO 2 — ARAQUE LIMPIA — TRANSFORMACIÓN NO DOCUMENTADA\n");
+    const resultadoAraqueLimpia = validador.validar(historiaAraqueLimpia, {
+        transformacionDocumentada: false
+    });
+    console.log(JSON.stringify(resultadoAraqueLimpia, null, 2));
+
+    if (resultadoAraqueLimpia.estado !== "REQUIERE_DOCUMENTACION" || resultadoAraqueLimpia.aprobado) {
+        throw new Error("CONTRATO FALLIDO: una transformación limpia pero no documentada debe bloquear publicación.");
+    }
+
+    console.log("✓ Bloqueo semántico superado: Araque requiere documentación.");
+
+    console.log("\n--------------------------------------\n");
+    console.log("CASO 3 — HISTORIA DE CONTROL — TRANSFORMACIÓN DOCUMENTADA\n");
     const resultadoValido = validador.validar(historiaValida, {
         transformacionDocumentada: true,
         puntoDePartida: "Dormitorio previo que necesitaba acompañar mejor descanso, orden y rutinas cotidianas."
@@ -53,8 +74,10 @@ function ejecutar() {
         throw new Error("CONTRATO FALLIDO: la historia de control documentada debería superar la validación.");
     }
 
+    console.log("✓ Transformación documentada aprobada.");
+
     console.log("\n--------------------------------------\n");
-    console.log("CASO 3 — REGRESIÓN — 'NECESIDADES' NO ES 'ANTES'\n");
+    console.log("CASO 4 — REGRESIÓN — 'NECESIDADES' NO ES 'ANTES'\n");
     const resultadoRegresion = validador.contieneSenalAntes(
         validador.normalizar("El diseño responde a las necesidades cotidianas del espacio y acompaña el descanso.")
     );
@@ -70,9 +93,9 @@ function ejecutar() {
     console.log("✓ Regresión superada.");
 
     console.log("\n--------------------------------------\n");
-    console.log("CASO 4 — CONTRATO DE LONGITUD — 250 PALABRAS ES VÁLIDO\n");
+    console.log("CASO 5 — CONTRATO DE LONGITUD — 250 PALABRAS ES VÁLIDO\n");
     const texto250 = Array.from({ length: 250 }, (_, i) => `palabra${i + 1}`).join(" ");
-    const historia250 = `${texto250.slice(0, -1)}.`;
+    const historia250 = `${texto250}.`;
     const resultado250 = validador.validar(historia250, {
         transformacionDocumentada: true,
         puntoDePartida: "Condición previa documentada."
@@ -91,10 +114,9 @@ function ejecutar() {
     console.log("\n======================================");
     console.log("RESULTADO DE LA PRUEBA");
     console.log("======================================");
-    console.log(`Araque: ${resultadoAraque.estado}`);
-    console.log(`Modo Araque: ${resultadoAraque.metricas.modo}`);
-    console.log(`Control: ${resultadoValido.estado}`);
-    console.log(`Modo Control: ${resultadoValido.metricas.modo}`);
+    console.log(`Araque con error: ${resultadoAraque.estado}`);
+    console.log(`Araque limpia: ${resultadoAraqueLimpia.estado}`);
+    console.log(`Control documentado: ${resultadoValido.estado}`);
     console.log("Regresión: SUPERADA");
     console.log("Límite 250 palabras: SUPERADO");
     console.log("IA utilizada: NO");
