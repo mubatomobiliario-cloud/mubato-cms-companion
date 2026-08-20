@@ -70,7 +70,7 @@ class AdaptadorCSVEditorial {
         for (const [campo, valor] of Object.entries(cambiosPermitidos)) {
             if (valor === undefined || valor === null) continue;
 
-            const posicion = indice.unico[campo];
+            const posicion = indice.unicas[campo];
             if (posicion === undefined) {
                 console.warn(`⚠ Campo no encontrado en CSV: ${campo}`);
                 continue;
