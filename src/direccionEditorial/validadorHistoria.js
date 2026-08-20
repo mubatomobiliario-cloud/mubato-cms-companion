@@ -100,6 +100,13 @@ class ValidadorHistoria {
         });
     }
 
+    contieneSenalAntes(texto) {
+        return this.senalesAntes.filter(item => {
+            const senal = this.normalizar(item).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+            return new RegExp(`(^|\\s)${senal}(?=\\s|[,.!?;:()¿¡]|$)`, "i").test(texto);
+        });
+    }
+
     contarPalabras(texto) {
         const limpio = String(texto || "").trim();
         return limpio ? limpio.split(/\s+/).length : 0;
@@ -148,7 +155,10 @@ class ValidadorHistoria {
             errores.push(`Lenguaje meta/editorial detectado: ${meta.join(" | ")}. La historia debe leerse como una narración publicada, no como un informe del expediente.`);
         }
 
-        const antes = this.contieneAlguna(texto, this.senalesAntes);
+        // Las señales de "antes" requieren coincidencia de palabra/frase completa.
+        // No deben confundir "necesidad" con "necesidades", ni otras formas
+        // derivadas que no prueban por sí mismas una condición previa.
+        const antes = this.contieneSenalAntes(texto);
         const transformacion = this.contieneAlguna(texto, this.senalesTransformacion);
         const despues = this.contieneAlguna(texto, this.senalesDespues);
         const humanas = this.contieneAlguna(texto, this.senalesHumanas);
