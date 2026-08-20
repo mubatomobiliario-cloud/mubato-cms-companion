@@ -3,7 +3,24 @@ const ValidadorHistoria = require("../src/direccionEditorial/validadorHistoria")
 const OpenAIClient = require("../src/direccionEditorial/openAIClient");
 
 const contextoEditorial = {
-    transformacionDocumentada: false
+    // En Araque NO existe documentación histórica suficiente del "antes".
+    transformacionDocumentada: false,
+    puntoDePartida: "Habitación residencial con zona de descanso, almacenamiento, tecnología, iluminación natural y elementos de apoyo integrados en una composición contemporánea.",
+    intencion: "No documentada de forma explícita.",
+    transformacion: "La intervención organiza descanso, almacenamiento, tecnología, circulación, materialidad e iluminación dentro de una composición más coherente.",
+    nuevaManeraDeHabitar: "El espacio se percibe más ordenado, cálido, legible y adecuado para la vida cotidiana y el descanso.",
+    evidencia: [
+        "La galería muestra una zona de descanso con cabecero y paneles.",
+        "Se observa mobiliario suspendido y superficies de almacenamiento integradas.",
+        "La habitación incorpora luz natural regulable mediante persianas.",
+        "La iluminación artificial acompaña distintos momentos de uso.",
+        "La composición combina madera, piedra, vidrio y metal sin que el relato deba convertirlos en inventario."
+    ],
+    restricciones: [
+        "No afirmar cuál era la situación anterior si no está documentada.",
+        "No atribuir necesidades o deseos al cliente sin evidencia.",
+        "No presentar la galería ni el expediente como parte de la narración publicada."
+    ]
 };
 
 const historiaOriginal = `En Hogar Araque, el expediente no registra una necesidad declarada por el cliente, por lo que la lectura del proyecto parte de lo que el espacio revela: una intervención residencial en Bogotá donde el diseño se concentra en construir una atmósfera de calma, orden y calidez. La presencia de cama, cabecero, mesas de noche, armario, repisas, gabinete y mueble suspendido permite reconocer un ambiente íntimo, asociado al descanso y a la vida cotidiana dentro del hogar.
@@ -28,13 +45,18 @@ async function ejecutar() {
         throw new Error("La historia original ya fue aprobada; no corresponde ejecutar revisión.");
     }
 
-    const prompt = revisor.construirPrompt(historiaOriginal, validacionInicial);
+    const prompt = revisor.construirPrompt(
+        historiaOriginal,
+        validacionInicial,
+        contextoEditorial
+    );
 
     console.log("======================================");
-    console.log("REVISIÓN EDITORIAL CONTROLADA — HOGAR ARAQUE");
+    console.log("REVISIÓN EDITORIAL CONTEXTUAL — HOGAR ARAQUE");
     console.log("======================================\n");
     console.log(`Validación inicial: ${validacionInicial.estado}`);
     console.log(`Modo editorial: ${validacionInicial.metricas.modo}`);
+    console.log(`Transformación documentada: ${contextoEditorial.transformacionDocumentada ? "SÍ" : "NO"}`);
     console.log("IA: 1 llamada máxima");
     console.log("CSV/Wix: NO");
     console.log("\nGENERANDO REVISIÓN...\n");
