@@ -6,15 +6,15 @@ const Papa = require("papaparse");
 const ProcesadorEditorialV2 = require("../src/Editorial/procesadorEditorialV2");
 const SelectorProyectoEditorialV1 = require("../src/Editorial/selectorProyectoEditorialV1");
 
-const rutaEntrada = path.resolve("Proyectos/Araque/Historias+de+Transformación (10).csv");
-const rutaSalida = path.resolve("Proyectos/Araque/Historias+de+Transformación (10).prueba-editorial-v2.csv");
-
 async function ejecutar() {
     console.log("\n======================================");
-    console.log("PRUEBA REAL — EDITORIAL V2");
+    console.log("PRUEBA REAL — EDITORIAL V2.1");
     console.log("======================================\n");
 
+    const rutaEntrada = path.resolve("Proyectos/Araque/Historias+de+Transformación (10).csv");
+    const rutaSalida = path.resolve("Proyectos/Araque/Historias+de+Transformación (10).prueba-editorial-v2.csv");
     if (!fs.existsSync(rutaEntrada)) throw new Error(`No existe el CSV: ${rutaEntrada}`);
+
     const parsed = Papa.parse(fs.readFileSync(rutaEntrada, "utf8"), { header: true, skipEmptyLines: true });
     if (parsed.errors.length) throw new Error(`Error leyendo CSV: ${JSON.stringify(parsed.errors)}`);
 
@@ -22,6 +22,7 @@ async function ejecutar() {
     const nombre = process.env.MUBATO_PROYECTO || "Hogar Tijo";
     const seleccion = selector.seleccionar(parsed.data, { nombre });
     const fila = seleccion.fila;
+    const galeriaOriginal = JSON.parse(fila["Galería General"] || "[]").map(f => JSON.parse(JSON.stringify(f)));
 
     console.log(`✓ Proyecto seleccionado: ${fila["Proyecto"]}`);
     console.log(`✓ Modo de selección: ${seleccion.modo}`);
@@ -42,7 +43,6 @@ async function ejecutar() {
     const filaV = verificado.data.find(f => f["Proyecto"] === fila["Proyecto"]);
     if (!filaV) throw new Error("El proyecto desapareció del CSV de salida.");
 
-    const galeriaOriginal = JSON.parse(fila["Galería General"] || "[]");
     const galeriaV = JSON.parse(filaV["Galería General"] || "[]");
     if (galeriaV.length !== galeriaOriginal.length) throw new Error("Cantidad de fotografías alterada.");
 
@@ -56,8 +56,9 @@ async function ejecutar() {
         }
     });
 
+    const t = resultado.telemetria;
     console.log("\n======================================");
-    console.log("RESULTADO EDITORIAL V2");
+    console.log("RESULTADO EDITORIAL V2.1");
     console.log("======================================");
     console.log(`✓ Historia: ${resultado.validacionHistoria.metricas.palabras} palabras / 1 párrafo`);
     console.log(`✓ Reglas editoriales evaluadas: ${resultado.validacionHistoria.reglas.length}`);
@@ -66,14 +67,26 @@ async function ejecutar() {
     console.log(`✓ Fotografías procesadas: ${resultado.galeriaEditorial.length}`);
     console.log("✓ title + alt + keywords + nombreSEO presentes en cada fotografía.");
     console.log("✓ SEO Title + Meta Description presentes y dentro de límites.");
-    console.log("✓ src + slug + settings preservados.");
-    console.log(`✓ Llamadas IA: ${resultado.llamadasIA}`);
+    console.log("✓ src + slug + settings preservados contra la entrada original.");
+
+    console.log("\n--------------------------------------");
+    console.log("TELEMETRÍA Y EFICIENCIA");
+    console.log("--------------------------------------");
+    console.log(`✓ Modelo: ${t.modelo}`);
+    console.log(`✓ Llamadas IA: ${t.llamadas}`);
+    console.log(`✓ Llamadas por fotografía: ${t.llamadasGaleriaPorFoto}`);
+    console.log(`✓ Input tokens: ${t.inputTokens || "no informado"}`);
+    console.log(`✓ Output tokens: ${t.outputTokens || "no informado"}`);
+    console.log(`✓ Total tokens: ${t.totalTokens || "no informado"}`);
+    console.log(`✓ Tiempo acumulado de llamadas: ${t.tiempoAcumuladoMs} ms`);
+    console.log(`✓ Costo estimado: ${t.costoEstimadoUSD === null ? "pendiente de tarifa configurada" : `$${t.costoEstimadoUSD.toFixed(4)} USD`}`);
+
     console.log(`✓ CSV de prueba: ${rutaSalida}`);
-    console.log("\n✓ EDITORIAL V2 SUPERADA\n");
+    console.log("\n✓ EDITORIAL V2.1 SUPERADA\n");
 }
 
 ejecutar().catch(error => {
-    console.error("\n✗ PRUEBA EDITORIAL V2 FALLIDA\n");
+    console.error("\n✗ PRUEBA EDITORIAL V2.1 FALLIDA\n");
     console.error(error.stack || error);
     process.exit(1);
 });
