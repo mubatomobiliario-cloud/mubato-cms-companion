@@ -30,7 +30,6 @@ class ValidadorHistoria {
             "conoce", "aprovecha", "cotiza"
         ];
 
-        // Una historia publicada no debe revelar la maquinaria editorial que la produjo.
         this.lenguajeMeta = [
             "el expediente", "según el expediente", "el expediente no registra",
             "el expediente plantea", "las observaciones", "la observación visual",
@@ -111,8 +110,8 @@ class ValidadorHistoria {
             errores.push(`Longitud fuera de contrato: ${palabras} palabras. Debe estar entre 250 y 500.`);
         }
 
-        if (parrafos < 3) {
-            errores.push(`Estructura insuficiente: ${parrafos} párrafos. Se requieren párrafos naturales y separados.`);
+        if (parrafos !== 1) {
+            errores.push(`Estructura fuera de contrato: ${parrafos} párrafos. La Historia V1 debe contener exactamente un párrafo.`);
         }
 
         const prohibidas = this.contieneAlguna(texto, this.palabrasProhibidas);
