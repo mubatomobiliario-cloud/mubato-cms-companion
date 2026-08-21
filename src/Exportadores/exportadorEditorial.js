@@ -10,6 +10,42 @@ function nombreSeguro(nombre) {
 
 class ExportadorEditorial {
 
+    persistirEvidenciaVisual(proyecto) {
+
+        const directorio = proyecto.rutaProyecto || (proyecto.rutaCSV ? path.dirname(proyecto.rutaCSV) : null);
+        if (!directorio) {
+            throw new Error("No existe rutaProyecto ni rutaCSV para persistir la evidencia visual.");
+        }
+
+        const evidencia = {
+            version: "V2.1",
+            proyecto: proyecto.expediente?.proyecto || {
+                nombre: proyecto.nombre || "",
+                codigo: proyecto.codigo || "",
+                cliente: proyecto.cliente || "",
+                ciudad: proyecto.ciudad || "",
+                categoria: proyecto.categoria || ""
+            },
+            observacionesVision: proyecto.expediente?.observacionesVision || []
+        };
+
+        const archivoEvidencia = path.join(
+            directorio,
+            `${nombreSeguro(proyecto.nombre)}.evidencia-visual.json`
+        );
+
+        fs.writeFileSync(
+            archivoEvidencia,
+            JSON.stringify(evidencia, null, 2),
+            "utf8"
+        );
+
+        console.log("✓ Evidencia visual persistida.");
+        console.log(archivoEvidencia);
+
+        return archivoEvidencia;
+    }
+
     exportar(proyecto) {
 
         console.log("");
@@ -63,33 +99,10 @@ class ExportadorEditorial {
         const archivo = path.join(directorio, "Expediente Editorial.txt");
         fs.writeFileSync(archivo, texto, "utf8");
 
-        const evidencia = {
-            version: "V2.1",
-            proyecto: proyecto.expediente?.proyecto || {
-                nombre: proyecto.nombre || "",
-                codigo: proyecto.codigo || "",
-                cliente: proyecto.cliente || "",
-                ciudad: proyecto.ciudad || "",
-                categoria: proyecto.categoria || ""
-            },
-            observacionesVision: proyecto.expediente?.observacionesVision || []
-        };
-
-        const archivoEvidencia = path.join(
-            directorio,
-            `${nombreSeguro(proyecto.nombre)}.evidencia-visual.json`
-        );
-
-        fs.writeFileSync(
-            archivoEvidencia,
-            JSON.stringify(evidencia, null, 2),
-            "utf8"
-        );
+        this.persistirEvidenciaVisual(proyecto);
 
         console.log("✓ Expediente exportado.");
         console.log(archivo);
-        console.log("✓ Evidencia visual persistida.");
-        console.log(archivoEvidencia);
         console.log("");
     }
 
