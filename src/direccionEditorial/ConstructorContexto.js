@@ -42,8 +42,24 @@ class ConstructorContexto {
     }
 
     construirAltText(proyecto, fotografia) {
+        return this.construirFotografia(proyecto, fotografia, promptTemplates.ALT_TEXT, "ALT_TEXT");
+    }
+
+    construirTituloFotografia(proyecto, fotografia) {
+        return this.construirFotografia(proyecto, fotografia, promptTemplates.TITLE_TEXT, "TITLE_FOTOGRAFIA");
+    }
+
+    construirKeywordsFotografia(proyecto, fotografia) {
+        return this.construirFotografia(proyecto, fotografia, promptTemplates.PHOTO_KEYWORDS, "KEYWORDS_FOTOGRAFIA");
+    }
+
+    construirNombreSEOFotografia(proyecto, fotografia) {
+        return this.construirFotografia(proyecto, fotografia, promptTemplates.PHOTO_SEO_NAME, "NOMBRE_SEO_FOTOGRAFIA");
+    }
+
+    construirFotografia(proyecto, fotografia, plantilla, nombreContrato) {
         const expediente = proyecto.expediente || {};
-        return this.encabezado("ALT_TEXT") + this.seccionMarca() + promptTemplates.ALT_TEXT + this.seccionProyecto(proyecto) + this.seccionExpediente(expediente) + this.seccionFotografia(fotografia);
+        return this.encabezado(nombreContrato) + this.seccionMarca() + plantilla + this.seccionProyecto(proyecto) + this.seccionExpediente(expediente) + this.seccionFotografia(fotografia);
     }
 
     construirProyecto(proyecto, plantilla, nombreContrato, adicional = "") {
