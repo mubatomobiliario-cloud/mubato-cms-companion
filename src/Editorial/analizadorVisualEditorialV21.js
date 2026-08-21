@@ -11,14 +11,17 @@ class AnalizadorVisualEditorialV21 {
     }
 
     async analizar(proyecto, foto) {
-        const prompt = `Analiza exclusivamente lo observable en esta fotografía del proyecto "${proyecto.nombre}". No inventes información. Devuelve JSON válido con: espacio, tipo, plano, estilo, materiales (array), colores (array), elementos (array), iluminacion, sensacion, condicionInicial, intencionFuncional, confianza. Si algo no es visible, usa "" o []. La condicionInicial debe describir una condición espacial observable, no una interpretación de la historia.`;
-        const respuesta = await this.openAI.generarTexto(prompt);
+        if (!foto.src) throw new Error(`No existe src para ${foto.fileName || "fotografía"}.`);
+        const prompt = `Analiza exclusivamente lo observable en esta fotografía del proyecto "${proyecto.nombre}". No inventes información. Devuelve JSON válido con: espacio, tipo, plano, estilo, materiales (array), colores (array), elementos (array), iluminacion, sensacion, condicionInicial, intencionFuncional, confianza. Si algo no es visible, usa "" o []. La condicionInicial debe describir una condición espacial observable, no una interpretación de la historia. La intencionFuncional debe describir, solo si es observable, para qué parece organizarse el espacio.`;
+        const resultado = await this.openAI.analizarImagenURL(foto.src, prompt);
         try {
-            const datos = JSON.parse(respuesta);
+            const datos = JSON.parse(resultado.texto);
             return {
                 ...datos,
                 nombre: foto.fileName || foto.nombre || "fotografia",
-                analizada: true
+                analizada: true,
+                descripcion: foto.description || "",
+                telemetria: resultado.telemetria
             };
         } catch (error) {
             throw new Error(`Análisis visual inválido para ${foto.fileName || "fotografía"}: ${error.message}`);
