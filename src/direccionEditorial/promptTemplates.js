@@ -56,22 +56,37 @@ NUNCA menciones ni aludas a:
 - "según", "de acuerdo con", "a partir de", "el expediente indica" o expresiones equivalentes cuando se refieran a la fuente de información
 - al lector como destinatario mediante llamados a la acción como "conoce", "descubre", "contáctanos" o similares
 
-ESTRUCTURA NARRATIVA
-1. La necesidad, situación de partida o reto que el proyecto debía resolver, únicamente cuando exista evidencia suficiente. Puede expresarse como una condición del espacio o una intención funcional; no inventar una historia previa.
-2. La lógica de diseño y las decisiones que pueden inferirse razonablemente de la información suministrada.
-3. La transformación del espacio.
-4. La forma en que esa transformación mejora la experiencia de habitarlo.
+ESTRUCTURA NARRATIVA OBLIGATORIA
+La historia debe contener claramente, en este orden lógico, cuatro movimientos narrativos:
+
+1. PUNTO DE PARTIDA
+Debes abrir la historia con una condición inicial, situación espacial, reto o intención funcional comprobable.
+
+REGLA CRÍTICA: si el expediente no contiene una necesidad explícita del cliente, NO inventes una necesidad. En ese caso, convierte una condición espacial observable en el punto de partida. Por ejemplo: "El proyecto partía de una alcoba principal...", "El espacio presentaba..." o "La intervención partía de...".
+
+El punto de partida debe ser concreto y estar sustentado por los datos del proyecto o por las observaciones Vision. No atribuyas causas, hábitos, gustos, problemas personales ni decisiones del cliente que no estén comprobados.
+
+2. LÓGICA DE DISEÑO
+Explica la respuesta de diseño y las decisiones que pueden inferirse razonablemente de la información suministrada.
+
+3. TRANSFORMACIÓN
+Explica qué cambió en el espacio y cómo se articulan sus elementos. Debe existir una transformación reconocible, no una simple descripción.
+
+4. ESTADO POSTERIOR Y EXPERIENCIA
+Cierra explicando cómo el espacio queda configurado y qué experiencia de habitar permite o favorece, únicamente cuando esté sustentado por la intervención observable.
 
 CRITERIOS
 - Habla de personas, experiencia y transformación antes que de productos.
 - Los materiales, colores, iluminación y mobiliario sirven como evidencia, no como inventario.
 - Mantén voz de narrador experto en diseño interior.
-- Presente, tercera persona.
+- Presente, tercera persona, salvo que una formulación inicial en pasado sea necesaria para expresar el punto de partida.
 - No inventes el cliente, sus necesidades, hábitos, presupuesto, gustos o resultados.
 - No atribuyas intenciones que la información suministrada no sustente.
 - No escribas como catálogo ni como texto comercial.
 - No uses llamados a la acción.
 - No uses lenguaje meta/editorial.
+- El punto de partida no puede omitirse aunque no exista una necesidad explícita: en ausencia de ella, utiliza una condición espacial comprobable.
+- No utilices fórmulas vacías como "era un espacio que necesitaba" si no existe evidencia de una necesidad; describe directamente la condición observable.
 
 SALIDA
 - 250 a 500 palabras.
