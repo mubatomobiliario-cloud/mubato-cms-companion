@@ -3,7 +3,6 @@ console.log("procesadorEditorialV2.js cargado");
 const ConstructorContexto = require("../direccionEditorial/ConstructorContexto");
 const OpenAIClient = require("../direccionEditorial/openAIClient");
 const ValidadorHistoriaV2 = require("../direccionEditorial/validadorHistoriaV2");
-const AnalizadorVisualEditorialV21 = require("./analizadorVisualEditorialV21");
 
 function json(texto, nombre) {
     try { return JSON.parse(texto); }
@@ -11,48 +10,37 @@ function json(texto, nombre) {
 }
 
 class ProcesadorEditorialV2 {
-    constructor({ contexto = new ConstructorContexto(), openAI = new OpenAIClient(), validadorHistoria = new ValidadorHistoriaV2(), analizadorVisual = null } = {}) {
+    constructor({ contexto = new ConstructorContexto(), openAI = new OpenAIClient(), validadorHistoria = new ValidadorHistoriaV2() } = {}) {
         this.contexto = contexto;
         this.openAI = openAI;
         this.validadorHistoria = validadorHistoria;
-        this.analizadorVisual = analizadorVisual || new AnalizadorVisualEditorialV21(this.openAI, this.contexto);
     }
 
-    construirProyecto(fila) {
+    construirProyecto(fila, evidenciaVisual) {
         const galeria = json(fila["Galería General"] || "[]", "Galería General");
         const espacios = json(fila["Espacios"] || "[]", "Espacios");
         const categoria = json(fila["Categoría"] || "[]", "Categoría");
         const estado = json(fila["Estado"] || "[]", "Estado");
         if (!Array.isArray(galeria) || !galeria.length) throw new Error(`El proyecto "${fila["Proyecto"] || "(sin nombre)"}" no tiene galería.`);
-
-        const observacionesVision = galeria.map((foto, i) => ({
-            nombre: foto.fileName || `foto-${i + 1}`,
-            analizada: false,
-            espacio: "",
-            tipo: "imagen",
-            plano: "",
-            estilo: "",
-            materiales: [],
-            colores: [],
-            elementos: [],
-            iluminacion: "",
-            sensacion: "",
-            confianza: 0,
-            descripcion: foto.description || ""
-        }));
+        if (!Array.isArray(evidenciaVisual) || evidenciaVisual.length !== galeria.length) {
+            throw new Error(`Evidencia visual incompleta: se esperaban ${galeria.length} observaciones y se recibieron ${Array.isArray(evidenciaVisual) ? evidenciaVisual.length : 0}. V2.1 no vuelve a analizar fotografías.`);
+        }
+        if (evidenciaVisual.some((x) => !x || x.analizada !== true)) {
+            throw new Error("La evidencia visual contiene fotografías no analizadas. V2.1 exige evidencia Vision previa.");
+        }
 
         return {
             nombre: fila["Proyecto"], codigo: fila["Código MUBATO"], cliente: fila["Cliente"], ciudad: fila["Ciudad"],
             estado, categoria, descripcion: fila["Descripción"],
             servicios: fila["Servicios"] ? fila["Servicios"].split("|").map(x => x.trim()).filter(Boolean) : [],
             espacios,
-            expediente: { version: "V2.1", descripcion: fila["Descripción"], observacionesVision },
+            expediente: { version: "V2.1", descripcion: fila["Descripción"], observacionesVision: evidenciaVisual },
             galeria
         };
     }
 
     async generar(fila, opciones = {}) {
-        const proyecto = this.construirProyecto(fila);
+        const proyecto = this.construirProyecto(fila, opciones.evidenciaVisual);
         const galeria = proyecto.galeria;
         const llamadas = [];
 
@@ -60,10 +48,6 @@ class ProcesadorEditorialV2 {
             const resultado = await this.openAI.generarTextoDetallado(prompt);
             llamadas.push({ etapa, ...resultado.telemetria });
             return resultado.texto;
-        };
-
-        const registrarVision = (indice, resultado) => {
-            if (resultado?.telemetria) llamadas.push({ etapa: `vision_${indice + 1}`, ...resultado.telemetria });
         };
 
         const resumenTelemetria = () => {
@@ -76,16 +60,10 @@ class ProcesadorEditorialV2 {
 
         try {
             console.log("\n======================================");
-            console.log("ANÁLISIS VISUAL — V2.1");
+            console.log("EDITORIAL V2.1 — EVIDENCIA VISUAL REUTILIZADA");
             console.log("======================================\n");
-
-            for (let i = 0; i < galeria.length; i++) {
-                const foto = galeria[i];
-                if (!foto.src || !foto.slug) throw new Error(`Identidad técnica incompleta en foto ${i + 1}.`);
-                const vision = await this.analizadorVisual.analizar(proyecto, foto);
-                registrarVision(i, vision);
-                proyecto.expediente.observacionesVision[i] = vision;
-            }
+            console.log(`✓ Evidencia visual recibida: ${proyecto.expediente.observacionesVision.length} fotografías`);
+            console.log("✓ Vision no se ejecutará en esta fase.");
 
             const historia = await generar("historia", this.contexto.construirHistoria(proyecto));
             const validacionHistoria = this.validadorHistoria.validar(historia.trim(), proyecto);
