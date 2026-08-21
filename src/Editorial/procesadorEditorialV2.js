@@ -3,6 +3,7 @@ console.log("procesadorEditorialV2.js cargado");
 const ConstructorContexto = require("../direccionEditorial/ConstructorContexto");
 const OpenAIClient = require("../direccionEditorial/openAIClient");
 const ValidadorHistoriaV2 = require("../direccionEditorial/validadorHistoriaV2");
+const AnalizadorVisualEditorialV21 = require("./analizadorVisualEditorialV21");
 
 function json(texto, nombre) {
     try { return JSON.parse(texto); }
@@ -10,10 +11,11 @@ function json(texto, nombre) {
 }
 
 class ProcesadorEditorialV2 {
-    constructor({ contexto = new ConstructorContexto(), openAI = new OpenAIClient(), validadorHistoria = new ValidadorHistoriaV2() } = {}) {
+    constructor({ contexto = new ConstructorContexto(), openAI = new OpenAIClient(), validadorHistoria = new ValidadorHistoriaV2(), analizadorVisual = null } = {}) {
         this.contexto = contexto;
         this.openAI = openAI;
         this.validadorHistoria = validadorHistoria;
+        this.analizadorVisual = analizadorVisual || new AnalizadorVisualEditorialV21(this.openAI, this.contexto);
     }
 
     construirProyecto(fila) {
@@ -25,8 +27,8 @@ class ProcesadorEditorialV2 {
 
         const observacionesVision = galeria.map((foto, i) => ({
             nombre: foto.fileName || `foto-${i + 1}`,
-            analizada: true,
-            espacio: foto.title || "",
+            analizada: false,
+            espacio: "",
             tipo: "imagen",
             plano: "",
             estilo: "",
@@ -35,7 +37,7 @@ class ProcesadorEditorialV2 {
             elementos: [],
             iluminacion: "",
             sensacion: "",
-            confianza: 1,
+            confianza: 0,
             descripcion: foto.description || ""
         }));
 
@@ -60,68 +62,91 @@ class ProcesadorEditorialV2 {
             return resultado.texto;
         };
 
-        const historia = await generar("historia", this.contexto.construirHistoria(proyecto));
-        const validacionHistoria = this.validadorHistoria.validar(historia.trim(), proyecto);
-        if (!validacionHistoria.aprobado) {
-            const detalle = validacionHistoria.errores.map(error => typeof error === "string" ? error : `${error.regla}: ${error.mensaje}`).join(" | ");
-            throw new Error(`Historia rechazada: ${detalle}`);
-        }
-        if (validacionHistoria.metricas.parrafos !== 1) throw new Error("La Historia Editorial no tiene exactamente un párrafo.");
-
-        const heroTexto = await generar("hero", this.contexto.construirHero(proyecto));
-        if (!heroTexto.trim()) throw new Error("Hero vacío.");
-
-        const seo = json(await generar("seo", this.contexto.construirSEO(proyecto, historia)), "SEO");
-        if (!seo.seoTitle || !seo.metaDescription) throw new Error("SEO incompleto.");
-        if (String(seo.seoTitle).length > 60) throw new Error("SEO Title supera 60 caracteres.");
-        if (String(seo.metaDescription).length > 155) throw new Error("Meta Description supera 155 caracteres.");
-
-        const galeriaEditorial = [];
-        for (let i = 0; i < galeria.length; i++) {
-            const foto = galeria[i];
-            if (!foto.src || !foto.slug) throw new Error(`Identidad técnica incompleta en foto ${i + 1}.`);
-            const contextoFoto = { ...foto, nombre: foto.fileName, analizada: true };
-            const metadatos = json(await generar(`foto_${i + 1}_editorial`, this.contexto.construirMetadatosFotografia(proyecto, contextoFoto, historia)), "PHOTO_EDITORIAL");
-
-            if (!metadatos.title || !metadatos.alt || !metadatos.nombreSEO || !Array.isArray(metadatos.keywords) || !metadatos.keywords.length) {
-                throw new Error(`Metadatos editoriales incompletos en foto ${i + 1}.`);
-            }
-            galeriaEditorial.push({
-                ...foto,
-                title: String(metadatos.title).trim(),
-                alt: String(metadatos.alt).trim(),
-                description: foto.description || "",
-                keywords: metadatos.keywords,
-                nombreSEO: String(metadatos.nombreSEO).trim()
-            });
-        }
-
-        const total = llamadas.reduce((a, x) => a + x.totalTokens, 0);
-        const input = llamadas.reduce((a, x) => a + x.inputTokens, 0);
-        const output = llamadas.reduce((a, x) => a + x.outputTokens, 0);
-        const tiempoMs = llamadas.reduce((a, x) => a + x.tiempoMs, 0);
-
-        return {
-            proyecto,
-            historia: historia.trim(),
-            heroTexto: heroTexto.trim(),
-            seo,
-            galeriaEditorial,
-            validacionHistoria,
-            llamadasIA: llamadas.length,
-            telemetria: {
-                modelo: llamadas[0]?.modelo || "desconocido",
-                llamadas,
-                inputTokens: input,
-                outputTokens: output,
-                totalTokens: total,
-                tiempoAcumuladoMs: tiempoMs,
-                llamadasGaleriaPorFoto: galeria.length ? 1 : 0,
-                costoEstimadoUSD: null
-            },
-            forzado: Boolean(opciones.forzar),
-            versionEditorial: "V2.1"
+        const registrarVision = (indice, resultado) => {
+            if (resultado?.telemetria) llamadas.push({ etapa: `vision_${indice + 1}`, ...resultado.telemetria });
         };
+
+        const resumenTelemetria = () => {
+            const total = llamadas.reduce((a, x) => a + Number(x.totalTokens || 0), 0);
+            const input = llamadas.reduce((a, x) => a + Number(x.inputTokens || 0), 0);
+            const output = llamadas.reduce((a, x) => a + Number(x.outputTokens || 0), 0);
+            const tiempoMs = llamadas.reduce((a, x) => a + Number(x.tiempoMs || 0), 0);
+            return { modelo: llamadas[0]?.modelo || "desconocido", llamadas, inputTokens: input, outputTokens: output, totalTokens: total, tiempoAcumuladoMs: tiempoMs, llamadasGaleriaPorFoto: 1, costoEstimadoUSD: null };
+        };
+
+        try {
+            console.log("\n======================================");
+            console.log("ANÁLISIS VISUAL — V2.1");
+            console.log("======================================\n");
+
+            for (let i = 0; i < galeria.length; i++) {
+                const foto = galeria[i];
+                if (!foto.src || !foto.slug) throw new Error(`Identidad técnica incompleta en foto ${i + 1}.`);
+                const vision = await this.analizadorVisual.analizar(proyecto, foto);
+                registrarVision(i, vision);
+                proyecto.expediente.observacionesVision[i] = vision;
+            }
+
+            const historia = await generar("historia", this.contexto.construirHistoria(proyecto));
+            const validacionHistoria = this.validadorHistoria.validar(historia.trim(), proyecto);
+            if (!validacionHistoria.aprobado) {
+                const detalle = validacionHistoria.errores.map(error => typeof error === "string" ? error : `${error.regla}: ${error.mensaje}`).join(" | ");
+                throw new Error(`Historia rechazada: ${detalle}`);
+            }
+            if (validacionHistoria.metricas.parrafos !== 1) throw new Error("La Historia Editorial no tiene exactamente un párrafo.");
+
+            const heroTexto = await generar("hero", this.contexto.construirHero(proyecto));
+            if (!heroTexto.trim()) throw new Error("Hero vacío.");
+
+            const seo = json(await generar("seo", this.contexto.construirSEO(proyecto, historia)), "SEO");
+            if (!seo.seoTitle || !seo.metaDescription) throw new Error("SEO incompleto.");
+            if (String(seo.seoTitle).length > 60) throw new Error("SEO Title supera 60 caracteres.");
+            if (String(seo.metaDescription).length > 155) throw new Error("Meta Description supera 155 caracteres.");
+
+            const galeriaEditorial = [];
+            for (let i = 0; i < galeria.length; i++) {
+                const foto = galeria[i];
+                const contextoFoto = { ...foto, ...proyecto.expediente.observacionesVision[i], nombre: foto.fileName, analizada: true };
+                const metadatos = json(await generar(`foto_${i + 1}_editorial`, this.contexto.construirMetadatosFotografia(proyecto, contextoFoto, historia)), "PHOTO_EDITORIAL");
+
+                if (!metadatos.title || !metadatos.alt || !metadatos.nombreSEO || !Array.isArray(metadatos.keywords) || !metadatos.keywords.length) {
+                    throw new Error(`Metadatos editoriales incompletos en foto ${i + 1}.`);
+                }
+                galeriaEditorial.push({
+                    ...foto,
+                    title: String(metadatos.title).trim(),
+                    alt: String(metadatos.alt).trim(),
+                    description: foto.description || "",
+                    keywords: metadatos.keywords,
+                    nombreSEO: String(metadatos.nombreSEO).trim()
+                });
+            }
+
+            const telemetria = resumenTelemetria();
+            return {
+                proyecto,
+                historia: historia.trim(),
+                heroTexto: heroTexto.trim(),
+                seo,
+                galeriaEditorial,
+                validacionHistoria,
+                llamadasIA: llamadas.length,
+                telemetria,
+                forzado: Boolean(opciones.forzar),
+                versionEditorial: "V2.1"
+            };
+        } catch (error) {
+            const telemetria = resumenTelemetria();
+            console.log("\n--------------------------------------");
+            console.log("TELEMETRÍA HASTA EL FALLO");
+            console.log("--------------------------------------");
+            console.log(`✓ Llamadas IA: ${telemetria.llamadas.length}`);
+            console.log(`✓ Input tokens: ${telemetria.inputTokens || "no informado"}`);
+            console.log(`✓ Output tokens: ${telemetria.outputTokens || "no informado"}`);
+            console.log(`✓ Total tokens: ${telemetria.totalTokens || "no informado"}`);
+            console.log(`✓ Tiempo acumulado: ${telemetria.tiempoAcumuladoMs} ms`);
+            throw error;
+        }
     }
 }
 
