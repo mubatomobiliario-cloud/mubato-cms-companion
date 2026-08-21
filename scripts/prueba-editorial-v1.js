@@ -23,15 +23,15 @@ async function ejecutar() {
     if (parsed.errors.length) throw new Error(`Error leyendo CSV: ${JSON.stringify(parsed.errors)}`);
 
     const selector = new SelectorProyectoEditorialV1();
-    const nombreForzado = process.env.MUBATO_PROYECTO || "Hogar Tijo";
-    const seleccion = selector.seleccionar(parsed.data, { nombre: nombreForzado });
+    const nombreSolicitado = process.env.MUBATO_PROYECTO || "";
+    const seleccion = selector.seleccionar(parsed.data, nombreSolicitado ? { nombre: nombreSolicitado } : {});
     const fila = seleccion.fila;
 
     console.log(`✓ Proyecto seleccionado: ${fila["Proyecto"]}`);
     console.log(`✓ Modo de selección: ${seleccion.modo}`);
 
     const procesador = new ProcesadorEditorialV1();
-    const resultado = await procesador.generar(fila, { forzar: true });
+    const resultado = await procesador.generar(fila, { forzar: Boolean(nombreSolicitado) });
 
     fila["Historias de Transformación"] = resultado.historia;
     fila["Hero Texto"] = resultado.heroTexto;
