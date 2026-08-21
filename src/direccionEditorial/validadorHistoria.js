@@ -40,8 +40,10 @@ class ValidadorHistoria {
 
         this.senalesAntes = [
             "antes", "partía", "partía de", "necesidad", "necesitaba", "limitaba",
-            "dificultad", "problema", "situación", "no acompañaba", "había dejado de",
-            "no respondía", "no permitía"
+            "dificultad", "problema", "situación", "situacion", "reto", "desafío",
+            "desafio", "condición inicial", "condicion inicial", "planteaba", "plantea",
+            "buscaba", "busca", "requería", "requeria", "no acompañaba", "había dejado de",
+            "habia dejado de", "no respondía", "no respondia", "no permitía", "no permitia"
         ];
 
         this.senalesTransformacion = [
