@@ -22,8 +22,8 @@ class ProcesadorEditorialV2 {
         const categoria = json(fila["Categoría"] || "[]", "Categoría");
         const estado = json(fila["Estado"] || "[]", "Estado");
         if (!Array.isArray(galeria) || !galeria.length) throw new Error(`El proyecto "${fila["Proyecto"] || "(sin nombre)"}" no tiene galería.`);
-        if (!Array.isArray(evidenciaVisual) || evidenciaVisual.length !== galeria.length) {
-            throw new Error(`Evidencia visual incompleta: se esperaban ${galeria.length} observaciones y se recibieron ${Array.isArray(evidenciaVisual) ? evidenciaVisual.length : 0}. V2.1 no vuelve a analizar fotografías.`);
+        if (!Array.isArray(evidenciaVisual) || !evidenciaVisual.length) {
+            throw new Error("No existe evidencia visual válida. V2.1 exige evidencia Vision previa.");
         }
         if (evidenciaVisual.some((x) => !x || x.analizada !== true)) {
             throw new Error("La evidencia visual contiene fotografías no analizadas. V2.1 exige evidencia Vision previa.");
@@ -84,7 +84,20 @@ class ProcesadorEditorialV2 {
             const galeriaEditorial = [];
             for (let i = 0; i < galeria.length; i++) {
                 const foto = galeria[i];
-                const contextoFoto = { ...foto, ...proyecto.expediente.observacionesVision[i], nombre: foto.fileName, analizada: true };
+                const evidenciaFoto = proyecto.expediente.observacionesVision.find(
+                    x => x.fotografia === foto.fileName
+                );
+
+                if (!evidenciaFoto) {
+                    throw new Error(`No existe evidencia Vision para la fotografía "${foto.fileName}".`);
+                }
+
+                const contextoFoto = {
+                    ...foto,
+                    ...evidenciaFoto,
+                    nombre: foto.fileName,
+                    analizada: true
+                };
                 const metadatos = json(await generar(`foto_${i + 1}_editorial`, this.contexto.construirMetadatosFotografia(proyecto, contextoFoto, historia)), "PHOTO_EDITORIAL");
 
                 if (!metadatos.title || !metadatos.alt || !metadatos.nombreSEO || !Array.isArray(metadatos.keywords) || !metadatos.keywords.length) {
