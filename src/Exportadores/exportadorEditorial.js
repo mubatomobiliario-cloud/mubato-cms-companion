@@ -4,6 +4,10 @@ console.log("exportadorEditorial.js cargado");
 const fs = require("fs");
 const path = require("path");
 
+function nombreSeguro(nombre) {
+    return String(nombre || "proyecto").trim().replace(/[\\/:*?"<>|]/g, "-");
+}
+
 class ExportadorEditorial {
 
     exportar(proyecto) {
@@ -36,16 +40,7 @@ class ExportadorEditorial {
         texto += "EXPEDIENTE\n";
         texto += "--------------------------------------------------\n\n";
 
-        texto += JSON.stringify(
-
-            proyecto.expediente,
-
-            null,
-
-            4
-
-        );
-
+        texto += JSON.stringify(proyecto.expediente, null, 4);
         texto += "\n\n";
 
         texto += "--------------------------------------------------\n";
@@ -53,7 +48,6 @@ class ExportadorEditorial {
         texto += "--------------------------------------------------\n\n";
 
         proyecto.fotografias.forEach((foto, i) => {
-
             texto += `${i + 1}. ${foto.nombre}\n`;
             texto += `   Espacio      : ${foto.espacio}\n`;
             texto += `   Plano        : ${foto.plano}\n`;
@@ -61,31 +55,42 @@ class ExportadorEditorial {
             texto += `   Iluminación  : ${foto.iluminacion}\n`;
             texto += `   Sensación    : ${foto.sensacion}\n`;
             texto += "\n";
-
         });
 
-        const archivo = path.join(
+        const directorio = proyecto.rutaProyecto || (proyecto.rutaCSV ? path.dirname(proyecto.rutaCSV) : null);
+        if (!directorio) throw new Error("No existe rutaProyecto ni rutaCSV para persistir el expediente.");
 
-            proyecto.rutaProyecto,
+        const archivo = path.join(directorio, "Expediente Editorial.txt");
+        fs.writeFileSync(archivo, texto, "utf8");
 
-            "Expediente Editorial.txt"
+        const evidencia = {
+            version: "V2.1",
+            proyecto: proyecto.expediente?.proyecto || {
+                nombre: proyecto.nombre || "",
+                codigo: proyecto.codigo || "",
+                cliente: proyecto.cliente || "",
+                ciudad: proyecto.ciudad || "",
+                categoria: proyecto.categoria || ""
+            },
+            observacionesVision: proyecto.expediente?.observacionesVision || []
+        };
 
+        const archivoEvidencia = path.join(
+            directorio,
+            `${nombreSeguro(proyecto.nombre)}.evidencia-visual.json`
         );
 
         fs.writeFileSync(
-
-            archivo,
-
-            texto,
-
+            archivoEvidencia,
+            JSON.stringify(evidencia, null, 2),
             "utf8"
-
         );
 
         console.log("✓ Expediente exportado.");
         console.log(archivo);
+        console.log("✓ Evidencia visual persistida.");
+        console.log(archivoEvidencia);
         console.log("");
-
     }
 
 }
