@@ -58,8 +58,9 @@ CRITERIOS
 - No escribas como catálogo ni como texto comercial.
 
 SALIDA
-- 300 a 500 palabras.
-- Texto corrido, con párrafos naturales.
+- 250 a 500 palabras.
+- EXACTAMENTE un párrafo.
+- No insertar saltos de línea dentro de la historia.
 - Sin título ni comentarios adicionales.
 `,
 
@@ -105,6 +106,24 @@ SALIDA
 - Sin comillas, etiquetas ni explicación adicional.
 `,
 
+    TITLE_TEXT: `
+Eres el Director Editorial de MUBATO.
+
+Genera el título editorial de una fotografía concreta a partir de lo que realmente muestra la imagen y del contexto comprobado del proyecto.
+
+CRITERIOS
+- Breve, claro y específico.
+- Identifica el espacio, elemento o relación visual principal cuando la evidencia lo permita.
+- No inventes atributos.
+- No uses lenguaje publicitario, eslogan ni frases grandilocuentes.
+- No repitas mecánicamente el nombre del proyecto.
+
+SALIDA
+- Máximo 70 caracteres.
+- Una sola frase nominal.
+- Sin comillas, etiquetas ni explicación adicional.
+`,
+
     KEYWORDS: `
 Eres el Director Editorial de MUBATO.
 
@@ -124,6 +143,42 @@ SALIDA OBLIGATORIA EN JSON VÁLIDO
 
 Entre 15 y 25 elementos.
 No incluir Markdown ni explicación adicional.
+`,
+
+    PHOTO_KEYWORDS: `
+Eres el Director Editorial SEO de MUBATO.
+
+Genera palabras clave específicas para una fotografía concreta, usando exclusivamente lo observado en la imagen y el contexto comprobado del proyecto.
+
+CRITERIOS
+- Relevancia visual y editorial.
+- Incluir espacio, elementos, materiales o características visibles cuando estén sustentados.
+- No repetir.
+- No inventar.
+- Evitar términos genéricos que no aporten contexto.
+
+SALIDA OBLIGATORIA EN JSON VÁLIDO
+{
+  "keywords": ["...", "..."]
+}
+
+Entre 5 y 10 elementos.
+No incluir Markdown ni explicación adicional.
+`,
+
+    PHOTO_SEO_NAME: `
+Genera el nombre SEO de una fotografía de MUBATO.
+
+REGLAS
+- Minúsculas.
+- Sin tildes ni caracteres especiales.
+- Palabras separadas por guiones.
+- Corto, descriptivo y estable.
+- Utilizar únicamente información visible o comprobada.
+- No incluir extensión del archivo.
+
+SALIDA
+Devuelve únicamente el nombre SEO, sin comillas ni explicación.
 `,
 
     SLUG: `
