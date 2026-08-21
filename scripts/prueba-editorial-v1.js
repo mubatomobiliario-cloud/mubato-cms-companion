@@ -15,10 +15,6 @@ function json(texto, nombre) {
     catch (error) { throw new Error(`${nombre} no devolvió JSON válido: ${error.message}`); }
 }
 
-function contarParrafos(texto) {
-    return String(texto || "").split(/\n\s*\n/).map(x => x.trim()).filter(Boolean).length;
-}
-
 async function ejecutar() {
     console.log("\n======================================");
     console.log("PRUEBA REAL — EDITORIAL V1");
@@ -35,14 +31,41 @@ async function ejecutar() {
     const galeria = JSON.parse(fila["Galería General"] || "[]");
     if (!Array.isArray(galeria) || !galeria.length) throw new Error("Galería vacía.");
 
+    const espacios = json(fila["Espacios"] || "[]", "Espacios");
+    const categoria = json(fila["Categoría"] || "[]", "Categoría");
+    const estado = json(fila["Estado"] || "[]", "Estado");
+
+    const observacionesVision = galeria.map((foto, i) => ({
+        nombre: foto.fileName || `foto-${i + 1}`,
+        analizada: true,
+        espacio: foto.title || "",
+        tipo: "imagen",
+        plano: "",
+        estilo: "",
+        materiales: [],
+        colores: [],
+        elementos: [],
+        iluminacion: "",
+        sensacion: "",
+        confianza: 1,
+        descripcion: foto.description || ""
+    }));
+
     const proyecto = {
-        nombre: fila["Proyecto"], codigo: fila["Código MUBATO"], cliente: fila["Cliente"],
-        ciudad: fila["Ciudad"], estado: fila["Estado"], categoria: fila["Categoría"],
-        expediente: { version: "V1", observacionesVision: galeria.map((foto, i) => ({
-            nombre: foto.fileName || `foto-${i + 1}`, analizada: true,
-            espacio: "", tipo: "imagen", plano: "", estilo: "", materiales: [], colores: [],
-            elementos: [], iluminacion: "", sensacion: "", confianza: 1
-        })) }
+        nombre: fila["Proyecto"],
+        codigo: fila["Código MUBATO"],
+        cliente: fila["Cliente"],
+        ciudad: fila["Ciudad"],
+        estado,
+        categoria,
+        descripcion: fila["Descripción"],
+        servicios: fila["Servicios"] ? fila["Servicios"].split("|").map(x => x.trim()).filter(Boolean) : [],
+        espacios,
+        expediente: {
+            version: "V1",
+            descripcion: fila["Descripción"],
+            observacionesVision
+        }
     };
 
     const contexto = new ConstructorContexto();
@@ -67,6 +90,8 @@ async function ejecutar() {
     console.log("\nCASO 3 — SEO");
     const seo = json(await openAI.generarTexto(contexto.construirSEO(proyecto, historia)), "SEO");
     if (!seo.seoTitle || !seo.metaDescription) throw new Error("SEO incompleto.");
+    if (String(seo.seoTitle).length > 60) throw new Error("SEO Title supera 60 caracteres.");
+    if (String(seo.metaDescription).length > 155) throw new Error("Meta Description supera 155 caracteres.");
 
     console.log("\nCASO 4 — GALERÍA");
     const galeriaEditorial = [];
@@ -77,7 +102,14 @@ async function ejecutar() {
         const alt = await openAI.generarTexto(contexto.construirAltText(proyecto, contextoFoto));
         const keywords = json(await openAI.generarTexto(contexto.construirKeywordsFotografia(proyecto, contextoFoto, historia)), "PHOTO_KEYWORDS");
         const nombreSEO = await openAI.generarTexto(contexto.construirNombreSEOFotografia(proyecto, contextoFoto));
-        galeriaEditorial.push({ ...foto, title: title.trim(), alt: alt.trim(), description: foto.description || "", keywords: keywords.keywords, nombreSEO: nombreSEO.trim() });
+        galeriaEditorial.push({
+            ...foto,
+            title: title.trim(),
+            alt: alt.trim(),
+            description: foto.description || "",
+            keywords: keywords.keywords,
+            nombreSEO: nombreSEO.trim()
+        });
         if (!foto.src || !foto.slug) throw new Error(`Identidad técnica incompleta en foto ${i + 1}.`);
     }
 
@@ -96,8 +128,12 @@ async function ejecutar() {
     if (galeriaV.length !== galeria.length) throw new Error("Cantidad de fotografías alterada.");
     galeriaV.forEach((foto, i) => {
         const original = galeria[i];
-        if (!foto.title || !foto.alt || !foto.nombreSEO || !Array.isArray(foto.keywords) || !foto.keywords.length) throw new Error(`Metadatos editoriales incompletos en foto ${i + 1}.`);
-        if (foto.src !== original.src || foto.slug !== original.slug || JSON.stringify(foto.settings) !== JSON.stringify(original.settings)) throw new Error(`Integridad técnica alterada en foto ${i + 1}.`);
+        if (!foto.title || !foto.alt || !foto.nombreSEO || !Array.isArray(foto.keywords) || !foto.keywords.length) {
+            throw new Error(`Metadatos editoriales incompletos en foto ${i + 1}.`);
+        }
+        if (foto.src !== original.src || foto.slug !== original.slug || JSON.stringify(foto.settings) !== JSON.stringify(original.settings)) {
+            throw new Error(`Integridad técnica alterada en foto ${i + 1}.`);
+        }
     });
 
     console.log("\n======================================");
@@ -107,11 +143,15 @@ async function ejecutar() {
     console.log(`✓ Hero Texto generado: ${heroTexto.trim().length} caracteres`);
     console.log(`✓ Fotografías procesadas: ${galeriaV.length}`);
     console.log("✓ title + alt + keywords + nombreSEO presentes en cada fotografía.");
-    console.log("✓ SEO Title + Meta Description presentes.");
+    console.log("✓ SEO Title + Meta Description presentes y dentro de límites.");
     console.log("✓ src + slug + settings preservados.");
     console.log(`✓ Llamadas IA: ${llamadasIA}`);
     console.log(`✓ CSV de prueba: ${rutaSalida}`);
     console.log("\n✓ EDITORIAL V1 SUPERADA\n");
 }
 
-ejecutar().catch(error => { console.error("\n✗ PRUEBA EDITORIAL V1 FALLIDA\n"); console.error(error.stack || error); process.exit(1); });
+ejecutar().catch(error => {
+    console.error("\n✗ PRUEBA EDITORIAL V1 FALLIDA\n");
+    console.error(error.stack || error);
+    process.exit(1);
+});
