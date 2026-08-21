@@ -14,10 +14,10 @@ function json(texto, nombre) {
 
 class ProcesadorEditorialV1 {
 
-    constructor() {
+    constructor({ validadorHistoria = new ValidadorHistoria() } = {}) {
         this.contexto = new ConstructorContexto();
         this.openAI = new OpenAIClient();
-        this.validadorHistoria = new ValidadorHistoria();
+        this.validadorHistoria = validadorHistoria;
     }
 
     construirProyecto(fila) {
@@ -81,12 +81,15 @@ class ProcesadorEditorialV1 {
         const historia = await this.openAI.generarTexto(
             this.contexto.construirHistoria(proyecto)
         );
-        const validacionHistoria = this.validadorHistoria.validar(historia.trim());
+        const validacionHistoria = this.validadorHistoria.validar(historia.trim(), proyecto);
         if (!validacionHistoria.aprobado) {
-            throw new Error(`Historia rechazada: ${JSON.stringify(validacionHistoria.errores)}`);
+            const detalle = validacionHistoria.errores
+                .map(error => typeof error === "string" ? error : `${error.regla}: ${error.mensaje}`)
+                .join(" | ");
+            throw new Error(`Historia rechazada: ${detalle}`);
         }
         if (validacionHistoria.metricas.parrafos !== 1) {
-            throw new Error("Historia V1 no tiene exactamente un párrafo.");
+            throw new Error("La Historia Editorial no tiene exactamente un párrafo.");
         }
 
         const heroTexto = await this.openAI.generarTexto(
