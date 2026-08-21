@@ -76,7 +76,7 @@ class ConstructorContexto {
     }
 
     seccionProyecto(proyecto) {
-        return `\n====================================================\nDATOS DEL PROYECTO\n====================================================\n\nProyecto\n${this.valor(proyecto.nombre)}\n\nCódigo\n${this.valor(proyecto.codigo || "Pendiente")}\n\nCliente\n${this.valor(proyecto.cliente)}\n\nCiudad\n${this.valor(proyecto.ciudad)}\n\nEstado\n${this.valor(proyecto.estado)}\n\nCategoría\n${this.valor(proyecto.categoria)}\n`;
+        return `\n====================================================\nDATOS DEL PROYECTO\n====================================================\n\nProyecto\n${this.valor(proyecto.nombre)}\n\nCódigo\n${this.valor(proyecto.codigo || "Pendiente")}\n\nCliente\n${this.valor(proyecto.cliente)}\n\nCiudad\n${this.valor(proyecto.ciudad)}\n\nEstado\n${this.lista(proyecto.estado)}\n\nCategoría\n${this.lista(proyecto.categoria)}\n\nDescripción del proyecto\n${this.valor(proyecto.descripcion)}\n\nServicios\n${this.lista(proyecto.servicios)}\n\nEspacios registrados\n${this.lista(proyecto.espacios)}\n`;
     }
 
     seccionExpediente(expediente) {
@@ -84,7 +84,7 @@ class ConstructorContexto {
         const agregados = this.agregarObservaciones(observaciones);
         const espacios = expediente.proyecto?.espacios || agregados.espacios;
 
-        return `\n====================================================\nEXPEDIENTE DEL PROYECTO\n====================================================\n\nVersión\n${this.valor(expediente.version)}\n\nEspacios\n${this.lista(espacios)}\n\nMateriales observados\n${this.lista(agregados.materiales)}\n\nColores observados\n${this.lista(agregados.colores)}\n\nElementos observados\n${this.lista(agregados.elementos)}\n\nEstilos observados\n${this.lista(agregados.estilos)}\n\nIluminación observada\n${this.lista(agregados.iluminacion)}\n\nSensaciones observadas\n${this.lista(agregados.sensaciones)}\n\nFotografías analizadas\n${observaciones.filter(f => f.analizada).length} de ${observaciones.length}\n`;
+        return `\n====================================================\nEXPEDIENTE DEL PROYECTO\n====================================================\n\nVersión\n${this.valor(expediente.version)}\n\nDescripción registrada\n${this.valor(expediente.descripcion)}\n\nEspacios observados\n${this.lista(espacios)}\n\nMateriales observados\n${this.lista(agregados.materiales)}\n\nColores observados\n${this.lista(agregados.colores)}\n\nElementos observados\n${this.lista(agregados.elementos)}\n\nEstilos observados\n${this.lista(agregados.estilos)}\n\nIluminación observada\n${this.lista(agregados.iluminacion)}\n\nSensaciones observadas\n${this.lista(agregados.sensaciones)}\n\nFotografías analizadas\n${observaciones.filter(f => f.analizada).length} de ${observaciones.length}\n`;
     }
 
     agregarObservaciones(observaciones) {
@@ -103,7 +103,7 @@ class ConstructorContexto {
     seccionFotografia(fotografia) {
         if (!fotografia) return `\n====================================================\nFOTOGRAFÍA\n====================================================\n\nSin fotografía disponible.\n`;
 
-        return `\n====================================================\nFOTOGRAFÍA\n====================================================\n\nNombre\n${this.valor(fotografia.nombre)}\n\nEspacio\n${this.valor(fotografia.espacio)}\n\nTipo\n${this.valor(fotografia.tipo)}\n\nPlano\n${this.valor(fotografia.plano)}\n\nEstilo\n${this.valor(fotografia.estilo)}\n\nMateriales\n${this.lista(fotografia.materiales)}\n\nColores\n${this.lista(fotografia.colores)}\n\nElementos\n${this.lista(fotografia.elementos)}\n\nIluminación\n${this.valor(fotografia.iluminacion)}\n\nSensación\n${this.valor(fotografia.sensacion)}\n\nConfianza Vision\n${this.valor(fotografia.confianza)}\n`;
+        return `\n====================================================\nFOTOGRAFÍA\n====================================================\n\nNombre\n${this.valor(fotografia.nombre)}\n\nEspacio\n${this.valor(fotografia.espacio)}\n\nTipo\n${this.valor(fotografia.tipo)}\n\nPlano\n${this.valor(fotografia.plano)}\n\nMateriales\n${this.lista(fotografia.materiales)}\n\nColores\n${this.lista(fotografia.colores)}\n\nElementos\n${this.lista(fotografia.elementos)}\n\nIluminación\n${this.valor(fotografia.iluminacion)}\n\nSensación\n${this.valor(fotografia.sensacion)}\n\nConfianza Vision\n${this.valor(fotografia.confianza)}\n\nDescripción editorial registrada\n${this.valor(fotografia.description)}\n`;
     }
 
     lista(valores) {
