@@ -138,8 +138,6 @@ class ValidadorHistoriaV2 {
             { coincidencias: meta }
         );
 
-        // Un llamado a la acción requiere función imperativa o destinatario directo;
-        // una palabra como “aprovecha” no es una infracción por sí sola.
         const ctaPatterns = [
             { id: "imperativo_aprovecha", regex: /\baprovecha\s+(?:esta|la|tu|una)\b/ },
             { id: "imperativo_conoce", regex: /\bconoce\s+(?:mas|más|nuestro|nuestra|este|esta|el|la)\b/ },
@@ -172,8 +170,40 @@ class ValidadorHistoriaV2 {
             { coincidencias: publicitarias }
         );
 
+        // El punto de partida puede expresarse de muchas formas legítimas.
+        // No debe depender únicamente de palabras como “antes”, “necesitaba” o “reto”.
+        // Se reconocen construcciones descriptivas de estado inicial, condición,
+        // carencia, intención funcional y situación espacial comprobable.
         const antes = [
-            /\bantes\b/, /\bpartia\b/, /\bnecesidad(?:es)?\b/, /\bnecesitaba\b/, /\blimitaba\b/, /\bdificultad\b/, /\bproblema\b/, /\breto\b/, /\bdesafio\b/, /\bcondicion inicial\b/, /\bbuscaba\b/, /\brequeria\b/, /\bno permitia\b/, /\bno respondia\b/
+            /\bantes\b/,
+            /\bpartia\b/,
+            /\bpartia de\b/,
+            /\bse encontraba\b/,
+            /\bse encontraba en\b/,
+            /\bestaba\b/,
+            /\bera\b/,
+            /\btenia\b/,
+            /\bcontaba con\b/,
+            /\bpresentaba\b/,
+            /\balbergaba\b/,
+            /\bdisponia de\b/,
+            /\bcarecia de\b/,
+            /\bno contaba con\b/,
+            /\bno disponia de\b/,
+            /\bno permitia\b/,
+            /\blimitaba\b/,
+            /\bdificultad\b/,
+            /\bproblema\b/,
+            /\breto\b/,
+            /\bdesafio\b/,
+            /\bcondicion inicial\b/,
+            /\bsituacion inicial\b/,
+            /\bbuscaba\b/,
+            /\bqueria\b/,
+            /\brequeria\b/,
+            /\bnecesitaba\b/,
+            /\bnecesidad(?:es)?\b/,
+            /\bplanteaba\b/
         ];
         const transformacion = [
             /\btransform\w*\b/, /\breorganiz\w*\b/, /\bintegr\w*\b/, /\brediseñ\w*\b/, /\bredisen\w*\b/, /\bconvirt\w*\b/, /\bevolucion\w*\b/, /\barticul\w*\b/, /\brespond\w*\b/
