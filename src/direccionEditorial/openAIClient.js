@@ -7,186 +7,74 @@ const OpenAI = require("openai");
 const config = require("../core/configNode");
 
 class OpenAIClient {
-
     constructor() {
-
-        this.client = new OpenAI({
-
-            apiKey: process.env.OPENAI_API_KEY
-
-        });
-
+        this.client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
     }
-
-    //==================================================
-    // TEXTO
-    //==================================================
 
     async generarTexto(prompt) {
+        const resultado = await this.generarTextoDetallado(prompt);
+        return resultado.texto;
+    }
 
-        console.log("");
-        console.log("======================================");
+    async generarTextoDetallado(prompt) {
+        console.log("\n======================================");
         console.log("DIRECTOR EDITORIAL MUBATO");
-        console.log("======================================");
-        console.log("");
-
-        console.log("Conectando con OpenAI...");
-        console.log("");
-
+        console.log("======================================\n");
+        console.log("Conectando con OpenAI...\n");
         const inicio = Date.now();
-
         try {
-
-            const respuesta = await this.client.responses.create({
-
-                model: config.IA.modelo,
-
-                input: prompt
-
-            });
-
+            const respuesta = await this.client.responses.create({ model: config.IA.modelo, input: prompt });
             const tiempo = Date.now() - inicio;
-
+            const uso = respuesta.usage || {};
+            const telemetria = {
+                modelo: config.IA.modelo,
+                tiempoMs: tiempo,
+                inputTokens: Number(uso.input_tokens || 0),
+                outputTokens: Number(uso.output_tokens || 0),
+                totalTokens: Number(uso.total_tokens || 0)
+            };
             console.log("✓ OpenAI respondió correctamente.");
             console.log(`✓ Tiempo: ${tiempo} ms`);
-
-            return respuesta.output_text;
-
-        }
-
-        catch(error){
-
+            console.log(`✓ Tokens: ${telemetria.totalTokens || "no informado"}`);
+            return { texto: respuesta.output_text, telemetria };
+        } catch (error) {
             console.error(error);
-
             throw error;
-
         }
-
     }
-
-    //==================================================
-    // VISIÓN
-    //==================================================
 
     async analizarImagen(rutaImagen, prompt) {
-
-        console.log("");
-        console.log("======================================");
-        console.log("VISIÓN");
-        console.log("======================================");
-        console.log("");
-
+        console.log("\n======================================\nVISIÓN\n======================================\n");
         console.log(`Analizando ${rutaImagen}`);
-
         const inicio = Date.now();
-
         try {
-
-            const imagenBase64 = fs.readFileSync(rutaImagen, {
-
-                encoding: "base64"
-
-            });
-
+            const imagenBase64 = fs.readFileSync(rutaImagen, { encoding: "base64" });
             const respuesta = await this.client.responses.create({
-
                 model: config.IA.modelo,
-
-                input: [
-
-                    {
-
-                        role: "user",
-
-                        content: [
-
-                            {
-
-                                type: "input_text",
-
-                                text: prompt
-
-                            },
-
-                            {
-
-                                type: "input_image",
-
-                                image_url: `data:image/jpeg;base64,${imagenBase64}`
-
-                            }
-
-                        ]
-
-                    }
-
-                ]
-
+                input: [{ role: "user", content: [
+                    { type: "input_text", text: prompt },
+                    { type: "input_image", image_url: `data:image/jpeg;base64,${imagenBase64}` }
+                ] }]
             });
-
             const tiempo = Date.now() - inicio;
-
             console.log("✓ Imagen analizada.");
             console.log(`✓ Tiempo: ${tiempo} ms`);
-            console.log("");
-
             return respuesta.output_text;
-
-        }
-
-        catch(error){
-
+        } catch (error) {
             console.error(error);
-
             throw error;
-
         }
-
     }
-
-
-
-    //==================================================
-    // VISIÓN (JSON)
-    //==================================================
 
     async analizarImagenJSON(rutaImagen, prompt) {
-
-        const respuesta = await this.analizarImagen(
-
-            rutaImagen,
-
-            prompt
-
-        );
-
+        const respuesta = await this.analizarImagen(rutaImagen, prompt);
         try {
-
             return JSON.parse(respuesta);
-
+        } catch (error) {
+            console.error("La respuesta recibida fue:\n", respuesta);
+            throw new Error("OpenAI devolvió un JSON inválido.");
         }
-
-        catch (error) {
-
-            console.error("");
-            console.error("======================================");
-            console.error("ERROR JSON");
-            console.error("======================================");
-            console.error("");
-
-            console.error("La respuesta recibida fue:");
-            console.error("");
-            console.error(respuesta);
-            console.error("");
-
-            throw new Error(
-
-                "OpenAI devolvió un JSON inválido."
-
-            );
-
-        }
-
     }
 }
+
 module.exports = OpenAIClient;
