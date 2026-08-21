@@ -170,40 +170,8 @@ class ValidadorHistoriaV2 {
             { coincidencias: publicitarias }
         );
 
-        // El punto de partida puede expresarse de muchas formas legítimas.
-        // No debe depender únicamente de palabras como “antes”, “necesitaba” o “reto”.
-        // Se reconocen construcciones descriptivas de estado inicial, condición,
-        // carencia, intención funcional y situación espacial comprobable.
         const antes = [
-            /\bantes\b/,
-            /\bpartia\b/,
-            /\bpartia de\b/,
-            /\bse encontraba\b/,
-            /\bse encontraba en\b/,
-            /\bestaba\b/,
-            /\bera\b/,
-            /\btenia\b/,
-            /\bcontaba con\b/,
-            /\bpresentaba\b/,
-            /\balbergaba\b/,
-            /\bdisponia de\b/,
-            /\bcarecia de\b/,
-            /\bno contaba con\b/,
-            /\bno disponia de\b/,
-            /\bno permitia\b/,
-            /\blimitaba\b/,
-            /\bdificultad\b/,
-            /\bproblema\b/,
-            /\breto\b/,
-            /\bdesafio\b/,
-            /\bcondicion inicial\b/,
-            /\bsituacion inicial\b/,
-            /\bbuscaba\b/,
-            /\bqueria\b/,
-            /\brequeria\b/,
-            /\bnecesitaba\b/,
-            /\bnecesidad(?:es)?\b/,
-            /\bplanteaba\b/
+            /\bantes\b/, /\bpartia\b/, /\bpartia de\b/, /\bse encontraba\b/, /\bse encontraba en\b/, /\bestaba\b/, /\bera\b/, /\btenia\b/, /\bcontaba con\b/, /\bpresentaba\b/, /\balbergaba\b/, /\bdisponia de\b/, /\bcarecia de\b/, /\bno contaba con\b/, /\bno disponia de\b/, /\bno permitia\b/, /\blimitaba\b/, /\bdificultad\b/, /\bproblema\b/, /\breto\b/, /\bdesafio\b/, /\bcondicion inicial\b/, /\bsituacion inicial\b/, /\bbuscaba\b/, /\bqueria\b/, /\brequeria\b/, /\bnecesitaba\b/, /\bnecesidad(?:es)?\b/, /\bplanteaba\b/
         ];
         const transformacion = [
             /\btransform\w*\b/, /\breorganiz\w*\b/, /\bintegr\w*\b/, /\brediseñ\w*\b/, /\bredisen\w*\b/, /\bconvirt\w*\b/, /\bevolucion\w*\b/, /\barticul\w*\b/, /\brespond\w*\b/
@@ -221,14 +189,30 @@ class ValidadorHistoriaV2 {
         const nDespues = cuentaPatrones(despues);
         const nHumana = cuentaPatrones(humana);
 
-        registrar("narrativa.punto_partida", nAntes > 0, nAntes > 0 ? "Existe señal del punto de partida." : "Falta una condición inicial o intención funcional reconocible.", { senales: nAntes });
+        const contexto = this.extraerContexto(proyecto);
+        const anclasEncontradas = contexto.filter(anchor => anchor.length >= 4 && texto.includes(anchor));
+        const anclasUnicas = [...new Set(anclasEncontradas)];
+
+        // El punto de partida no debe depender de una palabra concreta.
+        // Se acepta una señal explícita o una evidencia narrativa estructural:
+        // transformación + experiencia humana + al menos dos anclas comprobables.
+        const respaldoEstructural = nTransformacion > 0 && nHumana > 0 && anclasUnicas.length >= 2;
+        const puntoPartidaValido = nAntes > 0 || respaldoEstructural;
+        registrar(
+            "narrativa.punto_partida",
+            puntoPartidaValido,
+            puntoPartidaValido
+                ? (nAntes > 0
+                    ? "Existe señal explícita del punto de partida."
+                    : "El punto de partida queda sustentado por la estructura narrativa, la experiencia humana y las anclas comprobables del proyecto.")
+                : "Falta una condición inicial o una estructura narrativa suficiente para inferir el punto de partida.",
+            { senales: nAntes, respaldoEstructural, anclasContextuales: anclasUnicas.length }
+        );
+
         registrar("narrativa.transformacion", nTransformacion > 0, nTransformacion > 0 ? "Existe señal de transformación o respuesta de diseño." : "Falta una transformación o respuesta de diseño reconocible.", { senales: nTransformacion });
         registrar("narrativa.estado_posterior", nDespues > 0, nDespues > 0 ? "Existe señal de estado posterior o nueva experiencia." : "Falta una señal clara del estado posterior.", { senales: nDespues });
         registrar("narrativa.experiencia_humana", nHumana > 0, nHumana > 0 ? "Existe referencia a personas o experiencia de habitar." : "Falta una referencia suficiente a personas, vida cotidiana o habitar.", { senales: nHumana });
 
-        const contexto = this.extraerContexto(proyecto);
-        const anclasEncontradas = contexto.filter(anchor => anchor.length >= 4 && texto.includes(anchor));
-        const anclasUnicas = [...new Set(anclasEncontradas)];
         registrar(
             "contexto.especificidad",
             anclasUnicas.length >= 2,
