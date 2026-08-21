@@ -2,10 +2,12 @@ console.log("ConstructorContexto.js cargado");
 
 const contextoMarca = require("./contextoMarca");
 const promptTemplates = require("./promptTemplates");
+const promptHistoriaWebV2 = require("./promptHistoriaWebV2");
 
 class ConstructorContexto {
     construirHero(proyecto) { return this.construirProyecto(proyecto, promptTemplates.HERO, "HERO"); }
     construirHistoria(proyecto) { return this.construirProyecto(proyecto, promptTemplates.HISTORIA, "HISTORIA"); }
+    construirHistoriaWeb(historia) { return this.encabezado("HISTORIA_WEB") + promptHistoriaWebV2.replace("{{HISTORIA}}", historia || "Sin historia editorial disponible."); }
     construirSEO(proyecto, historia = "") { return this.construirProyecto(proyecto, promptTemplates.SEO, "SEO", `\n====================================================\nHISTORIA EDITORIAL\n====================================================\n\n${historia || "Sin historia editorial disponible."}\n`); }
     construirKeywords(proyecto, historia = "") { return this.construirProyecto(proyecto, promptTemplates.KEYWORDS, "KEYWORDS", `\n====================================================\nHISTORIA EDITORIAL\n====================================================\n\n${historia || "Sin historia editorial disponible."}\n`); }
     construirSlug(proyecto) { return this.construirProyecto(proyecto, promptTemplates.SLUG, "SLUG"); }
