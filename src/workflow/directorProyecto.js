@@ -44,6 +44,13 @@ class DirectorProyecto {
         console.log("✓ Expediente construido.");
         console.log("");
 
+        console.log("3. Persistiendo evidencia visual...");
+
+        this.exportadorEditorial.persistirEvidenciaVisual(proyecto);
+
+        console.log("✓ Evidencia visual disponible para Editorial V2.1.");
+        console.log("");
+
         console.log("======================================");
         console.log("ANÁLISIS DEL PROYECTO FINALIZADO");
         console.log("======================================");
