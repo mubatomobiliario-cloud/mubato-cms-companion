@@ -44,22 +44,39 @@ class OpenAIClient {
     }
 
     async analizarImagen(rutaImagen, prompt) {
+        const imagenBase64 = fs.readFileSync(rutaImagen, { encoding: "base64" });
+        return this.analizarImagenEntrada(`data:image/jpeg;base64,${imagenBase64}`, prompt, rutaImagen);
+    }
+
+    async analizarImagenURL(urlImagen, prompt) {
+        return this.analizarImagenEntrada(urlImagen, prompt, urlImagen);
+    }
+
+    async analizarImagenEntrada(imagen, prompt, referencia = "imagen") {
         console.log("\n======================================\nVISIÓN\n======================================\n");
-        console.log(`Analizando ${rutaImagen}`);
+        console.log(`Analizando ${referencia}`);
         const inicio = Date.now();
         try {
-            const imagenBase64 = fs.readFileSync(rutaImagen, { encoding: "base64" });
             const respuesta = await this.client.responses.create({
                 model: config.IA.modelo,
                 input: [{ role: "user", content: [
                     { type: "input_text", text: prompt },
-                    { type: "input_image", image_url: `data:image/jpeg;base64,${imagenBase64}` }
+                    { type: "input_image", image_url: imagen }
                 ] }]
             });
             const tiempo = Date.now() - inicio;
+            const uso = respuesta.usage || {};
+            const telemetria = {
+                modelo: config.IA.modelo,
+                tiempoMs: tiempo,
+                inputTokens: Number(uso.input_tokens || 0),
+                outputTokens: Number(uso.output_tokens || 0),
+                totalTokens: Number(uso.total_tokens || 0)
+            };
             console.log("✓ Imagen analizada.");
             console.log(`✓ Tiempo: ${tiempo} ms`);
-            return respuesta.output_text;
+            console.log(`✓ Tokens: ${telemetria.totalTokens || "no informado"}`);
+            return { texto: respuesta.output_text, telemetria };
         } catch (error) {
             console.error(error);
             throw error;
@@ -67,11 +84,11 @@ class OpenAIClient {
     }
 
     async analizarImagenJSON(rutaImagen, prompt) {
-        const respuesta = await this.analizarImagen(rutaImagen, prompt);
+        const resultado = await this.analizarImagen(rutaImagen, prompt);
         try {
-            return JSON.parse(respuesta);
+            return JSON.parse(resultado.texto);
         } catch (error) {
-            console.error("La respuesta recibida fue:\n", respuesta);
+            console.error("La respuesta recibida fue:\n", resultado.texto);
             throw new Error("OpenAI devolvió un JSON inválido.");
         }
     }
