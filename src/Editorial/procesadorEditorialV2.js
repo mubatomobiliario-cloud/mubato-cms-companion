@@ -68,11 +68,15 @@ class ProcesadorEditorialV2 {
             }
             if (validacionHistoria.metricas.parrafos !== 1) throw new Error("La Historia Editorial maestra no tiene exactamente un párrafo.");
 
-            const historiaWeb = await generar("historia_web", this.contexto.construirHistoriaWeb(historia.trim()));
-            const validacionHistoriaWeb = this.validadorHistoriaWeb.validar(historiaWeb.trim(), proyecto);
+            const contratoHistoriaWeb = json(
+                await generar("historia_web", this.contexto.construirHistoriaWeb(historia.trim())),
+                "HISTORIA_WEB"
+            );
+            const validacionHistoriaWeb = this.validadorHistoriaWeb.validarContrato(contratoHistoriaWeb, proyecto);
             if (!validacionHistoriaWeb.aprobado) {
                 throw new Error(`Historia Web rechazada: ${validacionHistoriaWeb.errores.join(" | ")}`);
             }
+            const historiaWeb = contratoHistoriaWeb.texto.trim();
 
             const heroTexto = await generar("hero", this.contexto.construirHero(proyecto));
             if (!heroTexto.trim()) throw new Error("Hero vacío.");
@@ -106,9 +110,10 @@ class ProcesadorEditorialV2 {
             return {
                 proyecto,
                 historia: historia.trim(),
-                historiaWeb: historiaWeb.trim(),
+                historiaWeb,
+                contratoHistoriaWeb,
                 heroTexto: heroTexto.trim(),
-                descripcion: historiaWeb.trim(),
+                descripcion: historiaWeb,
                 codigo,
                 servicios: servicios.servicios,
                 slug,
