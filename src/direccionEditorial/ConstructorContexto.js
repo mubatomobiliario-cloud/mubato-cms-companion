@@ -6,7 +6,7 @@ const promptHistoriaWebV2 = require("./promptHistoriaWebV2");
 
 class ConstructorContexto {
     construirHero(proyecto) { return this.construirProyecto(proyecto, promptTemplates.HERO, "HERO"); }
-    construirHistoria(proyecto) { return this.construirProyecto(proyecto, promptTemplates.HISTORIA, "HISTORIA"); }
+    construirHistoria(proyecto) { return this.construirProyecto(proyecto, promptTemplates.HISTORIA, "HISTORIA", this.seccionPuntoPartida(proyecto)); }
     construirHistoriaWeb(historia) { return this.encabezado("HISTORIA_WEB") + promptHistoriaWebV2.replace("{{HISTORIA}}", historia || "Sin historia editorial disponible."); }
     construirSEO(proyecto, historia = "") { return this.construirProyecto(proyecto, promptTemplates.SEO, "SEO", `\n====================================================\nHISTORIA EDITORIAL\n====================================================\n\n${historia || "Sin historia editorial disponible."}\n`); }
     construirKeywords(proyecto, historia = "") { return this.construirProyecto(proyecto, promptTemplates.KEYWORDS, "KEYWORDS", `\n====================================================\nHISTORIA EDITORIAL\n====================================================\n\n${historia || "Sin historia editorial disponible."}\n`); }
@@ -28,6 +28,15 @@ class ConstructorContexto {
     construirProyecto(proyecto, plantilla, nombreContrato, adicional = "") {
         const expediente = proyecto.expediente || {};
         return this.encabezado(nombreContrato) + this.seccionMarca() + plantilla + this.seccionProyecto(proyecto) + this.seccionExpediente(expediente) + adicional;
+    }
+    seccionPuntoPartida(proyecto) {
+        const espacios = Array.isArray(proyecto.espacios) ? proyecto.espacios.filter(Boolean) : [];
+        const observaciones = Array.isArray(proyecto.expediente?.observacionesVision) ? proyecto.expediente.observacionesVision : [];
+        const espaciosVision = observaciones.map(o => o.espacio).filter(Boolean);
+        const espaciosUnicos = [...new Set([...espacios, ...espaciosVision])];
+        const espacio = espaciosUnicos[0] || "espacio interior";
+        const ciudad = proyecto.ciudad || "la ciudad registrada";
+        return `\n====================================================\nPUNTO DE PARTIDA COMPROBADO — NO OMITIR\n====================================================\n\nEl proyecto parte de una intervención en ${espacio} en ${ciudad}.\n\nEsta frase es una condición inicial comprobada, no una necesidad inventada. Debe conservarse explícitamente como la primera idea de la Historia Editorial. Puedes reformularla, pero no eliminarla ni sustituirla por la descripción de la transformación, los materiales o el resultado.\n`;
     }
     encabezado(nombre) { return `\n====================================================\nCONTRATO EDITORIAL: ${nombre}\n====================================================\n`; }
     seccionMarca() { return `\n====================================================\nCONTEXTO DE MARCA MUBATO\n====================================================\n\n${JSON.stringify(contextoMarca, null, 2)}\n`; }
