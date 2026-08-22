@@ -23,6 +23,11 @@ class ValidadorHistoriaWebV2 {
             .length;
     }
 
+    primeraFrase(texto) {
+        const coincidencia = String(texto || "").trim().match(/^.*?[.!?](?:\s|$)/);
+        return this.normalizar(coincidencia ? coincidencia[0] : texto);
+    }
+
     validar(historia, proyecto = {}) {
         const original = String(historia || "").trim();
         const texto = this.normalizar(original);
@@ -34,13 +39,23 @@ class ValidadorHistoriaWebV2 {
             .map(x => this.normalizar(x))
             .filter(x => x.length >= 4);
 
-        const puntoPartida = /\b(?:partia|partia de|antes|condicion|reto|desafio|necesidad|limitaba|requeria|buscaba|no permitia|no respondia)\b/.test(texto);
-        const transformacion = /\b(?:transform\w*|reorganiz\w*|integr\w*|rediseñ\w*|redisen\w*|convirt\w*|evolucion\w*|articul\w*|respond\w*)\b/.test(texto);
-        const posterior = /\b(?:hoy|ahora|permite|se vive|se habita|acompañ\w*|mejor\w*|nueva forma|nueva manera|vida cotidiana)\b/.test(texto);
-        const experiencia = /\b(?:habitar|vivir|descanso|compartir|reunirse|personas|familia|habitantes|vida cotidiana)\b/.test(texto);
-        const meta = /\b(?:expediente|contexto suministrado|datos disponibles|informacion proporcionada|observaciones|fotografias como fuente|segun|de acuerdo con)\b/.test(texto);
-        const cta = /\b(?:conoce|descubre|contáctanos|contactanos|escribenos|escríbenos|cotiza|agenda una cita)\b/.test(texto);
+        const primera = this.primeraFrase(original);
         const anclasEncontradas = [...new Set(anclas.filter(a => texto.includes(a)))];
+        const anclasIniciales = anclas.filter(a => primera.includes(a));
+
+        // La Historia Web es una síntesis de una Historia Maestra ya validada.
+        // Por eso no exigimos palabras literales como "partía" o "permitía".
+        // Validamos estructura narrativa y anclaje real al proyecto.
+        const transformacion = /\b(?:transform\w*|reorganiz\w*|integr\w*|rediseñ\w*|redisen\w*|convirt\w*|evolucion\w*|articul\w*|renov\w*|interven\w*|diseñ\w*|configur\w*|incorpor\w*)\b/.test(texto);
+        const experiencia = /\b(?:habitar|vivir|descanso|compartir|reunirse|personas|familia|habitantes|vida cotidiana|calma|comodidad|confort|funcionalidad|experiencia|bienestar|uso cotidiano|disfrut\w*)\b/.test(texto);
+        const posterior = /\b(?:ahora|hoy|queda|quedo|queda configurad\w*|se convierte|se convirtio|resulta|permite|ofrece|aporta|favorece|facilita|hace posible|genera|logra|consigue|propicia|responde|nuevo|nueva|renovad\w*|integrado|integrada|resuelto|resuelta|funcional|calido|calida|calma|equilibrio|fluidez|comodidad|confort)\b/.test(texto);
+        const meta = /\b(?:expediente|contexto suministrado|datos disponibles|informacion proporcionada|observaciones|fotografias como fuente|segun|de acuerdo con)\b/.test(texto);
+        const cta = /\b(?:conoce|descubre|contactanos|contactanos|escribenos|escribenos|cotiza|agenda una cita)\b/.test(texto);
+
+        // El punto de partida no necesita una palabra gatillo concreta:
+        // debe estar presente en la apertura y no ser simplemente el resultado.
+        const aperturaEsTransformacion = /\b(?:transform\w*|reorganiz\w*|integr\w*|rediseñ\w*|redisen\w*|convirt\w*|evolucion\w*|renov\w*|interven\w*)\b/.test(primera);
+        const puntoPartida = anclasIniciales.length > 0 && !aperturaEsTransformacion;
 
         if (palabras < 150 || palabras > 220) errores.push(`La Historia Web tiene ${palabras} palabras; exige entre 150 y 220.`);
         if (parrafos !== 1) errores.push(`La Historia Web contiene ${parrafos} párrafos; exige exactamente uno.`);
