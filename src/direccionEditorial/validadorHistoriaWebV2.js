@@ -23,6 +23,11 @@ class ValidadorHistoriaWebV2 {
             .length;
     }
 
+    palabrasSignificativas(texto) {
+        const stop = new Set(["para", "desde", "entre", "sobre", "hacia", "como", "este", "esta", "estos", "estas", "donde", "cuando", "porque", "tambien", "solo", "una", "uno", "unos", "unas", "del", "las", "los", "que", "con", "por", "sin", "sus", "son", "era", "fue", "han", "una"]);
+        return [...new Set(this.normalizar(texto).split(/\s+/).filter(x => x.length >= 4 && !stop.has(x)))];
+    }
+
     validarContrato(contrato, proyecto = {}) {
         const errores = [];
         const requeridos = ["puntoPartida", "logicaDiseno", "transformacion", "estadoPosterior", "experiencia", "texto"];
@@ -59,16 +64,16 @@ class ValidadorHistoriaWebV2 {
         if (anclasEncontradas.length < 2) errores.push("La Historia Web contiene pocas anclas comprobables del proyecto.");
 
         const primeraFrase = this.normalizar(texto.match(/^.*?[.!?](?:\s|$)/)?.[0] || texto);
-        const punto = this.normalizar(contrato.puntoPartida);
-        const fragmentoPunto = punto.split(/\s+/).slice(0, 8).join(" ");
-        if (!fragmentoPunto || !primeraFrase.includes(fragmentoPunto)) {
-            errores.push("La primera frase no conserva explícitamente el punto de partida del contrato.");
+        const puntoPalabras = this.palabrasSignificativas(contrato.puntoPartida);
+        const coincidenciasPunto = puntoPalabras.filter(p => primeraFrase.includes(p));
+        if (coincidenciasPunto.length < 2) {
+            errores.push("La primera frase no conserva suficientemente el punto de partida del contrato.");
         }
 
         return {
             aprobado: errores.length === 0,
             errores,
-            metricas: { palabras, parrafos, anclasContextuales: anclasEncontradas.length },
+            metricas: { palabras, parrafos, anclasContextuales: anclasEncontradas.length, coincidenciasPuntoPartida: coincidenciasPunto.length },
             anclasEncontradas,
             contrato
         };
