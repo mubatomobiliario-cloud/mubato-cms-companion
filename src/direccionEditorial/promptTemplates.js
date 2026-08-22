@@ -73,7 +73,14 @@ Explica la respuesta de diseño y las decisiones que pueden inferirse razonablem
 Explica qué cambió en el espacio y cómo se articulan sus elementos. Debe existir una transformación reconocible, no una simple descripción.
 
 4. ESTADO POSTERIOR Y EXPERIENCIA
-Cierra explicando cómo el espacio queda configurado y qué experiencia de habitar permite o favorece, únicamente cuando esté sustentado por la intervención observable.
+Cierra explicando de manera concreta cómo queda configurado el espacio después de la intervención y qué experiencia de habitar permite o favorece, únicamente cuando esté sustentado por la intervención observable.
+
+REGLA CRÍTICA DEL CIERRE
+El cierre debe describir al menos una condición espacial RESULTANTE y una consecuencia de experiencia sustentada. No basta con afirmar que el espacio "se transforma", "se renueva", "mejora" o "se convierte en un lugar más acogedor" sin explicar primero cómo queda configurado.
+
+Utiliza, cuando estén comprobados, elementos como la integración del mobiliario, la distribución, la relación entre materiales, la iluminación, el orden visual, la funcionalidad, la amplitud o la atmósfera resultante. No inventes ninguno de estos atributos: selecciona solo los que estén respaldados por el expediente o Vision.
+
+La última parte de la historia debe dejar inequívocamente claro qué espacio resulta de la intervención y cómo esa configuración modifica o favorece la experiencia de habitarlo.
 
 CRITERIOS
 - Habla de personas, experiencia y transformación antes que de productos.
