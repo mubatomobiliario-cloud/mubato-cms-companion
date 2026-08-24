@@ -1,47 +1,60 @@
 # MUBATO CMS Companion — Matriz Viva de Componentes
 
-> Documento canónico de estado funcional. Se actualiza con cada cambio significativo y sirve como referencia de continuidad.
+> Documento canónico de estado funcional. Se actualiza con cada cambio significativo.
 
 | Componente | Responsabilidad | Estado | Contrato | Camino crítico |
 |---|---|---|---|---|
-| `core/parser.js` | Encontrar CSV/proyecto e iniciar importación | 🟢 Comprobado | Conocido | Sí |
-| `core/proyectoManager.js` | Construir `Proyecto` desde CSV y carpeta | 🟡 Implementado; validación pendiente | Importa datos básicos/fotografías; `Galería General` se parsea como JSON de objetos Wix y `Hero Imagen` como URI `wix:image://...`; vincula por `fileName` y conserva referencias Wix | Sí |
-| `core/proyecto.js` | Modelo central de proyecto, Hero, Galería y fotografías | 🟢 Comprobado | Conocido | Sí |
+| `core/parser.js` | Encontrar CSV/proyecto e iniciar importación y bifurcación editorial | 🟢 Comprobado | `Observaciones` vacía → PROYECTO; no vacía → PORTFOLIO | Sí |
+| `core/proyectoManager.js` | Construir `Proyecto` desde CSV y carpeta | 🟢 Implementado | Importa datos/fotografías y conserva referencias Wix | Sí |
+| `core/proyecto.js` | Modelo central de proyecto, Hero, Galería y fotografías | 🟢 Comprobado | Modelo Companion | Sí |
 | `core/fotografiaManager.js` | Ingestar fotografías locales | 🟢 Comprobado | Conocido | Sí |
 | `core/fotografia.js` | Modelo de fotografía y contenido editorial | 🟢 Comprobado | Conocido | Sí |
-| `vision/analizadorFotografias.js` | Ejecutar observación visual por fotografía | 🟢 Comprobado | Conocido | Sí |
-| `vision/promptVision.js` | Contrato de observación visual | 🟢 Comprobado | Conocido | Sí |
-| `direccionEditorial/expedienteProyecto.js` | Consolidar hechos, selección MUBATO, observaciones Vision y espacio de interpretación | 🟢 **Reconstruido V0.1** | `CONTRATO_EXPEDIENTE_EDITORIAL_V0.1` | Sí |
-| `core/editorIA.js` | Orquestar construcción del Expediente Editorial | 🟢 **Reconectado** | Delega en `ExpedienteProyecto` | Sí |
-| `direccionEditorial/contextoMarca.js` | Doctrina editorial MUBATO | 🟢 Preparado | Única exportación estructurada; corregida | Sí |
-| `direccionEditorial/ConstructorContexto.js` | Construir contexto por contrato para cada plantilla | 🟢 Preparado / parcialmente conectado | `CONTRATO_PROMPTS_EDITORIAL_V0.1`; métodos separados por salida | Sí |
-| `direccionEditorial/directorEditorial.js` | Orquestar generación editorial | 🟡 Parcial | Hero conectado; demás salidas preparadas en ConstructorContexto | Sí |
-| `direccionEditorial/generadorEditorial.js` | Motor genérico contexto + plantilla → contenido | 🟡 Preparado/desconectado | Conocido | Sí |
-| `direccionEditorial/promptTemplates.js` | Contratos Hero, Historia, SEO, ALT, Keywords, Slug y campos estructurados | 🟢 Reconstruido / preparado | `docs/01_Arquitectura/CONTRATO_PROMPTS_EDITORIAL_V0.1.md` | Sí |
-| `Exportadores/actualizadorCSV.js` | Escribir resultados en CSV | 🟡 Parcial | Contrato V0.1 definido; implementación pendiente | Sí |
-| `workflow/directorProyecto.js` | Orquestar fases del proyecto | 🟡 Parcial | Análisis conectado; ejecución completa no apta para UI todavía | Sí |
-| `electron/main.js` | Exponer operaciones de proyecto mediante IPC | 🟢 Análisis conectado | Conocido | Sí |
+| `vision/analizadorFotografias.js` | Ejecutar observación visual por fotografía | 🟢 Comprobado | Evidencia Vision persistible/reutilizable | Sí |
+| `direccionEditorial/expedienteProyecto.js` | Consolidar hechos, selección MUBATO y observaciones Vision | 🟢 Comprobado | Contrato de Expediente Editorial | Sí |
+| `direccionEditorial/contextoMarca.js` | Doctrina editorial MUBATO | 🟢 Preparado | Única exportación estructurada | Sí |
+| `direccionEditorial/ConstructorContexto.js` | Construir contexto por contrato | 🟢 Comprobado | Contratos editoriales separados | Sí |
+| `direccionEditorial/directorEditorial.js` | Orquestar generación editorial | 🟡 Superado en V2.2 mediante `procesadorEditorialV2.js`; integración histórica requiere consolidación | Editorial Proyecto V2.2 | Sí |
+| `direccionEditorial/promptHistoriaWebV2.js` | Generar Historia Web contractual | 🟢 Comprobado | Contrato JSON + validador | Sí |
+| `direccionEditorial/validadorHistoriaWebV2.js` | Validar Historia Web | 🟢 Comprobado | Contrato estructural/narrativo | Sí |
+| `Editorial/procesadorEditorialV2.js` | Pipeline Editorial Proyecto V2.2 | 🟢 Comprobado | 9 llamadas IA en prueba de referencia; evidencia Vision reutilizada | Sí |
+| `Exportadores/salidaEditorialCSV.js` | Aplicar contrato de salida al CSV Wix | 🟢 Blindado V2.2 | 8 campos autorizados; 18 protegidos; salida separada | Sí |
+| `Exportadores/adaptadorCSVEditorial.js` | Adaptación histórica parcial de salida | 🟡 Legado; no es el contrato final | Sustituido conceptualmente por `salidaEditorialCSV.js` | No |
+| `Exportadores/actualizadorCSV.js` | Actualizador histórico | ⚪ Eliminado | No usar | No |
+| `workflow/directorProyecto.js` | Orquestar fases de proyecto | 🟡 En consolidación | Análisis separado de escritura CSV | Sí |
+| `electron/main.js` | IPC de operaciones de proyecto | 🟢 Análisis conectado | Conocido | Sí |
 | `electron/preload.js` | Puente seguro Renderer → Main | 🟢 Análisis conectado | Conocido | Sí |
 | `renderer/script.js` | Interfaz y disparo del análisis | 🟢 Análisis conectado | Conocido | Sí |
-| `proyecto.galeria[]` | Selección humana de fotografías para Galería | 🟢 Modelo definido | Selección humana + orden; no decide Vision | Sí |
-| Hero | Selección humana + contenido editorial | 🟡 Parcial | Imagen seleccionada por MUBATO; texto editorial pendiente | Sí |
-| `Galería General` Wix | Representación física de galería en CSV | 🟢 Contrato físico comprobado | Celda CSV = JSON serializado de array de objetos multimedia Wix; conserva identidad y metadatos físicos | Sí |
-| `Hero Imagen` Wix | Representación física del Hero en CSV | 🟢 Contrato físico comprobado | Celda CSV = string `wix:image://...`; no es JSON; la URI completa debe preservarse | Sí |
-| Identidad multimedia Wix | Referencias `slug`/`src` de imágenes | 🟢 Comportamiento comprobado | Wix genera/conserva la identidad; Companion no debe inventarla | Sí |
-| Integridad básica del registro Wix | Campos estructurales del item | 🟡 Evidencia de prueba | En prueba controlada, completar campos básicos vacíos permitió que Hero y Galería se materializaran; conjunto mínimo definitivo pendiente | Sí |
-| Contrato de salida CSV V0.1 | Definir propiedad de campos y reglas de preservación | 🟢 Definido | `docs/01_Arquitectura/CONTRATO_SALIDA_CSV_V0.1.md` | Sí |
-| Contrato de prompts editoriales V0.1 | Definir entrada/salida y responsabilidad de cada plantilla | 🟢 Definido | `docs/01_Arquitectura/CONTRATO_PROMPTS_EDITORIAL_V0.1.md` | Sí |
-| **Contrato de Expediente Editorial V0.1** | Definir capas y responsabilidades del expediente | 🟢 **Definido** | `docs/01_Arquitectura/CONTRATO_EXPEDIENTE_EDITORIAL_V0.1.md` | Sí |
-| Clasificación automática | Recomendar/decidir selección | ⚪ Fuera del MVP | No bloquea | No |
+| `proyecto.galeria[]` | Selección humana de fotografías | 🟢 Comprobado | Selección y orden humanos | Sí |
+| `Galería General` Wix | Representación física de galería | 🟢 Comprobado | JSON serializado de objetos multimedia Wix | Sí |
+| `Hero Imágen` Wix | Representación física del Hero | 🟢 Comprobado | URI/objeto Wix independiente de Hero Texto | Sí |
+| Identidad multimedia Wix | `slug`/`src` | 🟢 Comprobado | Wix conserva/genera; Companion no inventa | Sí |
+| Contrato de salida CSV V2.2 | Propiedad y preservación de campos | 🟢 Blindado | 8 campos autorizados; duplicados de `Historias de Transformación` protegidos | Sí |
+| Historia Companion | Campo editorial de salida | 🟢 Comprobado | Columna independiente `Historia` | Sí |
+| **Bifurcación editorial** | Seleccionar pipeline | 🟢 Comprobado | `Observaciones` vacía → PROYECTO; no vacía → PORTFOLIO | Sí |
+| **Editorial Proyecto V2.2** | Narrar transformación | 🟢 Comprobado | Historia + Historia Web + Hero + SEO + foto + estructurados | Sí |
+| **Editorial Portfolio** | Describir/posicionar visualmente mobiliario | 🟡 Diseño acordado; implementación pendiente | Contrato por definir | Sí |
+| Optimización de consumo IA | Reducir llamadas/tokens sin degradar calidad | 🟡 Pendiente | Línea base: 9 llamadas / 15.290 tokens | Sí |
+| Continuidad documental | Estado + matriz + ledger | 🟡 Recuperada manualmente; automatización pendiente de verificación | Tres documentos canónicos | Sí |
 
-## Regla de actualización
+## Reglas congeladas
 
-Cada modificación significativa debe actualizar esta matriz, registrar la decisión correspondiente y crear un commit identificable.
+1. MUBATO selecciona Hero y Galería General.
+2. Vision observa; no decide selección ni orden.
+3. El modelo interno Companion es independiente del formato físico Wix.
+4. `Historias de Transformación` es un campo Wix existente y protegido.
+5. `Hero Imágen` no se confunde con `Hero Texto`.
+6. La salida parte de la fila Wix existente y solo modifica campos autorizados.
+7. La bifurcación ocurre en el primer contacto con el CSV.
+8. `Observaciones` vacía = PROYECTO.
+9. `Observaciones` no vacía = PORTFOLIO.
+10. No se interpreta, normaliza ni clasifica el texto de `Observaciones`.
+11. Editorial Proyecto y Editorial Portfolio son pipelines distintos.
+12. El contrato de salida común se comparte únicamente después de que cada pipeline produzca su contrato editorial interno.
 
 ## Último cambio significativo
 
-Se reconstruyó el Expediente Editorial V0.1 como puente entre Proyecto, selección humana MUBATO, observaciones automáticas de Vision e interpretación futura de Dirección Editorial. Se creó su contrato documental y `core/editorIA.js` quedó reconectado al nuevo expediente. Los campos visuales ya no son requisitos manuales por proyecto.
+Se incorporó al `Parser` la decisión binaria de tipo editorial. El último commit funcional es `9247fa9`. El proyecto ya cuenta con Editorial Proyecto V2.2 validada y con el componente de salida CSV V2.2 blindado. Portfolio queda deliberadamente separado para no poner en riesgo el pipeline probado.
 
 ## Próximo punto de validación
 
-Ejecutar una prueba controlada con un proyecto realmente analizado por Vision, verificar que las observaciones llegan al Expediente y después conectar ese Expediente a `ConstructorContexto`/`DirectorEditorial`. No generar contenido real ni consumir IA adicional hasta validar ese puente.
+Definir y probar el contrato de Editorial Portfolio con el mismo rigor contractual usado para Proyecto, manteniendo intactos los campos Wix protegidos y reutilizando la evidencia visual sin una segunda lectura innecesaria.
