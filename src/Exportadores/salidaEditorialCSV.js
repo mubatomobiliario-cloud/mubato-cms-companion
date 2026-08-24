@@ -14,16 +14,18 @@ const Papa = require("papaparse");
  * - Localiza exactamente la fila recibida mediante identidad estable.
  * - Solo escribe campos explícitamente autorizados por el contrato editorial.
  * - Nunca usa como identidad un campo que Editorial vaya a modificar.
+ * - Las dos columnas originales "Historias de Transformación" son SIEMPRE protegidas.
+ * - "Historia" es un campo Companion nuevo; nunca sustituye ni toca esas columnas.
+ * - "Hero Texto" es el campo Wix real para heroTexto.
  * - Verifica que los campos protegidos permanezcan intactos.
  * - No modifica silenciosamente el CSV de entrada.
  * - Genera un archivo de salida separado.
  */
 class SalidaEditorialCSV {
 
-    static CAMPOS_EDITABLES = Object.freeze([
+    static CAMPOS_WIX_EDITABLES = Object.freeze([
         "Código MUBATO",
-        "Hero",
-        "Historia",
+        "Hero Texto",
         "Descripción",
         "Servicios",
         "Slug",
@@ -31,7 +33,9 @@ class SalidaEditorialCSV {
         "Meta Description"
     ]);
 
+    static CAMPO_HISTORIA_COMPANION = "Historia";
     static CAMPOS_IDENTIDAD = Object.freeze(["ID", "Proyecto"]);
+    static CAMPOS_PROTEGIDOS_POR_REGLA = Object.freeze(["Historias de Transformación"]);
 
     exportar({ rutaEntrada, rutaSalida, filaProyecto, editorial }) {
         console.log("");
@@ -45,9 +49,10 @@ class SalidaEditorialCSV {
         const filas = this.leerCSV(rutaEntrada);
         if (filas.length < 2) throw new Error("El CSV no contiene filas de datos.");
 
-        const encabezados = filas[0];
-        const filasDatos = filas.slice(1);
+        const encabezados = [...filas[0]];
+        const filasDatos = filas.slice(1).map(fila => [...fila]);
         const indice = this.crearIndiceEncabezados(encabezados);
+        this.validarContratoCSV(indice, editorial);
         this.validarIdentidadDisponible(indice, filaProyecto);
 
         const posicionFila = this.localizarFilaExacta(filasDatos, indice, filaProyecto);
@@ -62,6 +67,16 @@ class SalidaEditorialCSV {
 
         for (const [campo, valor] of Object.entries(cambios)) {
             if (valor === undefined || valor === null) continue;
+
+            if (campo === SalidaEditorialCSV.CAMPO_HISTORIA_COMPANION && indice.unicas[campo] === undefined) {
+                encabezados.push(campo);
+                filasDatos.forEach((filaExistente, indiceFila) => {
+                    filaExistente.push(indiceFila === posicionFila ? this.serializar(valor) : "");
+                });
+                camposActualizados.push(campo);
+                continue;
+            }
+
             const posicion = indice.unicas[campo];
             if (posicion === undefined) {
                 throw new Error(`El contrato editorial exige el campo "${campo}", pero no existe como cabecera única en el CSV.`);
@@ -70,7 +85,7 @@ class SalidaEditorialCSV {
             camposActualizados.push(campo);
         }
 
-        this.verificarCamposProtegidos(encabezados, fila, protegidosAntes);
+        this.verificarCamposProtegidos(encabezados, filasDatos[posicionFila], protegidosAntes);
         this.verificarEstructuraCSV(encabezados, filasDatos);
 
         const salida = Papa.unparse([encabezados, ...filasDatos], { quotes: false });
@@ -107,10 +122,32 @@ class SalidaEditorialCSV {
         }
     }
 
+    validarContratoCSV(indice, editorial) {
+        for (const campo of SalidaEditorialCSV.CAMPOS_WIX_EDITABLES) {
+            if (indice.unicas[campo] === undefined) {
+                throw new Error(`El contrato editorial exige el campo Wix "${campo}", pero no existe como cabecera única en el CSV.`);
+            }
+        }
+
+        const historiaOriginal = indice.todas[SalidaEditorialCSV.CAMPO_HISTORIA_COMPANION];
+        if (historiaOriginal && historiaOriginal.length > 0) {
+            throw new Error(`El campo Companion "${SalidaEditorialCSV.CAMPO_HISTORIA_COMPANION}" ya existe en el CSV; se requiere una columna nueva inequívoca para evitar colisión con campos originales.`);
+        }
+
+        const historiasWix = indice.todas[SalidaEditorialCSV.CAMPOS_PROTEGIDOS_POR_REGLA[0]] || [];
+        if (historiasWix.length !== 2) {
+            throw new Error(`El contrato Wix exige exactamente 2 columnas originales "Historias de Transformación"; se encontraron ${historiasWix.length}.`);
+        }
+
+        if (editorial.historia === undefined || editorial.historia === null || !String(editorial.historia).trim()) {
+            throw new Error("El contrato editorial exige una Historia válida.");
+        }
+    }
+
     construirCambios(editorial) {
         return {
             "Código MUBATO": editorial.codigo,
-            "Hero": editorial.heroTexto,
+            "Hero Texto": editorial.heroTexto,
             "Historia": editorial.historia,
             "Descripción": editorial.descripcion,
             "Servicios": editorial.servicios,
@@ -169,23 +206,24 @@ class SalidaEditorialCSV {
     }
 
     capturarCamposProtegidos(encabezados, fila) {
-        const editables = new Set(SalidaEditorialCSV.CAMPOS_EDITABLES);
-        const protegidos = {};
+        const editables = new Set(SalidaEditorialCSV.CAMPOS_WIX_EDITABLES);
+        const protegidos = [];
         encabezados.forEach((encabezado, posicion) => {
-            if (!editables.has(encabezado) && !(encabezado in protegidos)) {
-                protegidos[encabezado] = fila[posicion] ?? "";
+            if (!editables.has(encabezado)) {
+                protegidos.push({ posicion, encabezado, valor: fila[posicion] ?? "" });
             }
         });
         return protegidos;
     }
 
     verificarCamposProtegidos(encabezados, fila, protegidosAntes) {
-        for (const [campo, valorAntes] of Object.entries(protegidosAntes)) {
-            const posicion = encabezados.indexOf(campo);
-            if (posicion === -1) throw new Error(`El campo protegido "${campo}" desapareció durante la operación.`);
-            const valorDespues = fila[posicion] ?? "";
-            if (String(valorDespues) !== String(valorAntes)) {
-                throw new Error(`Protección de integridad violada en el campo "${campo}".`);
+        for (const protegido of protegidosAntes) {
+            if (encabezados[protegido.posicion] !== protegido.encabezado) {
+                throw new Error(`El encabezado protegido en posición ${protegido.posicion + 1} cambió durante la operación.`);
+            }
+            const valorDespues = fila[protegido.posicion] ?? "";
+            if (String(valorDespues) !== String(protegido.valor)) {
+                throw new Error(`Protección de integridad violada en el campo "${protegido.encabezado}" en posición ${protegido.posicion + 1}.`);
             }
         }
     }
