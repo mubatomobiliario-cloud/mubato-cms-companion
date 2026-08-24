@@ -9,7 +9,8 @@
   "main": "src/electron/main.js",
   "scripts": {
     "start": "electron .",
-    "dev": "electron ."
+    "dev": "electron .",
+    "continuidad": "node scripts/continuidad.js"
   },
   "devDependencies": {
     "electron": "^37.3.1"
