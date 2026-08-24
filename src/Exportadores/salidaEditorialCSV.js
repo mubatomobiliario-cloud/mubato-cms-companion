@@ -7,7 +7,7 @@ const Papa = require("papaparse");
 /**
  * SalidaEditorialCSV
  *
- * Contrato único de salida entre Editorial V2.2 y el CSV de Wix.
+ * Contrato único de salida entre Editorial Proyecto V2.2 y el CSV de Wix.
  *
  * Principios:
  * - Lee el CSV como matriz para preservar encabezados, incluidos duplicados.
@@ -15,7 +15,8 @@ const Papa = require("papaparse");
  * - Solo escribe campos explícitamente autorizados por el contrato editorial.
  * - Nunca usa como identidad un campo que Editorial vaya a modificar.
  * - Las dos columnas originales "Historias de Transformación" son SIEMPRE protegidas.
- * - "Historia" es un campo Companion nuevo; nunca sustituye ni toca esas columnas.
+ * - "Hero Imágen" es SIEMPRE protegida y nunca es escrita por Editorial.
+ * - "Historia" es un campo Companion nuevo; nunca sustituye ni toca las columnas originales.
  * - "Hero Texto" es el campo Wix real para heroTexto.
  * - Verifica que los campos protegidos permanezcan intactos.
  * - No modifica silenciosamente el CSV de entrada.
@@ -35,7 +36,10 @@ class SalidaEditorialCSV {
 
     static CAMPO_HISTORIA_COMPANION = "Historia";
     static CAMPOS_IDENTIDAD = Object.freeze(["ID", "Proyecto"]);
-    static CAMPOS_PROTEGIDOS_POR_REGLA = Object.freeze(["Historias de Transformación"]);
+    static CAMPOS_PROTEGIDOS_POR_REGLA = Object.freeze([
+        "Historias de Transformación",
+        "Hero Imágen"
+    ]);
 
     exportar({ rutaEntrada, rutaSalida, filaProyecto, editorial }) {
         console.log("");
@@ -134,9 +138,15 @@ class SalidaEditorialCSV {
             throw new Error(`El campo Companion "${SalidaEditorialCSV.CAMPO_HISTORIA_COMPANION}" ya existe en el CSV; se requiere una columna nueva inequívoca para evitar colisión con campos originales.`);
         }
 
-        const historiasWix = indice.todas[SalidaEditorialCSV.CAMPOS_PROTEGIDOS_POR_REGLA[0]] || [];
-        if (historiasWix.length !== 2) {
-            throw new Error(`El contrato Wix exige exactamente 2 columnas originales "Historias de Transformación"; se encontraron ${historiasWix.length}.`);
+        for (const campo of SalidaEditorialCSV.CAMPOS_PROTEGIDOS_POR_REGLA) {
+            const apariciones = indice.todas[campo] || [];
+            if (campo === "Historias de Transformación") {
+                if (apariciones.length !== 2) {
+                    throw new Error(`El contrato Wix exige exactamente 2 columnas originales "${campo}"; se encontraron ${apariciones.length}.`);
+                }
+            } else if (apariciones.length !== 1) {
+                throw new Error(`El contrato Wix exige exactamente 1 columna protegida "${campo}"; se encontraron ${apariciones.length}.`);
+            }
         }
 
         if (editorial.historia === undefined || editorial.historia === null || !String(editorial.historia).trim()) {
