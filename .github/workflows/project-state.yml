@@ -1,8 +1,6 @@
 name: Project State
 
 on:
-  schedule:
-    - cron: '17 */6 * * *'
   workflow_dispatch:
   push:
     paths:
@@ -24,17 +22,17 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Generate project state
-        run: bash scripts/generate_project_state.sh
+      - name: Verify and synchronize continuity
+        run: npm run continuidad
 
-      - name: Commit state when changed
+      - name: Commit continuity checkpoint when changed
         run: |
           git config user.name 'mubato-companion-state[bot]'
           git config user.email 'mubato-companion-state[bot]@users.noreply.github.com'
-          git add docs/00_Estado/ESTADO_PROYECTO.md
+          git add docs/00_Estado/ESTADO_PROYECTO.md docs/00_Estado/MATRIZ_COMPONENTES.md docs/00_Estado/LEDGER_CONTINUIDAD.md
           if git diff --cached --quiet; then
-            echo 'No state change.'
+            echo 'No continuity change.'
             exit 0
           fi
-          git commit -m 'chore(state): update project state'
+          git commit -m 'chore(continuidad): update canonical checkpoint'
           git push
