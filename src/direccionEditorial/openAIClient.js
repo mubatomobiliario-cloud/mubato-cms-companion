@@ -5,10 +5,20 @@ require("dotenv").config();
 const fs = require("fs");
 const OpenAI = require("openai");
 const config = require("../core/configNode");
+const TelemetriaIA = require("../core/telemetriaIA");
 
 class OpenAIClient {
     constructor() {
         this.client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+        this.telemetria = new TelemetriaIA();
+    }
+
+    iniciarTelemetria(contexto = {}) {
+        this.telemetria.iniciarEjecucion(contexto);
+    }
+
+    obtenerTelemetria() {
+        return this.telemetria.resumen();
     }
 
     async generarTexto(prompt) {
@@ -21,23 +31,36 @@ class OpenAIClient {
         console.log("DIRECTOR EDITORIAL MUBATO");
         console.log("======================================\n");
         console.log("Conectando con OpenAI...\n");
-        const inicio = Date.now();
+
+        const medicion = this.telemetria.iniciarLlamada({
+            proveedor: "OpenAI",
+            operacion: "texto",
+            modelo: config.IA.modelo
+        });
+
         try {
             const respuesta = await this.client.responses.create({ model: config.IA.modelo, input: prompt });
-            const tiempo = Date.now() - inicio;
             const uso = respuesta.usage || {};
-            const telemetria = {
-                modelo: config.IA.modelo,
-                tiempoMs: tiempo,
-                inputTokens: Number(uso.input_tokens || 0),
-                outputTokens: Number(uso.output_tokens || 0),
-                totalTokens: Number(uso.total_tokens || 0)
-            };
+            const registro = this.telemetria.registrarLlamada(medicion, {
+                model: config.IA.modelo,
+                usage: uso
+            });
+
             console.log("✓ OpenAI respondió correctamente.");
-            console.log(`✓ Tiempo: ${tiempo} ms`);
-            console.log(`✓ Tokens: ${telemetria.totalTokens || "no informado"}`);
-            return { texto: respuesta.output_text, telemetria };
+            console.log(`✓ Tiempo: ${registro.duracionMs} ms`);
+            console.log(`✓ Tokens: ${registro.tokensTotales || "no informado"}`);
+            return {
+                texto: respuesta.output_text,
+                telemetria: {
+                    modelo: registro.modelo,
+                    tiempoMs: registro.duracionMs,
+                    inputTokens: registro.tokensEntrada,
+                    outputTokens: registro.tokensSalida,
+                    totalTokens: registro.tokensTotales
+                }
+            };
         } catch (error) {
+            this.telemetria.registrarError(medicion, error);
             console.error(error);
             throw error;
         }
@@ -55,7 +78,14 @@ class OpenAIClient {
     async analizarImagenEntrada(imagen, prompt, referencia = "imagen") {
         console.log("\n======================================\nVISIÓN\n======================================\n");
         console.log(`Analizando ${referencia}`);
-        const inicio = Date.now();
+
+        const medicion = this.telemetria.iniciarLlamada({
+            proveedor: "OpenAI",
+            operacion: "vision",
+            modelo: config.IA.modelo,
+            fotografia: referencia
+        });
+
         try {
             const respuesta = await this.client.responses.create({
                 model: config.IA.modelo,
@@ -64,20 +94,27 @@ class OpenAIClient {
                     { type: "input_image", image_url: imagen }
                 ] }]
             });
-            const tiempo = Date.now() - inicio;
             const uso = respuesta.usage || {};
-            const telemetria = {
-                modelo: config.IA.modelo,
-                tiempoMs: tiempo,
-                inputTokens: Number(uso.input_tokens || 0),
-                outputTokens: Number(uso.output_tokens || 0),
-                totalTokens: Number(uso.total_tokens || 0)
-            };
+            const registro = this.telemetria.registrarLlamada(medicion, {
+                model: config.IA.modelo,
+                usage: uso
+            });
+
             console.log("✓ Imagen analizada.");
-            console.log(`✓ Tiempo: ${tiempo} ms`);
-            console.log(`✓ Tokens: ${telemetria.totalTokens || "no informado"}`);
-            return { texto: respuesta.output_text, telemetria };
+            console.log(`✓ Tiempo: ${registro.duracionMs} ms`);
+            console.log(`✓ Tokens: ${registro.tokensTotales || "no informado"}`);
+            return {
+                texto: respuesta.output_text,
+                telemetria: {
+                    modelo: registro.modelo,
+                    tiempoMs: registro.duracionMs,
+                    inputTokens: registro.tokensEntrada,
+                    outputTokens: registro.tokensSalida,
+                    totalTokens: registro.tokensTotales
+                }
+            };
         } catch (error) {
+            this.telemetria.registrarError(medicion, error);
             console.error(error);
             throw error;
         }
