@@ -1,145 +1,188 @@
 # MUBATO CMS Companion — Ledger de Continuidad
 
+> Cronología canónica de decisiones, implementaciones y validaciones significativas. No sustituye la Matriz Viva ni el Estado del Proyecto.
+
 ## 2026-08-19 — Instalación del sistema de continuidad
 
 - Se establece `ESTADO_PROYECTO.md` como estado canónico.
 - Se establece `MATRIZ_COMPONENTES.md` como matriz viva.
 - Se establece este ledger como cronología de checkpoints.
-- El código no debe modificarse sin actualizar estado cuando el cambio sea significativo.
 - La selección de Hero y Galería General pertenece a MUBATO, no a Vision.
-- El modelo interno Companion debe permanecer separado del formato físico Wix.
-- Próximo trabajo: conectar Dirección Editorial y completar una historia end-to-end.
+- El modelo interno Companion permanece separado del formato físico Wix.
 
 ### Commits de instalación
 
-- `e340725e02b3823a7bc8de7bea3093df10d1980f` — estado canónico inicial.
-- `af28e19dd53ff8178c6413fa6f2ee470aca9b7ac` — matriz viva inicial.
+- `e340725` — estado canónico inicial.
+- `af28e19` — matriz viva inicial.
+- `ae60817` — ledger de continuidad.
+- `3a5a300` — generador determinista de estado.
+- `a3331a8` — workflow autónomo.
+- `daea923` — corrección para evitar recursión del workflow.
 
-## 2026-08-19 — Incisión 1: corrección de rutas del workflow
+## 2026-08-19 — Pipeline de análisis separado de escritura
 
-- Se corrigieron en `src/workflow/directorProyecto.js` las referencias a `Exportadores` para respetar la capitalización real del directorio.
-- Cambio aplicado:
-  - `../exportadores/actualizadorCSV` → `../Exportadores/actualizadorCSV`
-  - `../exportadores/exportadorEditorial` → `../Exportadores/exportadorEditorial`
-- Commit de código: `a1b8c657f67ede835dfdd13346a92edb9f1c6e71`.
-- No se modificó la lógica del pipeline.
-- No se modificó Vision, Dirección Editorial, selección de Hero/Galería ni contratos Wix.
-
-## 2026-08-19 — Incisión 2: conexión del análisis a la aplicación
-
-Se implementó el primer tramo ejecutable del pipeline, deliberadamente separado de cualquier escritura del CSV:
+Se implementó el tramo ejecutable:
 
 `Renderer → preload → IPC → DirectorProyecto.analizar() → Vision → Expediente`
 
-### Cambios
+La fase de análisis no modifica el CSV. Se validó sobre `Hogar Araque` con 3 fotografías y Vision real.
 
-- `src/workflow/directorProyecto.js`
-  - Se añadió `analizar(proyecto)`.
-  - Ejecuta únicamente Vision y construcción del Expediente.
-  - No genera Hero.
-  - No actualiza CSV.
-  - No exporta Expediente Editorial.
-- `src/electron/main.js`
-  - Se añadió `analizarProyecto` por IPC.
-  - Reconstruye el proyecto desde la carpeta y ejecuta la fase de análisis.
-  - Devuelve al Renderer un objeto serializable con expediente y observaciones Vision.
-- `src/electron/preload.js`
-  - Se expuso `window.companion.analizarProyecto(carpeta)`.
-- `src/renderer/script.js`
-  - El botón `Analizar fotografías` ahora dispara el flujo real.
-  - La carpeta seleccionada queda disponible para la fase de análisis.
-  - La interfaz muestra el resultado del análisis y el expediente.
+## 2026-08-19 — Contrato físico Wix
 
-### Commits de la operación
+Se comprobó mediante `MUBATO Test` que:
 
-- `324aa4e764fa3769447bb50eec9a28c7786d3456` — fase de análisis en workflow.
-- `75e2b5b0060d0e09be65a904aa855d8d95df253f` — puente IPC de análisis.
-- `502df5ff48f6462b6ba7c9edc35fe616877ffce6` — puente preload.
-- `1157e229966e693b924b3e7a600ac1be188c9dff` — conexión del botón en Renderer.
-- `62d55aa486016f551fe286e93a632011a9e23c2f` — actualización de la matriz.
-- `e574b76e40c4e573f85a51290652456a41ffdc7e` — actualización del estado del proyecto.
-- Este commit — actualización del Ledger.
+- `Galería General` es JSON serializado de objetos multimedia Wix.
+- `Hero Imágen` es independiente de la galería.
+- `slug` y `src` son identidad Wix y no deben inventarse.
+- La integridad de campos estructurales del registro afecta la materialización del item en Wix.
+- La selección de Hero/Galería sigue siendo humana.
 
-### Validación real posterior
+## 2026-08-19/20 — Reconstrucción de Dirección Editorial
 
-- Se ejecutó la aplicación localmente desde el repositorio con `npm start`.
-- Se probó `Analizar fotografías` sobre `Hogar Araque` con 3 fotografías.
-- Resultado observado en la aplicación: `ANÁLISIS COMPLETADO`, expediente construido y observaciones Vision visibles en consola/UI.
-- La prueba consumió IA real: una llamada de Vision por fotografía; el usuario observó un costo aproximado de US$0,10 para las tres fotografías. Este valor se conserva como observación de prueba, no como tarifa fija.
-- El CSV no fue modificado por esta fase.
+Se reconstruyeron contratos de prompts, contexto de marca, ConstructorContexto y validadores para separar generación editorial de selección y serialización Wix.
 
-## 2026-08-19 — Incisión 3: descubrimiento y validación del contrato físico Wix
+## 2026-08-20 — Editorial Proyecto V2.2 y optimización de evidencia
 
-Se realizó un experimento controlado con un proyecto de laboratorio `MUBATO Test` en Wix.
+Se consolidó el pipeline `Editorial Proyecto V2.2`.
 
-### Evidencia
+Decisión fundamental:
 
-- Se subieron tres fotografías al Media Manager de Wix.
-- Se seleccionó una fotografía como Hero y dos como Galería General.
-- El CSV exportado por Wix contiene `Galería General` como JSON serializado de un array de objetos multimedia Wix.
-- Los objetos observados contienen, entre otros, `fileName`, `slug`, `src`, `title`, `alt`, `description`, `type` y `settings`.
-- `Hero Imagen` contiene un objeto multimedia Wix separado de `Galería General`.
-- El orden de los objetos de la galería coincide con el orden editorial seleccionado.
-- `slug` y `src` son identidades generadas/conservadas por Wix; no deben ser inventadas por Companion.
+- Vision ocurre antes y su evidencia se persiste.
+- Editorial reutiliza esa evidencia.
+- No se ejecuta una segunda lectura Vision en fase editorial.
 
-### Prueba de integridad del registro
+Prueba de referencia `Hogar Araque`:
 
-- La primera importación del proyecto de prueba dejó la fila con campos básicos incompletos y la página no materializó correctamente la Galería.
-- Se creó un CSV de prueba modificando únicamente campos básicos que estaban vacíos en esa fila (`Proyecto`, `Código MUBATO`, `Servicios`, `Slug`, `Orden Home`), preservando íntegramente los JSON de Hero y Galería y todas las demás filas/celdas.
-- Tras cargar el CSV corregido en Wix, `MUBATO Test` apareció correctamente en el CMS y la página mostró Hero y las imágenes de Galería General; las imágenes fueron navegables en la página.
-- Conclusión: el JSON de Galería no era el problema. La integridad de los campos estructurales del registro afecta la correcta materialización del item. El conjunto mínimo formal de campos todavía debe determinarse.
+- 9 llamadas IA.
+- 0 llamadas Vision en fase editorial.
+- 12.145 input tokens.
+- 3.145 output tokens.
+- 15.290 tokens totales.
+- 58.061 ms acumulados.
+- 2 fotografías procesadas editorialmente.
 
-### Decisiones arquitectónicas derivadas
+La prueba fue superada.
 
-- Companion debe conservar los objetos/identidades multimedia Wix existentes, no fabricar `slug` ni `src`.
-- El modelo interno `proyecto.galeria[]` sigue siendo independiente del JSON físico Wix.
-- El adaptador de salida debe preservar las propiedades Wix no gestionadas por Companion y modificar únicamente los campos que correspondan al flujo editorial.
-- La selección de Hero y Galería sigue siendo exclusivamente humana.
+## 2026-08-20/21 — Contrato de salida CSV V2.2
 
-## 2026-08-19 — Incisión 4: importar Hero y Galería desde CSV en ProyectoManager
+Se sustituyó conceptualmente el actualizador CSV histórico por `src/Exportadores/salidaEditorialCSV.js`.
 
-### Implementación
+El contrato quedó blindado para:
 
-Se modificó `src/core/proyectoManager.js` para que, después de cargar las fotografías locales:
+- localizar exactamente la fila;
+- conservar las 25 cabeceras originales;
+- conservar duplicados;
+- proteger las dos columnas `Historias de Transformación`;
+- proteger `Hero Imágen`;
+- no inventar identidad Wix;
+- escribir solo 8 campos editoriales autorizados;
+- crear una columna Companion `Historia` independiente;
+- generar un archivo de salida separado.
 
-- Parseé `Galería General` como JSON Wix.
-- Recorra el array respetando exactamente el orden recibido.
-- Vincule cada elemento con la fotografía local mediante `fileName`.
-- Marque la fotografía con `enGaleria` y la agregue a `proyecto.galeria[]` mediante el modelo existente.
-- Preserve el objeto multimedia Wix completo en `foto.wixMedia`.
-- Parseé `Hero Imagen` de forma independiente.
-- Vincule el Hero con la fotografía local mediante `fileName`.
-- Marque `esHero` y asigne `proyecto.heroImagen` mediante el modelo existente.
-- Preserve también el objeto multimedia Wix del Hero en `foto.wixMedia`.
-- No genere IA.
-- No modifique ni escriba el CSV.
+La prueba blindada fue superada.
 
-### Contrato utilizado
+Campos autorizados Proyecto V2.2:
 
-`Galería General` = JSON serializado de array de objetos multimedia Wix.
+1. `Código MUBATO`
+2. `Hero Texto`
+3. `Historia`
+4. `Descripción`
+5. `Servicios`
+6. `Slug`
+7. `SEO Title`
+8. `Meta Description`
 
-`Hero Imagen` = objeto multimedia Wix serializado, aceptando también array por tolerancia de lectura.
+Se verificaron 18 campos protegidos.
 
-La identidad multimedia se conserva; Companion no genera `slug` ni `src`.
+## 2026-08-21 — Protección explícita de `Historias de Transformación`
 
-### Commit
+Se detectó repetidamente el riesgo de confundir las dos cabeceras originales `Historias de Transformación` con la nueva Historia editorial. Se congeló la decisión:
 
-- `d6ce97ef542b00115d2e844d5c8ce6789473627c` — importación de Hero/Galería Wix en `ProyectoManager`.
+- Las dos columnas existentes son **Wix y protegidas**.
+- No se escriben.
+- No se reutilizan como salida editorial.
+- La Historia generada por Companion se escribe en una columna independiente `Historia`.
 
-### Estado de validación
+La prueba blindada final confirmó que ambas columnas permanecen byte/valor equivalentemente intactas.
 
-- Implementación en GitHub: 🟢
-- Prueba real desde la aplicación: 🔴 pendiente
-- CSV modificado por esta fase: 🟢 no
-- Selección humana de Hero/Galería alterada: 🟢 no
+## 2026-08-22/23 — Eliminación del actualizador CSV histórico
 
-### Próximo paso
+`src/Exportadores/actualizadorCSV.js` fue eliminado para evitar dos rutas de escritura contradictorias.
 
-Ejecutar la aplicación con `MUBATO Test` y verificar en el objeto `Proyecto` que:
+`SalidaEditorialCSV V2.2` queda como componente de salida de referencia.
 
-- `heroImagen` apunta a `TEST_0007.jpeg`.
-- `galeria[]` contiene `TEST_0003.jpeg` y `TEST_0004.jpeg` en ese orden.
-- Cada fotografía conserva `wixMedia`.
-- Las banderas `esHero` / `enGaleria` son correctas.
+## 2026-08-24 — Bifurcación editorial
 
-Si la prueba es correcta, conectar Dirección Editorial de forma incremental.
+Se acordó formalmente separar dos naturalezas editoriales:
+
+### PROYECTO
+
+`Observaciones` vacía.
+
+- Un cliente puede tener uno o varios espacios intervenidos.
+- La editorial narra una transformación.
+- Se utiliza **Editorial Proyecto V2.2**.
+
+### PORTFOLIO
+
+`Observaciones` no vacía.
+
+- Agrupa mobiliario bajo un concepto específico: cocinas, centros de entretenimiento, bibliotecas, alcobas, estudios, etc.
+- Puede reunir muebles de uno o varios clientes/proyectos.
+- La editorial describe lo que se ve, nombra correctamente las imágenes, produce comentario breve y trabaja SEO.
+- El contenido de `Observaciones` no se interpreta: su sola presencia dispara PORTFOLIO.
+
+La regla congelada es:
+
+```text
+OBSERVACIONES VACÍA       → PROYECTO
+OBSERVACIONES NO VACÍA    → PORTFOLIO
+```
+
+## 2026-08-24 — Implementación de la bifurcación en Parser
+
+`src/core/parser.js` incorpora `determinarTipoEditorial(fila)` y asigna `proyecto.tipoEditorial`.
+
+Commit funcional: `9247fa9`.
+
+El Parser es el primer punto de contacto con la fila CSV y, por tanto, el lugar correcto para decidir el pipeline antes de consumir IA editorial.
+
+## 2026-08-24 — Recuperación de continuidad documental
+
+Se detectó que los documentos de continuidad habían quedado atrasados respecto del código real. Se sincronizaron:
+
+- `ESTADO_PROYECTO.md`
+- `MATRIZ_COMPONENTES.md`
+- `LEDGER_CONTINUIDAD.md`
+
+Esta sincronización documenta el estado real hasta `9247fa9` y recupera la bifurcación editorial como decisión canónica.
+
+## Estado actual
+
+### 🟢 Cerrado
+
+- Análisis Vision con evidencia reutilizable.
+- Editorial Proyecto V2.2.
+- Contrato de salida CSV V2.2.
+- Protección de `Historias de Transformación`.
+- Eliminación de `actualizadorCSV.js`.
+- Bifurcación binaria en Parser.
+
+### 🟡 En curso
+
+- Optimización de llamadas IA.
+- Integración definitiva del componente de salida en el workflow.
+- Editorial Portfolio.
+- Verificación operacional de la automatización de continuidad.
+
+## Próximo checkpoint obligatorio
+
+Antes de alterar Editorial Proyecto V2.2:
+
+1. Definir contrato de Editorial Portfolio.
+2. Probarlo de manera aislada.
+3. Mantener intactos los campos Wix protegidos.
+4. Reutilizar evidencia Vision ya existente.
+5. Solo después integrar ambos contratos al punto común de salida CSV.
+
+> Regla de continuidad: ningún cambio significativo se considera cerrado hasta que código, prueba y documentación estén sincronizados.
