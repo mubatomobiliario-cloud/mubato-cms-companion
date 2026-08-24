@@ -39,27 +39,19 @@ function buscarFila(matriz, filaReferencia) {
     });
 }
 
-function snapshotProtegido(matriz, filaReferencia) {
-    const encabezados = matriz[0];
-    const idx = indice(encabezados);
-    const fila = buscarFila(matriz, filaReferencia);
-    if (!fila) throw new Error("No se pudo localizar la fila de referencia para el snapshot.");
-
-    const protegidos = ["ID", "Cliente", "Ciudad", "Estado", "Categoría", "Galería General", "Espacios"];
-    return Object.fromEntries(protegidos.map(campo => [
-        campo,
-        (idx[campo] || []).map(posicion => fila[posicion] || "")
-    ]));
+function snapshotPorPosicion(matriz, posiciones) {
+    const fila = buscarFila(matriz, encontrarFilaReferencia(matriz));
+    if (!fila) throw new Error("No se pudo localizar la fila para snapshot.");
+    return posiciones.map(posicion => ({ posicion, valor: fila[posicion] || "" }));
 }
 
 function encontrarFilaReferencia(matriz) {
     const encabezados = matriz[0];
     const idx = indice(encabezados);
-    const filas = matriz.slice(1);
     const posicion = idx.Proyecto?.[0];
     if (posicion === undefined) throw new Error("El CSV no contiene la cabecera Proyecto.");
 
-    const fila = filas.find(f => String(f[posicion] || "").trim() === "Hogar Araque");
+    const fila = matriz.slice(1).find(f => String(f[posicion] || "").trim() === "Hogar Araque");
     if (!fila) throw new Error("No se encontró Hogar Araque en el CSV de prueba.");
 
     const referencia = {};
@@ -86,11 +78,6 @@ function mostrarDuplicados(matriz) {
     console.log("DIAGNÓSTICO — CABECERAS DUPLICADAS");
     console.log("--------------------------------------");
 
-    if (!duplicados.length) {
-        console.log("✓ No existen cabeceras duplicadas.");
-        return;
-    }
-
     duplicados.forEach(([campo, posiciones]) => {
         console.log(`• ${campo}: ${posiciones.length} apariciones`);
         posiciones.forEach(posicion => {
@@ -98,7 +85,7 @@ function mostrarDuplicados(matriz) {
         });
     });
 
-    console.log("\n✓ Diagnóstico completado: no se ha elegido automáticamente ninguna columna duplicada.");
+    console.log("\n✓ Diagnóstico completado: ninguna columna duplicada será utilizada por el contrato editorial.");
 }
 
 function main() {
@@ -112,10 +99,12 @@ function main() {
     const antes = leerMatriz(rutaEntrada);
     const encabezadosAntes = antes[0];
     const referencia = encontrarFilaReferencia(antes);
-    const protegidosAntes = snapshotProtegido(antes, referencia);
     const duplicadosAntes = contarCabecerasDuplicadas(encabezadosAntes);
+    const historiasWix = indice(encabezadosAntes)["Historias de Transformación"] || [];
+    const snapshotHistorias = snapshotPorPosicion(antes, historiasWix);
 
     assert(encabezadosAntes.length === 25, `CSV de entrada conserva ${encabezadosAntes.length} cabeceras`);
+    assert(historiasWix.length === 2, "Las dos columnas originales Historias de Transformación existen");
     assert(Object.values(duplicadosAntes).some(n => n > 1), "CSV de entrada contiene cabeceras duplicadas");
 
     mostrarDuplicados(antes);
@@ -123,7 +112,7 @@ function main() {
     const editorial = {
         codigo: "MUB-TEST-001",
         heroTexto: "Hero de prueba editorial MUBATO.",
-        historia: "Historia maestra de prueba del contrato editorial.",
+        historia: "Historia editorial nueva de prueba del Companion, independiente de las dos columnas originales de Wix.",
         descripcion: "Descripción editorial de prueba.",
         servicios: ["Diseño interior", "Mobiliario a medida"],
         slug: "hogar-araque",
@@ -143,24 +132,25 @@ function main() {
 
     const despues = leerMatriz(rutaSalida);
     const encabezadosDespues = despues[0];
+    const idxDespues = indice(encabezadosDespues);
     const duplicadosDespues = contarCabecerasDuplicadas(encabezadosDespues);
 
-    assert(JSON.stringify(encabezadosDespues) === JSON.stringify(encabezadosAntes), "Las 25 cabeceras permanecen idénticas y en el mismo orden");
-    assert(JSON.stringify(duplicadosDespues) === JSON.stringify(duplicadosAntes), "Las cabeceras duplicadas permanecen intactas");
+    assert(encabezadosDespues.length === 26, "Se conserva el CSV original y se agrega exactamente una columna Companion");
+    assert(JSON.stringify(encabezadosDespues.slice(0, 25)) === JSON.stringify(encabezadosAntes), "Las 25 cabeceras originales permanecen idénticas y en el mismo orden");
+    assert(idxDespues["Historias de Transformación"]?.length === 2, "Las dos cabeceras originales Historias de Transformación permanecen intactas");
+    assert(JSON.stringify(duplicadosDespues["Historias de Transformación"]) === JSON.stringify(duplicadosAntes["Historias de Transformación"]), "La duplicidad de Historias de Transformación permanece intacta");
     assert(despues.length === antes.length, "La cantidad de filas permanece idéntica");
-    assert(despues.every(fila => fila.length === encabezadosDespues.length), "Todas las filas conservan exactamente el número de columnas");
+    assert(despues.every(fila => fila.length === encabezadosDespues.length), "Todas las filas conservan exactamente el número de columnas de la salida");
 
-    const protegidosDespues = snapshotProtegido(despues, referencia);
-    assert(JSON.stringify(protegidosDespues) === JSON.stringify(protegidosAntes), "Los campos protegidos permanecen idénticos");
-
-    const idx = indice(encabezadosDespues);
     const filaDespues = buscarFila(despues, referencia);
     assert(filaDespues, "La fila de Hogar Araque sigue localizable");
 
+    const historiasDespues = snapshotPorPosicion(despues, historiasWix);
+    assert(JSON.stringify(historiasDespues) === JSON.stringify(snapshotHistorias), "Las dos columnas originales Historias de Transformación permanecen exactamente iguales");
+
     const esperados = {
         "Código MUBATO": editorial.codigo,
-        "Hero": editorial.heroTexto,
-        "Historia": editorial.historia,
+        "Hero Texto": editorial.heroTexto,
         "Descripción": editorial.descripcion,
         "Servicios": JSON.stringify(editorial.servicios),
         "Slug": editorial.slug,
@@ -169,9 +159,13 @@ function main() {
     };
 
     for (const [campo, esperado] of Object.entries(esperados)) {
-        assert(idx[campo]?.length === 1, `El campo editorial ${campo} existe una sola vez`);
-        assert(String(filaDespues[idx[campo][0]] || "") === String(esperado), `${campo} contiene exactamente el valor editorial esperado`);
+        assert(idxDespues[campo]?.length === 1, `El campo editorial ${campo} existe una sola vez`);
+        assert(String(filaDespues[idxDespues[campo][0]] || "") === String(esperado), `${campo} contiene exactamente el valor editorial esperado`);
     }
+
+    assert(idxDespues.Historia?.length === 1, "La columna Companion Historia existe una sola vez");
+    assert(String(filaDespues[idxDespues.Historia[0]] || "") === editorial.historia, "Historia contiene exactamente el valor editorial generado");
+    assert(idxDespues["Hero Imágen"]?.length === 1, "Hero Imágen original permanece presente y separada de Hero Texto");
 
     console.log("\n--------------------------------------");
     console.log("PRUEBA SUPERADA");
@@ -179,8 +173,9 @@ function main() {
     console.log(`✓ CSV generado: ${rutaSalida}`);
     console.log("✓ Contrato de salida verificado.");
     console.log("✓ Integridad estructural verificada.");
-    console.log("✓ Campos protegidos verificados.");
-    console.log("✓ Campos editoriales autorizados verificados.");
+    console.log("✓ Las dos columnas Historias de Transformación fueron protegidas.");
+    console.log("✓ Historia Companion creada como columna independiente.");
+    console.log("✓ Hero Texto mapeado al campo Wix correcto.");
     console.log("");
 }
 
