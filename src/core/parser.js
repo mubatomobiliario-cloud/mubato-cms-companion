@@ -78,6 +78,19 @@ class Parser {
 
     }
 
+    seleccionarFlujoEditorial(fila) {
+
+        const tipoEditorial = this.determinarTipoEditorial(fila);
+
+        return {
+            tipoEditorial,
+            flujoEditorial: tipoEditorial === "PROYECTO"
+                ? "EDITORIAL_PROYECTO_V2.2"
+                : "EDITORIAL_PORTFOLIO"
+        };
+
+    }
+
     importarProyecto(rutaCSV, carpetaProyecto) {
 
         const filas = this.leerCSV(rutaCSV);
@@ -99,10 +112,11 @@ class Parser {
 
         }
 
-        const tipoEditorial =
-            this.determinarTipoEditorial(filaProyecto);
+        const seleccionEditorial =
+            this.seleccionarFlujoEditorial(filaProyecto);
 
-        console.log(`✓ Tipo editorial determinado: ${tipoEditorial}`);
+        console.log(`✓ Tipo editorial determinado: ${seleccionEditorial.tipoEditorial}`);
+        console.log(`✓ Flujo editorial seleccionado: ${seleccionEditorial.flujoEditorial}`);
 
         const proyecto = this.proyectoManager.importarProyecto(
 
@@ -114,7 +128,8 @@ class Parser {
 
         );
 
-        proyecto.tipoEditorial = tipoEditorial;
+        proyecto.tipoEditorial = seleccionEditorial.tipoEditorial;
+        proyecto.flujoEditorial = seleccionEditorial.flujoEditorial;
         proyecto.observaciones = String(filaProyecto["Observaciones"] || "");
 
         return proyecto;
