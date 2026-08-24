@@ -2,6 +2,16 @@
 
 > Documento canónico de estado funcional. Se actualiza con cada cambio significativo.
 
+## Canon documental de continuidad
+
+La memoria técnica oficial del proyecto vive exclusivamente en `docs/00_Estado/`:
+
+- `ESTADO_PROYECTO.md` — fotografía ejecutiva vigente.
+- `MATRIZ_COMPONENTES.md` — estado funcional por componente.
+- `LEDGER_CONTINUIDAD.md` — cronología de decisiones y checkpoints.
+
+`docs/04_Guías/Estado_Proyecto.md` **no existe** y no es una ubicación alternativa de continuidad.
+
 | Componente | Responsabilidad | Estado | Contrato | Camino crítico |
 |---|---|---|---|---|
 | `core/parser.js` | Encontrar CSV/proyecto e iniciar importación y bifurcación editorial | 🟢 Comprobado | `Observaciones` vacía → PROYECTO; no vacía → PORTFOLIO | Sí |
@@ -34,7 +44,7 @@
 | **Editorial Proyecto V2.2** | Narrar transformación | 🟢 Comprobado | Historia + Historia Web + Hero + SEO + foto + estructurados | Sí |
 | **Editorial Portfolio** | Describir/posicionar visualmente mobiliario | 🟡 Diseño acordado; implementación pendiente | Contrato por definir | Sí |
 | Optimización de consumo IA | Reducir llamadas/tokens sin degradar calidad | 🟡 Pendiente | Línea base: 9 llamadas / 15.290 tokens | Sí |
-| Continuidad documental | Estado + matriz + ledger | 🟡 Recuperada manualmente; automatización pendiente de verificación | Tres documentos canónicos | Sí |
+| Continuidad documental | Estado + matriz + ledger | 🟢 Canon fijado y documentos sincronizados; automatización operacional pendiente de verificación | Tres documentos canónicos en `docs/00_Estado/` | Sí |
 
 ## Reglas congeladas
 
@@ -50,10 +60,12 @@
 10. No se interpreta, normaliza ni clasifica el texto de `Observaciones`.
 11. Editorial Proyecto y Editorial Portfolio son pipelines distintos.
 12. El contrato de salida común se comparte únicamente después de que cada pipeline produzca su contrato editorial interno.
+13. La memoria técnica oficial vive exclusivamente en `docs/00_Estado/`.
+14. No se mantiene un segundo documento de estado del proyecto en otra ruta.
 
 ## Último cambio significativo
 
-Se incorporó al `Parser` la decisión binaria de tipo editorial. El último commit funcional es `9247fa9`. El proyecto ya cuenta con Editorial Proyecto V2.2 validada y con el componente de salida CSV V2.2 blindado. Portfolio queda deliberadamente separado para no poner en riesgo el pipeline probado.
+Se incorporó al `Parser` la decisión binaria de tipo editorial. El último commit funcional de código es `9247fa9`. Posteriormente se sincronizó y auditó el sistema documental de continuidad; esos commits son documentales y no alteran el pipeline editorial.
 
 ## Próximo punto de validación
 
