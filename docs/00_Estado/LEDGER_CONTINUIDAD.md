@@ -147,15 +147,20 @@ Commit funcional: `9247fa9`.
 
 El Parser es el primer punto de contacto con la fila CSV y, por tanto, el lugar correcto para decidir el pipeline antes de consumir IA editorial.
 
-## 2026-08-24 — Recuperación de continuidad documental
+## 2026-08-24 — Recuperación y auditoría de continuidad documental
 
-Se detectó que los documentos de continuidad habían quedado atrasados respecto del código real. Se sincronizaron:
+Se verificaron directamente en GitHub los tres documentos canónicos de continuidad de la rama `feat/csv-editorial-v1`.
 
-- `ESTADO_PROYECTO.md`
-- `MATRIZ_COMPONENTES.md`
-- `LEDGER_CONTINUIDAD.md`
+Resultado:
 
-Esta sincronización documenta el estado real hasta `9247fa9` y recupera la bifurcación editorial como decisión canónica.
+- `docs/00_Estado/ESTADO_PROYECTO.md` — canónico y sincronizado.
+- `docs/00_Estado/MATRIZ_COMPONENTES.md` — canónico y sincronizado.
+- `docs/00_Estado/LEDGER_CONTINUIDAD.md` — canónico y sincronizado.
+- `docs/04_Guías/Estado_Proyecto.md` — **no existe** y no es una ruta canónica de continuidad.
+
+Se fija expresamente que no habrá dos documentos competidores de estado del proyecto.
+
+La automatización histórica de continuidad sigue pendiente de verificación operacional; por ello, hasta que se compruebe, la continuidad documental debe considerarse una responsabilidad explícita del proceso de desarrollo y no una garantía automática.
 
 ## Estado actual
 
@@ -167,6 +172,7 @@ Esta sincronización documenta el estado real hasta `9247fa9` y recupera la bifu
 - Protección de `Historias de Transformación`.
 - Eliminación de `actualizadorCSV.js`.
 - Bifurcación binaria en Parser.
+- Canon documental de continuidad fijado en `docs/00_Estado/`.
 
 ### 🟡 En curso
 
