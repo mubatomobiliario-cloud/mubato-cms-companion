@@ -3,7 +3,6 @@ console.log("directorProyecto.js cargado");
 const AnalizadorFotografias = require("../vision/analizadorFotografias");
 const ExpedienteProyecto = require("../direccionEditorial/expedienteProyecto");
 const DirectorEditorial = require("../direccionEditorial/directorEditorial");
-const ActualizadorCSV = require("../Exportadores/actualizadorCSV");
 const ExportadorEditorial = require("../Exportadores/exportadorEditorial");
 
 class DirectorProyecto {
@@ -15,8 +14,6 @@ class DirectorProyecto {
         this.expedienteProyecto = new ExpedienteProyecto();
 
         this.directorEditorial = new DirectorEditorial();
-
-        this.actualizadorCSV = new ActualizadorCSV();
 
         this.exportadorEditorial = new ExportadorEditorial();
 
@@ -102,27 +99,10 @@ class DirectorProyecto {
         console.log("");
 
         //--------------------------------------------------
-        // 4. Actualizar CSV
+        // 4. Exportar Expediente Editorial
         //--------------------------------------------------
 
-        console.log("4. Actualizando CSV...");
-
-        this.actualizadorCSV.actualizar(
-
-            proyecto.rutaCSV,
-
-            proyecto
-
-        );
-
-        console.log("✓ CSV actualizado.");
-        console.log("");
-
-        //--------------------------------------------------
-        // 5. Exportar Expediente Editorial
-        //--------------------------------------------------
-
-        console.log("5. Exportando Expediente Editorial...");
+        console.log("4. Exportando Expediente Editorial...");
 
         this.exportadorEditorial.exportar(
 
