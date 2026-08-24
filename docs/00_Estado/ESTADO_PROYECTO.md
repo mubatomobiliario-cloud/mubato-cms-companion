@@ -1,49 +1,97 @@
 # MUBATO CMS Companion — Estado del Proyecto
 
-> Documento canónico de continuidad. La información objetiva se regenera desde GitHub Actions. Las decisiones arquitectónicas se registran en la matriz y ADR.
+> Documento canónico de continuidad. Describe el estado real del repositorio y las decisiones editoriales vigentes.
 
-## Última generación
+## Última sincronización
 
-- Generado automáticamente: pendiente de primera ejecución
-- Último cambio funcional: reconstrucción de contratos de Dirección Editorial
-- Rama: `main`
+- Fecha: 2026-08-24
+- Rama de trabajo: `feat/csv-editorial-v1`
+- Commit de código de referencia: `9247fa9`
+- Último cambio funcional: bifurcación editorial incorporada en `src/core/parser.js`.
+- Continuidad: estado, matriz y ledger deben permanecer sincronizados; la automatización histórica de continuidad queda pendiente de verificación operacional.
 
 ## Estado ejecutivo vigente
 
-### 🟢 Funcionalidad comprobada
+### 🟢 Comprobado
+
 - Importación de proyecto desde carpeta + CSV.
 - Modelo `Proyecto` y `Fotografia`.
-- Ingesta de fotografías.
-- Vision (`AnalizadorFotografias` + `PromptVision` + `OpenAIClient`).
+- Ingesta de fotografías y Vision por fotografía.
+- Persistencia de evidencia visual.
 - Expediente de proyecto.
-- Flujo UI de análisis: Renderer → preload → IPC → `DirectorProyecto.analizar()` → Vision → Expediente.
-- Prueba Wix de laboratorio `MUBATO Test`: Hero y Galería General materializados correctamente en la página después de completar campos básicos vacíos del registro, sin modificar los JSON multimedia.
-- Contrato físico observado de `Galería General`: JSON serializado en CSV con objetos multimedia Wix.
-- Contrato físico observado de `Hero Imagen`: string `wix:image://...` en CSV; no es JSON.
+- Editorial Proyecto V2.2.
+- Evidencia Vision reutilizada en Editorial Proyecto V2.2 sin segunda lectura Vision.
+- Historia Editorial maestra y validación estructural.
+- Historia Web mediante contrato JSON y validación propia.
+- Hero, SEO, Código MUBATO, Servicios y Slug.
+- Metadatos editoriales por fotografía: `title`, `alt`, `keywords` y `nombreSEO`.
+- Telemetría editorial.
+- Prueba real `EDITORIAL V2.2` superada sobre `Hogar Araque`.
+- Prueba blindada de `SalidaEditorialCSV V2.2` superada.
+- Contrato de salida probado: exactamente 8 campos editoriales autorizados y 18 campos protegidos.
+- Las dos columnas originales `Historias de Transformación` permanecen intactas.
+- `Historia` se escribe en una columna Companion independiente.
+- `Hero Texto` se mapea al campo Wix correcto; `Hero Imágen` permanece separado e intacto.
+- Las 25 cabeceras originales permanecen en el mismo orden.
+- Filas y referencias multimedia Wix preservadas.
+- `src/core/parser.js` decide el tipo editorial en el primer contacto con la fila CSV.
 
-### 🟡 Arquitectura preparada / parcialmente conectada
-- Dirección Editorial.
-- `contextoMarca.js`: doctrina estructurada conservada como una única exportación.
-- `promptTemplates.js`: reconstruido con contratos separados para Hero, Historia, SEO, ALT, Keywords, Slug, Código, Categoría, Servicios y Espacios.
-- `ConstructorContexto.js`: preparado para construir contexto específico por contrato.
-- Generación de Hero.
-- Generador Editorial genérico.
-- Actualización/exportación CSV.
-- Ejecución completa de `DirectorProyecto.ejecutar()`; no debe conectarse todavía al botón de análisis porque escribe CSV y exporta expediente.
-- `ProyectoManager`: implementación corregida para importar Galería como JSON y Hero como URI Wix, vincular ambos con fotografías locales y conservar las referencias físicas Wix.
-- Integridad completa del registro Wix: la prueba demuestra que ciertos campos básicos vacíos impidieron inicialmente la correcta materialización de la galería; el conjunto mínimo de campos aún debe formalizarse.
-- `Exportadores/actualizadorCSV.js`: contrato de salida V0.1 definido; implementación todavía parcial.
+### 🟢 Bifurcación editorial congelada
 
-### 🔴 Contrato o implementación pendiente
-- Conectar Historia, SEO y contenido de fotografías al `DirectorEditorial`.
-- Producir un objeto editorial interno completo antes de tocar el adaptador CSV.
-- Adaptador de salida que preserve objetos multimedia Wix existentes y el `wix:image://...` del Hero, modificando solo los campos que corresponden al Companion.
-- Prueba end-to-end completa: proyecto real → análisis → editorial → CSV de una sola fila → Wix.
-- Determinar formalmente el conjunto mínimo de campos estructurales que debe contener una fila para que Wix materialice correctamente el item.
+```text
+OBSERVACIONES vacía       → PROYECTO
+OBSERVACIONES no vacía    → PORTFOLIO
+```
 
-### ⚪ Fuera del camino crítico del MVP
-- Clasificación automática de selección de fotografías.
-- Capacidades editoriales futuras no necesarias para fabricar la primera historia end-to-end.
+No se interpreta el contenido de `Observaciones` ni se normaliza para decidir el tipo.
+
+**PROYECTO**
+- Una intervención de uno o varios espacios de un cliente.
+- La editorial narra una transformación.
+- Continúa por el pipeline validado como **Editorial Proyecto V2.2**.
+- La Historia de Transformación es el eje narrativo.
+
+**PORTFOLIO**
+- Una familia de mobiliario bajo un concepto: cocinas, centros de entretenimiento, bibliotecas, alcobas, estudios, etc.
+- `Observaciones` no vacía solo dispara la bifurcación.
+- `Cliente` representa aquí el tipo de mueble/concepto de portfolio.
+- La galería puede reunir muebles de uno o varios clientes/proyectos.
+- La editorial debe describir lo que muestran las fotografías, nombrar correctamente cada imagen, producir un comentario breve y trabajar especialmente el SEO.
+- El pipeline Portfolio todavía no está implementado.
+
+### 🟢 Contrato de salida CSV V2.2
+
+Componente vigente: `src/Exportadores/salidaEditorialCSV.js`.
+
+Reglas congeladas:
+1. Parte del CSV Wix existente.
+2. Localiza exactamente la fila recibida.
+3. Preserva las 25 cabeceras originales, incluidos duplicados.
+4. No toca las dos columnas originales `Historias de Transformación`.
+5. No toca `Hero Imágen`.
+6. No reconstruye `slug`, `src` ni objetos multimedia Wix.
+7. Solo aplica campos explícitamente autorizados.
+8. Genera un CSV de salida separado.
+
+Campos autorizados en Proyecto V2.2:
+
+- `Código MUBATO`
+- `Hero Texto`
+- `Historia`
+- `Descripción`
+- `Servicios`
+- `Slug`
+- `SEO Title`
+- `Meta Description`
+
+### 🟡 Pendiente de consolidación
+
+- Editorial Portfolio.
+- Optimización adicional del número de llamadas IA.
+- Integración definitiva de `SalidaEditorialCSV` en el workflow operativo.
+- Verificación operacional del sistema automático de continuidad.
+- Determinación formal del conjunto mínimo de campos estructurales Wix.
+- Prueba end-to-end definitiva Proyecto y Portfolio → CSV → Wix.
 
 ## Principios congelados
 
@@ -51,40 +99,59 @@
 2. Vision observa; no decide selección ni orden.
 3. `proyecto.fotografias[]` y `proyecto.galeria[]` son conjuntos distintos.
 4. El modelo interno Companion permanece independiente del formato físico Wix.
-5. `Galería General` en el CSV de Wix es JSON serializado: un array de objetos multimedia Wix.
-6. El objeto multimedia de Galería observado contiene identidad y metadatos como `fileName`, `slug`, `src`, `title`, `alt`, `description`, `type` y `settings`.
-7. `Hero Imagen` en el CSV de Wix es una URI `wix:image://...`, no un JSON.
-8. Wix genera/conserva `slug` y `src`; Companion no debe inventarlos.
-9. Companion debe preservar la identidad multimedia Wix recibida en el CSV.
-10. El orden de la galería no se modifica en el MVP.
-11. La fase de análisis debe poder ejecutarse sin modificar el CSV.
-12. En la prueba `MUBATO Test`, completar campos básicos vacíos del registro permitió la correcta materialización de Hero y Galería sin alterar los objetos multimedia.
-13. `ProyectoManager` vincula Galería y Hero con las fotografías locales por `fileName`; para Hero, el `fileName` se extrae de la URI Wix y la URI completa se conserva en `foto.wixHeroSrc`.
-14. La exportación parte de la fila Wix existente y solo modifica campos explícitamente propiedad de Companion.
-15. Los campos técnicos Wix y las referencias multimedia existentes no se reconstruyen.
-16. Cada plantilla editorial tiene un contrato de entrada y salida separado; ninguna plantilla decide selección de Hero/Galería.
-17. La doctrina de marca debe existir como una única representación estructurada y no ser sobrescrita por un segundo `module.exports`.
+5. `Galería General` es JSON serializado de objetos multimedia Wix.
+6. `Hero Imágen` es independiente de `Hero Texto`.
+7. Wix genera/conserva `slug` y `src`; Companion no los inventa.
+8. Companion preserva la identidad multimedia Wix recibida.
+9. El orden de la galería no se modifica en el MVP.
+10. La exportación parte de la fila Wix existente y solo modifica campos explícitamente propiedad de Companion.
+11. Cada plantilla editorial tiene contrato de entrada y salida separado.
+12. `Historias de Transformación` es un campo Wix existente y protegido.
+13. La bifurcación editorial ocurre al leer la fila CSV, antes del pipeline editorial.
+14. `Observaciones` vacía significa PROYECTO; `Observaciones` no vacía significa PORTFOLIO.
+15. Editorial Proyecto y Editorial Portfolio son contratos distintos y no deben mezclarse.
 
-## Camino crítico
+## Rendimiento de referencia — Editorial Proyecto V2.2
 
-`CSV + carpeta → Proyecto → Fotografías → Vision → Expediente → Dirección Editorial → Adaptador CSV → CSV de salida → Wix`
+Prueba real sobre `Hogar Araque`:
 
-## Último descubrimiento
+- Modelo: `gpt-5.5`
+- Llamadas IA: 9
+- Vision en fase editorial: 0
+- Input tokens: 12.145
+- Output tokens: 3.145
+- Total: 15.290 tokens
+- Tiempo acumulado: 58.061 ms
+- Fotografías procesadas editorialmente: 2
 
-La inspección de `promptTemplates.js` reveló dos problemas estructurales: un segundo `module.exports` sobrescribía todas las plantillas anteriores, y `CLASIFICACION` instruía al sistema a decidir Hero/Galería, contradiciendo el principio congelado de selección humana. La inspección de `contextoMarca.js` reveló el mismo patrón de doble exportación, por lo que la doctrina estructurada podía quedar reemplazada por un placeholder.
+Estos valores son línea base de optimización, no tarifa fija.
 
-## Decisión documental nueva
+## Camino crítico vigente
 
-Se formalizó `docs/01_Arquitectura/CONTRATO_PROMPTS_EDITORIAL_V0.1.md`. Define la entrada y salida de cada plantilla y separa generación editorial de decisiones de selección y de serialización Wix.
+```text
+CSV + carpeta
+   ↓
+Parser
+   ↓
+Determinar tipo editorial
+   ├── PROYECTO → Editorial Proyecto V2.2
+   └── PORTFOLIO → Editorial Portfolio (pendiente)
+   ↓
+Contrato editorial interno
+   ↓
+SalidaEditorialCSV V2.2
+   ↓
+CSV de salida
+   ↓
+Wix
+```
 
-## Cambios realizados
+## Documentos de continuidad
 
-- `promptTemplates.js` reconstruido con una única exportación y diez contratos explícitos.
-- `CLASIFICACION` eliminado del contrato editorial del MVP.
-- `contextoMarca.js` corregido para conservar una única fuente estructurada.
-- `ConstructorContexto.js` ampliado con métodos específicos para cada contrato editorial y para ALT por fotografía.
-- Matriz Viva actualizada.
+- `docs/00_Estado/ESTADO_PROYECTO.md` — fotografía ejecutiva.
+- `docs/00_Estado/MATRIZ_COMPONENTES.md` — estado por componente.
+- `docs/00_Estado/LEDGER_CONTINUIDAD.md` — cronología.
 
 ## Próximo objetivo
 
-Conectar las salidas preparadas al `DirectorEditorial`/`GeneradorEditorial`, ejecutar una prueba controlada sobre un proyecto ya analizado y validar primero el **objeto editorial interno**. Solo después se implementará el adaptador bajo el Contrato de Salida CSV V0.1 y se hará la primera prueba end-to-end con una sola historia.
+**Respeto editorial de la bifurcación:** construir Editorial Portfolio como pipeline separado, sin alterar el pipeline probado de Editorial Proyecto V2.2, compartiendo el contrato de salida únicamente en el punto autorizado para escribir el CSV Wix.
