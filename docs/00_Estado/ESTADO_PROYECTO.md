@@ -10,6 +10,16 @@
 - Último cambio funcional: bifurcación editorial incorporada en `src/core/parser.js`.
 - Continuidad: estado, matriz y ledger deben permanecer sincronizados; la automatización histórica de continuidad queda pendiente de verificación operacional.
 
+## Canon documental de continuidad
+
+La memoria técnica oficial del proyecto vive exclusivamente en `docs/00_Estado/` y está formada por estos tres documentos:
+
+1. `ESTADO_PROYECTO.md` — fotografía ejecutiva vigente.
+2. `MATRIZ_COMPONENTES.md` — estado funcional por componente.
+3. `LEDGER_CONTINUIDAD.md` — cronología de decisiones, cambios y checkpoints.
+
+No existe un segundo `Estado_Proyecto.md` canónico en `docs/04_Guías/`. Esa ruta no forma parte del sistema de continuidad vigente y no debe utilizarse como fuente de verdad.
+
 ## Estado ejecutivo vigente
 
 ### 🟢 Comprobado
@@ -145,12 +155,6 @@ CSV de salida
    ↓
 Wix
 ```
-
-## Documentos de continuidad
-
-- `docs/00_Estado/ESTADO_PROYECTO.md` — fotografía ejecutiva.
-- `docs/00_Estado/MATRIZ_COMPONENTES.md` — estado por componente.
-- `docs/00_Estado/LEDGER_CONTINUIDAD.md` — cronología.
 
 ## Próximo objetivo
 
