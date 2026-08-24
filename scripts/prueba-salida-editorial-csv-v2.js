@@ -75,6 +75,32 @@ function contarCabecerasDuplicadas(encabezados) {
     return conteo;
 }
 
+function mostrarDuplicados(matriz) {
+    const encabezados = matriz[0];
+    const idx = indice(encabezados);
+    const fila = encontrarFilaReferencia(matriz);
+    const filaCompleta = buscarFila(matriz, fila);
+    const duplicados = Object.entries(idx).filter(([, posiciones]) => posiciones.length > 1);
+
+    console.log("\n--------------------------------------");
+    console.log("DIAGNÓSTICO — CABECERAS DUPLICADAS");
+    console.log("--------------------------------------");
+
+    if (!duplicados.length) {
+        console.log("✓ No existen cabeceras duplicadas.");
+        return;
+    }
+
+    duplicados.forEach(([campo, posiciones]) => {
+        console.log(`• ${campo}: ${posiciones.length} apariciones`);
+        posiciones.forEach(posicion => {
+            console.log(`  - posición ${posicion + 1}: ${JSON.stringify(filaCompleta?.[posicion] ?? "")}`);
+        });
+    });
+
+    console.log("\n✓ Diagnóstico completado: no se ha elegido automáticamente ninguna columna duplicada.");
+}
+
 function main() {
     console.log("\n======================================");
     console.log("PRUEBA BLINDADA — SALIDA EDITORIAL CSV V2.2");
@@ -91,6 +117,8 @@ function main() {
 
     assert(encabezadosAntes.length === 25, `CSV de entrada conserva ${encabezadosAntes.length} cabeceras`);
     assert(Object.values(duplicadosAntes).some(n => n > 1), "CSV de entrada contiene cabeceras duplicadas");
+
+    mostrarDuplicados(antes);
 
     const editorial = {
         codigo: "MUB-TEST-001",
