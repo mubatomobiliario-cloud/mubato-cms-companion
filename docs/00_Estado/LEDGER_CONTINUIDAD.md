@@ -147,20 +147,33 @@ Commit funcional: `9247fa9`.
 
 El Parser es el primer punto de contacto con la fila CSV y, por tanto, el lugar correcto para decidir el pipeline antes de consumir IA editorial.
 
-## 2026-08-24 — Recuperación y auditoría de continuidad documental
+## 2026-08-24 — Recuperación histórica de continuidad documental
+
+Se detectó una copia antigua de `Estado_Proyecto.md` dentro de `docs/04_Guías/`. Ese documento correspondía al estado del proyecto del 12 de agosto de 2026 y contenía información histórica sobre la recuperación inicial, el hot test y la antigua Fase 2.
+
+Antes de eliminarlo, se verificó que sus decisiones vigentes ya estaban absorbidas por el canon actual y que los datos históricos relevantes quedaban preservados aquí:
+
+- La recuperación inicial del Companion y su baseline quedaron como antecedente histórico.
+- El problema del hot test de `tests/testPipeline.js`, que tenía fijado `Proyectos/Andrés Giraldo` mientras se pretendía probar Araque, queda registrado como antecedente de trazabilidad.
+- La aparición de referencias inesperadas como `tonos metálicos` quedó registrada como incidente cuyo origen debía rastrearse, sin atribuirlo automáticamente a OpenAI.
+- La arquitectura documental maestra y la bifurcación Historia vs Portfolio fueron posteriormente redefinidas y superan aquella documentación de agosto 12.
+
+Por tanto, `docs/04_Guías/Estado_Proyecto.md` se considera **documento histórico obsoleto, no canónico y eliminado**. No debe recrearse.
+
+## 2026-08-24 — Canon documental de continuidad blindado
 
 Se verificaron directamente en GitHub los tres documentos canónicos de continuidad de la rama `feat/csv-editorial-v1`.
 
-Resultado:
+Resultado final:
 
-- `docs/00_Estado/ESTADO_PROYECTO.md` — canónico y sincronizado.
-- `docs/00_Estado/MATRIZ_COMPONENTES.md` — canónico y sincronizado.
-- `docs/00_Estado/LEDGER_CONTINUIDAD.md` — canónico y sincronizado.
-- `docs/04_Guías/Estado_Proyecto.md` — **no existe** y no es una ruta canónica de continuidad.
+- `docs/00_Estado/ESTADO_PROYECTO.md` — canónico.
+- `docs/00_Estado/MATRIZ_COMPONENTES.md` — canónico.
+- `docs/00_Estado/LEDGER_CONTINUIDAD.md` — canónico.
+- `docs/04_Guías/Estado_Proyecto.md` / `ESTADO_PROYECTO.md` — **prohibido y eliminado**.
 
-Se fija expresamente que no habrá dos documentos competidores de estado del proyecto.
+No habrá dos documentos competidores de estado del proyecto.
 
-La automatización histórica de continuidad sigue pendiente de verificación operacional; por ello, hasta que se compruebe, la continuidad documental debe considerarse una responsabilidad explícita del proceso de desarrollo y no una garantía automática.
+La automatización de continuidad debe verificar además la ausencia de cualquier variante de mayúsculas/minúsculas del antiguo documento, para evitar que una diferencia de filesystem o de nombre vuelva a crear una segunda fuente de verdad.
 
 ## Estado actual
 
@@ -173,6 +186,7 @@ La automatización histórica de continuidad sigue pendiente de verificación op
 - Eliminación de `actualizadorCSV.js`.
 - Bifurcación binaria en Parser.
 - Canon documental de continuidad fijado en `docs/00_Estado/`.
+- Eliminación de la copia histórica competidora de `Estado_Proyecto.md`.
 
 ### 🟡 En curso
 
