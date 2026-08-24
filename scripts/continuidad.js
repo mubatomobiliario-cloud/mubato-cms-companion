@@ -10,7 +10,8 @@ const DOCS = [
     "docs/00_Estado/MATRIZ_COMPONENTES.md",
     "docs/00_Estado/LEDGER_CONTINUIDAD.md"
 ];
-const FORBIDDEN = "docs/04_Guías/Estado_Proyecto.md";
+const FORBIDDEN_DIRECTORY = path.join(ROOT, "docs", "04_Guías");
+const FORBIDDEN_BASENAME = "estado_proyecto.md";
 const START = "<!-- CONTINUIDAD_AUTO_START -->";
 const END = "<!-- CONTINUIDAD_AUTO_END -->";
 
@@ -22,6 +23,15 @@ function read(relative) {
     const file = path.join(ROOT, relative);
     if (!fs.existsSync(file)) throw new Error(`Falta documento canónico: ${relative}`);
     return fs.readFileSync(file, "utf8");
+}
+
+function assertNoForbiddenStateDocument() {
+    if (!fs.existsSync(FORBIDDEN_DIRECTORY)) return;
+    const encontrados = fs.readdirSync(FORBIDDEN_DIRECTORY)
+        .filter(nombre => nombre.toLowerCase() === FORBIDDEN_BASENAME);
+    if (encontrados.length) {
+        throw new Error(`Existe una ruta de continuidad prohibida: docs/04_Guías/${encontrados[0]}`);
+    }
 }
 
 function replaceAutoBlock(text, block) {
@@ -54,9 +64,7 @@ function main() {
     const matrix = read(DOCS[1]);
     const ledger = read(DOCS[2]);
 
-    if (fs.existsSync(path.join(ROOT, FORBIDDEN))) {
-        throw new Error(`Existe una ruta de continuidad prohibida: ${FORBIDDEN}`);
-    }
+    assertNoForbiddenStateDocument();
 
     const parser = read("src/core/parser.js");
     const output = read("src/Exportadores/salidaEditorialCSV.js");
