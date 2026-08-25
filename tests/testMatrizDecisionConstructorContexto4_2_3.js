@@ -64,12 +64,11 @@ legacyMethods.forEach(method => assert.ok(legacy.includes(method), `${method} no
 console.log('✓ Los 4 métodos fotográficos heredados permanecen aislados en V1.');
 console.log('');
 
-console.log('4. Verificando candidatos sin consumidor detectado en producción vigente...');
+console.log('4. Verificando candidatos sin consumidor detectado en producción V2 vigente...');
 
-// Esta matriz decide sobre arquitectura de producción, no sobre referencias textuales
-// que aparecen dentro de tests ni sobre el pipeline V1, que está explícitamente aislado.
-// Los consumidores de V1 ya fueron clasificados en 4.2.2 y no deben convertir un
-// candidato V2.2 en "consumido" para esta decisión.
+// Esta matriz decide sobre la arquitectura V2.2. El pipeline V1 es una arquitectura
+// heredada y ya fue clasificado por separado en 4.2.2; su existencia no convierte un
+// candidato V2.2 en consumidor vigente. Tampoco se consideran tests como consumidores.
 const productionRoots = [
   path.join(repoRoot, 'src'),
   path.join(repoRoot, 'app'),
@@ -91,24 +90,22 @@ const productionFiles = productionRoots.flatMap(root => walkProduction(root));
 
 cleanupCandidates.forEach(method => {
   const consumers = productionFiles
-    .filter(file => file !== contextoPath && file !== procesadorPath)
+    .filter(file => file !== contextoPath && file !== procesadorPath && file !== legacyPath)
     .filter(file => {
       const text = fs.readFileSync(file, 'utf8');
       return text.includes(method);
     });
 
-  // ConstructorContexto contiene la propia declaración del método; se excluye.
-  // procesadorEditorialV2 se verifica por separado como contrato activo.
   assert.strictEqual(
     consumers.length,
     0,
-    `${method} tiene consumidores de producción detectados: ${consumers.join(', ')}`
+    `${method} tiene consumidores V2 vigentes detectados: ${consumers.join(', ')}`
   );
 });
 
-console.log('✓ Keywords, Categoría y Espacios no presentan consumidores en producción vigente.');
+console.log('✓ Keywords, Categoría y Espacios no presentan consumidores en producción V2 vigente.');
 console.log('✓ Las referencias en tests no se consideran consumidores arquitectónicos.');
-console.log('✓ El pipeline V1 permanece aislado y no decide la limpieza V2.2.');
+console.log('✓ El pipeline V1 permanece aislado y se clasifica como legado, no como contrato V2.2.');
 console.log('');
 
 console.log('5. Matriz formal de decisión...');
@@ -116,7 +113,7 @@ const matrix = [
   ['ACTIVO V2.2', active, 'CONSERVAR'],
   ['DETERMINISTA / CONTRATO', deterministic, 'CONSERVAR Y CONSOLIDAR'],
   ['V1 LEGADO', legacyMethods, 'AISLAR; NO ELIMINAR EN 4.2.3'],
-  ['SIN CONSUMIDOR VIGENTE', cleanupCandidates, 'CANDIDATO A LIMPIEZA; REQUIERE REGRESIÓN']
+  ['SIN CONSUMIDOR V2 VIGENTE', cleanupCandidates, 'CANDIDATO A LIMPIEZA; REQUIERE REGRESIÓN']
 ];
 for (const [group, list, decision] of matrix) {
   console.log(`• ${group}: ${list.join(', ')}`);
@@ -139,8 +136,8 @@ console.log('✓ Matriz de decisión formal establecida.');
 console.log('✓ 5 métodos activos V2.2: conservar.');
 console.log('✓ 3 métodos deterministas: conservar y consolidar.');
 console.log('✓ 4 métodos V1: aislar, no eliminar todavía.');
-console.log('✓ 3 métodos sin consumidor vigente: candidatos formales a limpieza.');
+console.log('✓ 3 métodos sin consumidor V2 vigente: candidatos formales a limpieza.');
 console.log('✓ No se modificó código de producción.');
 console.log('✓ No se realizaron llamadas a OpenAI.');
 console.log('');
-console.log('CONCLUSIÓN 4.2.3: la limpieza puede ejecutarse de forma controlada, pero únicamente después de una regresión explícita que demuestre que los tres candidatos sin consumidor vigente no forman parte de ningún contrato V2.2.');
+console.log('CONCLUSIÓN 4.2.3: la limpieza puede ejecutarse de forma controlada, pero únicamente después de una regresión explícita que demuestre que los tres candidatos sin consumidor V2 vigente no forman parte de ningún contrato V2.2.');
