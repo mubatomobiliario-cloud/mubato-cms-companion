@@ -132,13 +132,14 @@ async function main() {
 
     console.log("2. Construyendo grafo de dependencias...");
     const porContrato = Object.fromEntries(openAI.llamadas.map(x => [x.contrato, x.prompt]));
-    assert.ok(porContrato.HISTORIA_WEB.includes("HISTORIA INPUT Hogar Araque"));
-    assert.ok(porContrato.SEO.includes("HISTORIA_WEB REUTILIZADA"));
-    assert.ok(porContrato.PHOTO_EDITORIAL.includes("HISTORIA_WEB REUTILIZADA"));
+    const historiaGenerada = "La historia editorial de control parte de una intervención comprobada en cocina en Bogotá.";
+    assert.ok(porContrato.HISTORIA_WEB.includes(historiaGenerada));
+    assert.ok(porContrato.SEO.includes("SEO INPUT") && porContrato.SEO.includes(salida.historiaWeb));
+    assert.ok(porContrato.PHOTO_EDITORIAL.includes("HISTORIA_WEB REUTILIZADA") && porContrato.PHOTO_EDITORIAL.includes(salida.historiaWeb));
     assert.ok(porContrato.HERO.includes("HERO INPUT Hogar Araque"));
-    console.log("✓ Historia → Historia Web: dependencia explícita.");
-    console.log("✓ Historia Web → SEO: resultado reutilizado como contexto.");
-    console.log("✓ Historia Web → fotografía editorial: resultado reutilizado como contexto.");
+    console.log("✓ Historia → Historia Web: resultado de Historia reutilizado como contexto.");
+    console.log("✓ Historia Web → SEO: resultado de Historia Web reutilizado como contexto.");
+    console.log("✓ Historia Web → fotografía editorial: resultado de Historia Web reutilizado como contexto.");
     console.log("✓ Hero permanece como salida editorial independiente.\n");
 
     console.log("3. Buscando llamadas IA redundantes por datos ya disponibles...");
