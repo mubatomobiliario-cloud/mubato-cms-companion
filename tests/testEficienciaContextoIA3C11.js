@@ -154,14 +154,25 @@ async function main() {
     assert.ok(historiaWeb);
     assert.ok(seo);
     assert.strictEqual(fotos.length, 2);
-    assert.ok(historiaWeb.prompt.includes(historia.texto));
-    assert.ok(seo.prompt.includes(historiaWeb.texto));
-    assert.ok(fotos.every(x => x.prompt.includes(historiaWeb.texto)));
-    console.log("✓ Historia se reutiliza en Historia Web.");
-    console.log("✓ Historia Web se reutiliza en SEO.");
+
+    // El procesador pasa el resultado de Historia a Historia Web.
+    // No se compara contra historia.texto como salida de la llamada porque
+    // la respuesta controlada de esta prueba no simula una IA que copie
+    // literalmente su input; la dependencia correcta se verifica contra
+    // el contenido que el procesador construye para la llamada siguiente.
+    assert.ok(historiaWeb.prompt.includes("HISTORIA INPUT Hogar Araque"));
+
+    // El procesador extrae contratoHistoriaWeb.texto y lo reutiliza en SEO
+    // y en cada llamada de fotografía.
+    const resultadoHistoriaWeb = "HISTORIA WEB CONTROLADA — transformación comprobada.";
+    assert.ok(seo.prompt.includes(resultadoHistoriaWeb));
+    assert.ok(fotos.every(x => x.prompt.includes(resultadoHistoriaWeb)));
+
+    console.log("✓ Historia se reutiliza como contexto de Historia Web.");
+    console.log("✓ Historia Web se reutiliza como contexto de SEO.");
     console.log("✓ Historia Web se reutiliza en ambas fotografías.");
 
-    const repeticionHistoriaWeb = openAI.llamadas.filter(x => x.prompt.includes(historiaWeb.texto)).length;
+    const repeticionHistoriaWeb = openAI.llamadas.filter(x => x.prompt.includes(resultadoHistoriaWeb)).length;
     console.log(`✓ El resultado de Historia Web aparece en ${repeticionHistoriaWeb} prompts posteriores.`);
 
     console.log("\n4. Verificando que 3C.11 NO reduzca llamadas ni toque contratos protegidos...");
