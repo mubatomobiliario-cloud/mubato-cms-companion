@@ -29,28 +29,33 @@ const active = ['construirHero', 'construirHistoria', 'construirHistoriaWeb', 'c
 const deterministic = ['construirSlug', 'construirCodigo', 'construirServicios'];
 const legacy = ['construirAltText', 'construirTituloFotografia', 'construirKeywordsFotografia', 'construirNombreSEOFotografia'];
 
+// Detecta una declaración exacta de método de clase, evitando falsos positivos
+// como construirKeywords dentro de construirKeywordsFotografia.
+const hasMethodDeclaration = (source, method) =>
+  new RegExp(`(^|\\n)\\s*${method}\\s*\\(`).test(source);
+
 console.log('1. Verificando eliminación exacta de candidatos...');
-removed.forEach(method => assert.ok(!contextoSource.includes(method), `${method} todavía aparece en ConstructorContexto`));
+removed.forEach(method => assert.ok(!hasMethodDeclaration(contextoSource, method), `${method} todavía aparece como método en ConstructorContexto`));
 console.log('✓ Keywords, Categoría y Espacios fueron eliminados de ConstructorContexto.');
 console.log('');
 
 console.log('2. Verificando contrato activo V2.2...');
 active.forEach(method => {
-  assert.ok(contextoSource.includes(method), `${method} fue eliminado accidentalmente`);
-  assert.ok(procesadorSource.includes(method), `${method} ya no está conectado a V2.2`);
+  assert.ok(hasMethodDeclaration(contextoSource, method), `${method} fue eliminado accidentalmente`);
+  assert.ok(hasMethodDeclaration(procesadorSource, method) || procesadorSource.includes(`.${method}(`), `${method} ya no está conectado a V2.2`);
 });
 console.log('✓ Los 5 métodos activos V2.2 permanecen disponibles y conectados.');
 console.log('');
 
 console.log('3. Verificando frontera determinista...');
-deterministic.forEach(method => assert.ok(contextoSource.includes(method), `${method} fue eliminado accidentalmente`));
+deterministic.forEach(method => assert.ok(hasMethodDeclaration(contextoSource, method), `${method} fue eliminado accidentalmente`));
 console.log('✓ Código, Servicios y Slug permanecen disponibles y fuera de la limpieza.');
 console.log('');
 
 console.log('4. Verificando aislamiento del legado V1...');
 legacy.forEach(method => {
   assert.ok(legacySource.includes(method), `${method} ya no existe en V1 legado`);
-  assert.ok(contextoSource.includes(method), `${method} fue eliminado de ConstructorContexto aunque V1 todavía lo requiere`);
+  assert.ok(hasMethodDeclaration(contextoSource, method), `${method} fue eliminado de ConstructorContexto aunque V1 todavía lo requiere`);
 });
 console.log('✓ Los 4 métodos fotográficos V1 permanecen aislados y conservados.');
 console.log('');
@@ -79,14 +84,17 @@ const productionFiles = productionRoots.flatMap(root => walk(root));
 removed.forEach(method => {
   const consumers = productionFiles
     .filter(file => file !== contextoPath && file !== legacyPath)
-    .filter(file => fs.readFileSync(file, 'utf8').includes(method));
+    .filter(file => {
+      const source = fs.readFileSync(file, 'utf8');
+      return new RegExp(`\\.${method}\\s*\\(`).test(source) || new RegExp(`\\b${method}\\s*=|\\b${method}\\s*\\(`).test(source);
+    });
   assert.strictEqual(consumers.length, 0, `${method} conserva referencias productivas: ${consumers.join(', ')}`);
 });
 console.log('✓ Ningún método eliminado conserva consumidor productivo detectado.');
 console.log('');
 
 console.log('7. Regla de seguridad final...');
-active.forEach(method => assert.ok(procesadorSource.includes(method), `Contrato V2.2 incompleto: ${method}`));
+active.forEach(method => assert.ok(hasMethodDeclaration(contextoSource, method), `Contrato V2.2 incompleto: ${method}`));
 console.log('✓ La limpieza no altera el contrato activo V2.2.');
 console.log('✓ No se realizan llamadas a OpenAI.');
 console.log('');
