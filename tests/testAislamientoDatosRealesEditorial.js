@@ -6,7 +6,8 @@ const os = require("os");
 const crypto = require("crypto");
 const Papa = require("papaparse");
 
-const SalidaEditorialCSV = require("../src/Editorial/salidaEditorialCSV");
+// El exportador real vive en src/Exportadores, no en src/Editorial.
+const SalidaEditorialCSV = require("../src/Exportadores/salidaEditorialCSV");
 
 const CAMPOS_PROTEGIDOS = [
     "Código MUBATO",
