@@ -38,7 +38,11 @@ function construirCSVTemporal() {
         `hero-${proyecto}.jpg`,
         "Bogotá",
         "Vivienda",
-        `galeria-${proyecto}.json`,
+        // Contrato real del Parser: Galería General es JSON serializado.
+        // El fixture no necesita simular una selección Wix concreta para
+        // probar aislamiento; las fotografías físicas del fixture son la
+        // evidencia que recorrerá VisionControlada.
+        "[]",
         ""
     ]);
 
