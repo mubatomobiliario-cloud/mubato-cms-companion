@@ -10,6 +10,16 @@ function json(texto, nombre) {
     catch (error) { throw new Error(`${nombre} no devolvió JSON válido: ${error.message}`); }
 }
 
+function slugDeterminista(nombre) {
+    return String(nombre || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+}
+
 class ProcesadorEditorialV2 {
     constructor({ contexto = new ConstructorContexto(), openAI = new OpenAIClient(), validadorHistoria = new ValidadorHistoriaV2(), validadorHistoriaWeb = new ValidadorHistoriaWebV2() } = {}) {
         this.contexto = contexto;
@@ -86,14 +96,15 @@ class ProcesadorEditorialV2 {
             if (String(seo.seoTitle).length > 60) throw new Error("SEO Title supera 60 caracteres.");
             if (String(seo.metaDescription).length > 155) throw new Error("Meta Description supera 155 caracteres.");
 
-            const codigo = String(await generar("codigo", this.contexto.construirCodigo(proyecto))).trim();
-            if (!codigo) throw new Error("Código MUBATO vacío.");
+            // 3C.8: estos tres valores ya existen en la entrada y no requieren IA.
+            const codigo = String(proyecto.codigo || "").trim();
+            if (!codigo) throw new Error("Código MUBATO vacío en la entrada.");
 
-            const servicios = json(await generar("servicios", this.contexto.construirServicios(proyecto)), "SERVICIOS");
-            if (!Array.isArray(servicios.servicios)) throw new Error("SERVICIOS no devolvió un arreglo válido.");
+            const servicios = Array.isArray(proyecto.servicios) ? proyecto.servicios : [];
+            if (!servicios.length) throw new Error("Servicios vacíos en la entrada.");
 
-            const slug = String(await generar("slug", this.contexto.construirSlug(proyecto))).trim();
-            if (!slug) throw new Error("Slug vacío.");
+            const slug = slugDeterminista(proyecto.nombre);
+            if (!slug) throw new Error("No fue posible derivar un slug determinista del nombre del proyecto.");
 
             const galeriaEditorial = [];
             for (let i = 0; i < galeria.length; i++) {
@@ -115,7 +126,7 @@ class ProcesadorEditorialV2 {
                 heroTexto: heroTexto.trim(),
                 descripcion: historiaWeb,
                 codigo,
-                servicios: servicios.servicios,
+                servicios,
                 slug,
                 seo,
                 galeriaEditorial,
