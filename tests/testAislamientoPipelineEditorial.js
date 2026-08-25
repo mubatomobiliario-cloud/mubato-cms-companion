@@ -27,7 +27,7 @@ function construirCSVTemporal() {
     const filas = PROJECTS.map((proyecto, indice) => [
         `id-${indice + 1}`,
         proyecto,
-        `MUB-${indice + 1}`,
+        proyecto === TARGET ? "" : `MUB-${indice + 1}`,
         `Hero original ${proyecto}`,
         `Descripción original ${proyecto}`,
         `Servicios originales ${proyecto}`,
@@ -50,8 +50,8 @@ function prepararCarpetaProyecto(tempDir, proyecto) {
     fs.mkdirSync(carpeta, { recursive: true });
 
     const imagen = path.join(carpeta, `${proyecto.replace(/[^a-zA-Z0-9]/g, "_")}-hero.jpg`);
-    // El pipeline real necesita un archivo físico de imagen; el analizador puede
-    // ser sustituido por un stub controlado para evitar llamadas de red en este test.
+    // El pipeline real necesita un archivo físico de imagen; el analizador es
+    // sustituido por un stub controlado para evitar llamadas de red en este test.
     fs.writeFileSync(imagen, "fixture-image", "utf8");
 
     return carpeta;
@@ -102,15 +102,15 @@ class ProcesadorEditorialControlado {
         assert(identidad, `Contaminación de evidencia: la evidencia no pertenece exclusivamente a ${proyecto}.`);
 
         return {
-            codigo: filaCSV["Código MUBATO"],
+            codigo: `MUB-ARAQUE-TEST`,
             heroTexto: `Hero editorial ${proyecto}`,
             historia: `Historia editorial ${proyecto}`,
             descripcion: `Descripción editorial ${proyecto}`,
             servicios: filaCSV["Servicios"],
             slug: filaCSV["Slug"],
             seo: {
-                seoTitle: filaCSV["SEO Title"],
-                metaDescription: filaCSV["Meta Description"]
+                seoTitle: `SEO editorial ${proyecto}`,
+                metaDescription: `Meta editorial ${proyecto}`
             }
         };
     }
@@ -161,6 +161,7 @@ async function main() {
             carpetas.set(proyecto, prepararCarpetaProyecto(tempDir, proyecto));
         }
         console.log("✓ Tijo, Rolón, Quesada y Araque preparados.");
+        console.log("✓ Solo Araque queda pendiente para Parser.");
 
         console.log("");
         console.log("2. Importando exclusivamente Araque mediante Parser...");
@@ -168,6 +169,7 @@ async function main() {
         const proyecto = parser.importarProyecto(rutaCSV, carpetas.get(TARGET));
         assert(proyecto.nombre === TARGET, `Parser seleccionó ${proyecto.nombre} en vez de ${TARGET}.`);
         assert(proyecto.filaCSV["Proyecto"] === TARGET, "La fila CSV no conserva la identidad de Araque.");
+        assert(proyecto.filaCSV["Código MUBATO"] === "", "Araque no quedó pendiente según el contrato del Parser.");
         console.log("✓ Parser → Araque confirmado.");
 
         console.log("");
@@ -195,6 +197,7 @@ async function main() {
         assert(resultado.expediente.observacionesVision.every(item => {
             return String(item.evidencia?.descripcion || "").includes(TARGET);
         }), "La evidencia visual contiene datos de otro proyecto.");
+        assert(resultado.resultadoEditorial.codigo === "MUB-ARAQUE-TEST", "Editorial no produjo el código esperado para Araque.");
         console.log("✓ Identidad Araque conservada en Parser → Director → Evidencia → Editorial → Salida.");
 
         console.log("");
