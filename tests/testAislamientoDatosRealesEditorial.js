@@ -27,7 +27,11 @@ function hashArchivo(ruta) {
 }
 
 function localizarCSV() {
+    // Los datos reales de trabajo viven fuera de Git, dentro de Proyectos/.
+    // El CSV maestro que se utilizaba para el cargue Wix está en:
+    // Proyectos/Historias_WIX_ORIGINAL.csv
     const candidatos = [
+        path.join(process.cwd(), "Proyectos", "Historias_WIX_ORIGINAL.csv"),
         path.join(process.cwd(), "tests", "fixtures", "Historias_WIX_ORIGINAL.csv"),
         path.join(process.cwd(), "tests", "fixtures", "entrada.csv"),
         path.join(process.cwd(), "data", "Historias_WIX_ORIGINAL.csv")
@@ -35,7 +39,9 @@ function localizarCSV() {
 
     const encontrado = candidatos.find(fs.existsSync);
     if (!encontrado) {
-        throw new Error("No se encontró un CSV real de control en las rutas esperadas.");
+        throw new Error(
+            "No se encontró el CSV maestro real. Se esperaba Proyectos/Historias_WIX_ORIGINAL.csv."
+        );
     }
     return encontrado;
 }
