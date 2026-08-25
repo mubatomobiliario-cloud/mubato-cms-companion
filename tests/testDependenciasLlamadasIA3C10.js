@@ -61,24 +61,28 @@ class ValidadorHistoriaWebControlado {
 }
 
 class ContextoControlado {
+    encabezado(contrato) {
+        return `\n====================================================\nCONTRATO EDITORIAL: ${contrato}\n====================================================\n`;
+    }
+
     construirHistoria(proyecto) {
-        return `HISTORIA INPUT ${proyecto.nombre}`;
+        return this.encabezado("HISTORIA") + `HISTORIA INPUT ${proyecto.nombre}`;
     }
 
     construirHistoriaWeb(historia) {
-        return `HISTORIA_WEB INPUT\n${historia}`;
+        return this.encabezado("HISTORIA_WEB") + `HISTORIA_WEB INPUT\n${historia}`;
     }
 
     construirHero(proyecto) {
-        return `HERO INPUT ${proyecto.nombre}`;
+        return this.encabezado("HERO") + `HERO INPUT ${proyecto.nombre}`;
     }
 
     construirSEO(proyecto, historiaWeb) {
-        return `SEO INPUT\n${historiaWeb}`;
+        return this.encabezado("SEO") + `SEO INPUT\n${historiaWeb}`;
     }
 
     construirMetadatosFotografia(proyecto, fotografia, historiaWeb) {
-        return `PHOTO INPUT ${fotografia.fileName}\nHISTORIA_WEB REUTILIZADA\n${historiaWeb}`;
+        return this.encabezado("PHOTO_EDITORIAL") + `PHOTO INPUT ${fotografia.fileName}\nHISTORIA_WEB REUTILIZADA\n${historiaWeb}`;
     }
 }
 
