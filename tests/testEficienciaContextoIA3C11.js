@@ -4,103 +4,42 @@ const assert = require("assert");
 const ProcesadorEditorialV2 = require("../src/Editorial/procesadorEditorialV2");
 
 class OpenAIControlado {
-    constructor() {
-        this.llamadas = [];
-    }
+    constructor() { this.llamadas = []; }
 
     async generarTextoDetallado(prompt) {
         const contrato = prompt.match(/CONTRATO EDITORIAL: ([^\n]+)/)?.[1] || "DESCONOCIDO";
         this.llamadas.push({ contrato, prompt });
-
         const respuestas = {
             HISTORIA: "HISTORIA CONTROLADA — intervención comprobada en cocina en Bogotá.",
-            HISTORIA_WEB: JSON.stringify({
-                texto: "HISTORIA WEB CONTROLADA — transformación comprobada.",
-                titulo: "Hogar Araque",
-                resumen: "Transformación de Hogar Araque."
-            }),
+            HISTORIA_WEB: JSON.stringify({ texto: "HISTORIA WEB CONTROLADA — transformación comprobada.", titulo: "Hogar Araque", resumen: "Transformación de Hogar Araque." }),
             HERO: "Diseñamos un espacio para vivir mejor.",
-            SEO: JSON.stringify({
-                seoTitle: "Hogar Araque | MUBATO",
-                metaDescription: "Historia de transformación de Hogar Araque."
-            }),
-            PHOTO_EDITORIAL: JSON.stringify({
-                title: "Cocina Hogar Araque",
-                alt: "Cocina transformada de Hogar Araque",
-                keywords: ["cocina", "Hogar Araque", "MUBATO"],
-                nombreSEO: "hogar-araque-cocina"
-            })
+            SEO: JSON.stringify({ seoTitle: "Hogar Araque | MUBATO", metaDescription: "Historia de transformación de Hogar Araque." }),
+            PHOTO_EDITORIAL: JSON.stringify({ title: "Cocina Hogar Araque", alt: "Cocina transformada de Hogar Araque", keywords: ["cocina", "Hogar Araque", "MUBATO"], nombreSEO: "hogar-araque-cocina" })
         };
-
         const texto = respuestas[contrato];
         if (!texto) throw new Error(`Contrato no controlado: ${contrato}`);
-
-        return {
-            texto,
-            telemetria: {
-                modelo: "controlado",
-                inputTokens: prompt.length,
-                outputTokens: texto.length,
-                totalTokens: prompt.length + texto.length,
-                tiempoMs: 1
-            }
-        };
+        return { texto, telemetria: { modelo: "controlado", inputTokens: prompt.length, outputTokens: texto.length, totalTokens: prompt.length + texto.length, tiempoMs: 1 } };
     }
 }
 
-class ValidadorHistoriaControlado {
-    validar() {
-        return { aprobado: true, metricas: { parrafos: 1 }, errores: [] };
-    }
-}
-
-class ValidadorHistoriaWebControlado {
-    validarContrato() {
-        return { aprobado: true, errores: [] };
-    }
-}
+class ValidadorHistoriaControlado { validar() { return { aprobado: true, metricas: { parrafos: 1 }, errores: [] }; } }
+class ValidadorHistoriaWebControlado { validarContrato() { return { aprobado: true, errores: [] }; } }
 
 class ContextoControlado {
-    encabezado(contrato) {
-        return `\n====================================================\nCONTRATO EDITORIAL: ${contrato}\n====================================================\n`;
-    }
-
-    construirHistoria(proyecto) {
-        return this.encabezado("HISTORIA") + `HISTORIA INPUT ${proyecto.nombre}`;
-    }
-
-    construirHistoriaWeb(historia) {
-        return this.encabezado("HISTORIA_WEB") + `HISTORIA_WEB INPUT\n${historia}`;
-    }
-
-    construirHero(proyecto) {
-        return this.encabezado("HERO") + `HERO INPUT ${proyecto.nombre}`;
-    }
-
-    construirSEO(proyecto, historiaWeb) {
-        return this.encabezado("SEO") + `SEO INPUT\n${historiaWeb}`;
-    }
-
-    construirMetadatosFotografia(proyecto, fotografia, historiaWeb) {
-        return this.encabezado("PHOTO_EDITORIAL") + `PHOTO INPUT ${fotografia.fileName}\nHISTORIA_WEB REUTILIZADA\n${historiaWeb}`;
-    }
+    encabezado(contrato) { return `\n====================================================\nCONTRATO EDITORIAL: ${contrato}\n====================================================\n`; }
+    construirHistoria(proyecto) { return this.encabezado("HISTORIA") + `HISTORIA INPUT ${proyecto.nombre}`; }
+    construirHistoriaWeb(historia) { return this.encabezado("HISTORIA_WEB") + `HISTORIA_WEB INPUT\n${historia}`; }
+    construirHero(proyecto) { return this.encabezado("HERO") + `HERO INPUT ${proyecto.nombre}`; }
+    construirSEO(proyecto, historiaWeb) { return this.encabezado("SEO") + `SEO INPUT\n${historiaWeb}`; }
+    construirMetadatosFotografia(proyecto, fotografia, historiaWeb) { return this.encabezado("PHOTO_EDITORIAL") + `PHOTO INPUT ${fotografia.fileName}\nHISTORIA_WEB REUTILIZADA\n${historiaWeb}`; }
 }
 
 function fixture() {
     return {
-        "Proyecto": "Hogar Araque",
-        "Código MUBATO": "MUB-4",
-        "Cliente": "Cliente de control",
-        "Ciudad": "Bogotá",
-        "Estado": "[\"Publicado\"]",
-        "Categoría": "[\"Residencial\"]",
-        "Descripción": "Descripción de control",
-        "Servicios": "Diseño interior|Mobiliario a medida",
-        "Espacios": "[\"cocina\"]",
-        "Galería General": JSON.stringify([
-            { fileName: "araque-01.jpg", description: "Foto 1" },
-            { fileName: "araque-02.jpg", description: "Foto 2" }
-        ])
+        "Proyecto": "Hogar Araque", "Código MUBATO": "MUB-4", "Cliente": "Cliente de control", "Ciudad": "Bogotá",
+        "Estado": "[\"Publicado\"]", "Categoría": "[\"Residencial\"]", "Descripción": "Descripción de control",
+        "Servicios": "Diseño interior|Mobiliario a medida", "Espacios": "[\"cocina\"]",
+        "Galería General": JSON.stringify([{ fileName: "araque-01.jpg", description: "Foto 1" }, { fileName: "araque-02.jpg", description: "Foto 2" }])
     };
 }
 
@@ -112,18 +51,8 @@ async function main() {
     console.log("La prueba usa dependencias controladas y NO realiza llamadas reales a OpenAI.\n");
 
     const openAI = new OpenAIControlado();
-    const procesador = new ProcesadorEditorialV2({
-        contexto: new ContextoControlado(),
-        openAI,
-        validadorHistoria: new ValidadorHistoriaControlado(),
-        validadorHistoriaWeb: new ValidadorHistoriaWebControlado()
-    });
-
-    const evidencia = [
-        { fotografia: "araque-01.jpg", analizada: true, espacio: "cocina" },
-        { fotografia: "araque-02.jpg", analizada: true, espacio: "cocina" }
-    ];
-
+    const procesador = new ProcesadorEditorialV2({ contexto: new ContextoControlado(), openAI, validadorHistoria: new ValidadorHistoriaControlado(), validadorHistoriaWeb: new ValidadorHistoriaWebControlado() });
+    const evidencia = [{ fotografia: "araque-01.jpg", analizada: true, espacio: "cocina" }, { fotografia: "araque-02.jpg", analizada: true, espacio: "cocina" }];
     const salida = await procesador.generar(fixture(), { evidenciaVisual: evidencia });
 
     console.log("1. Verificando presupuesto IA...");
@@ -132,38 +61,24 @@ async function main() {
     console.log("✓ Presupuesto post-3C.8 confirmado: 6 llamadas IA.\n");
 
     console.log("2. Midiendo contexto enviado a cada llamada...");
-    const longitudes = Object.fromEntries(
-        openAI.llamadas.map((llamada, indice) => [
-            `${indice + 1}.${llamada.contrato}`,
-            llamada.prompt.length
-        ])
-    );
+    const longitudes = Object.fromEntries(openAI.llamadas.map((llamada, indice) => [`${indice + 1}.${llamada.contrato}`, llamada.prompt.length]));
     const totalContexto = openAI.llamadas.reduce((total, llamada) => total + llamada.prompt.length, 0);
     console.log(`✓ Contexto total medido: ${totalContexto} caracteres.`);
-    for (const [clave, longitud] of Object.entries(longitudes)) {
-        console.log(`  • ${clave}: ${longitud} caracteres`);
-    }
+    for (const [clave, longitud] of Object.entries(longitudes)) console.log(`  • ${clave}: ${longitud} caracteres`);
 
     console.log("\n3. Identificando reutilización que puede producir repetición de contexto...");
     const historia = openAI.llamadas.find(x => x.contrato === "HISTORIA");
     const historiaWeb = openAI.llamadas.find(x => x.contrato === "HISTORIA_WEB");
     const seo = openAI.llamadas.find(x => x.contrato === "SEO");
     const fotos = openAI.llamadas.filter(x => x.contrato === "PHOTO_EDITORIAL");
+    assert.ok(historia); assert.ok(historiaWeb); assert.ok(seo); assert.strictEqual(fotos.length, 2);
 
-    assert.ok(historia);
-    assert.ok(historiaWeb);
-    assert.ok(seo);
-    assert.strictEqual(fotos.length, 2);
+    // El procesador pasa a Historia Web el TEXTO RESULTANTE de la llamada Historia.
+    // Por eso la prueba debe comprobar esa salida, no el prompt original de Historia.
+    const resultadoHistoria = "HISTORIA CONTROLADA — intervención comprobada en cocina en Bogotá.";
+    assert.ok(historiaWeb.prompt.includes(resultadoHistoria));
 
-    // El procesador pasa el resultado de Historia a Historia Web.
-    // No se compara contra historia.texto como salida de la llamada porque
-    // la respuesta controlada de esta prueba no simula una IA que copie
-    // literalmente su input; la dependencia correcta se verifica contra
-    // el contenido que el procesador construye para la llamada siguiente.
-    assert.ok(historiaWeb.prompt.includes("HISTORIA INPUT Hogar Araque"));
-
-    // El procesador extrae contratoHistoriaWeb.texto y lo reutiliza en SEO
-    // y en cada llamada de fotografía.
+    // El procesador extrae contratoHistoriaWeb.texto y lo reutiliza en SEO y fotografías.
     const resultadoHistoriaWeb = "HISTORIA WEB CONTROLADA — transformación comprobada.";
     assert.ok(seo.prompt.includes(resultadoHistoriaWeb));
     assert.ok(fotos.every(x => x.prompt.includes(resultadoHistoriaWeb)));
@@ -171,7 +86,6 @@ async function main() {
     console.log("✓ Historia se reutiliza como contexto de Historia Web.");
     console.log("✓ Historia Web se reutiliza como contexto de SEO.");
     console.log("✓ Historia Web se reutiliza en ambas fotografías.");
-
     const repeticionHistoriaWeb = openAI.llamadas.filter(x => x.prompt.includes(resultadoHistoriaWeb)).length;
     console.log(`✓ El resultado de Historia Web aparece en ${repeticionHistoriaWeb} prompts posteriores.`);
 
