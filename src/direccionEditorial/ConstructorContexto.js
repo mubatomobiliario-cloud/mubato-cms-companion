@@ -9,12 +9,9 @@ class ConstructorContexto {
     construirHistoria(proyecto) { return this.construirProyecto(proyecto, promptTemplates.HISTORIA, "HISTORIA", this.seccionPuntoPartida(proyecto)); }
     construirHistoriaWeb(historia) { return this.encabezado("HISTORIA_WEB") + promptHistoriaWebV2.replace("{{HISTORIA}}", historia || "Sin historia editorial disponible."); }
     construirSEO(proyecto, historia = "") { return this.construirProyecto(proyecto, promptTemplates.SEO, "SEO", `\n====================================================\nHISTORIA EDITORIAL\n====================================================\n\n${historia || "Sin historia editorial disponible."}\n`); }
-    construirKeywords(proyecto, historia = "") { return this.construirProyecto(proyecto, promptTemplates.KEYWORDS, "KEYWORDS", `\n====================================================\nHISTORIA EDITORIAL\n====================================================\n\n${historia || "Sin historia editorial disponible."}\n`); }
     construirSlug(proyecto) { return this.construirProyecto(proyecto, promptTemplates.SLUG, "SLUG"); }
     construirCodigo(proyecto) { return this.construirProyecto(proyecto, promptTemplates.CODIGO, "CODIGO"); }
-    construirCategoria(proyecto) { return this.construirProyecto(proyecto, promptTemplates.CATEGORIAS, "CATEGORIA"); }
     construirServicios(proyecto) { return this.construirProyecto(proyecto, promptTemplates.SERVICIOS, "SERVICIOS"); }
-    construirEspacios(proyecto) { return this.construirProyecto(proyecto, promptTemplates.ESPACIOS, "ESPACIOS"); }
     construirAltText(proyecto, fotografia) { return this.construirFotografia(proyecto, fotografia, promptTemplates.ALT_TEXT, "ALT_TEXT"); }
     construirTituloFotografia(proyecto, fotografia) { return this.construirFotografia(proyecto, fotografia, promptTemplates.TITLE_TEXT, "TITLE_FOTOGRAFIA"); }
     construirKeywordsFotografia(proyecto, fotografia, historia = "") { return this.construirFotografia(proyecto, fotografia, promptTemplates.PHOTO_KEYWORDS, "KEYWORDS_FOTOGRAFIA", historia ? `\nHISTORIA EDITORIAL\n${historia}\n` : ""); }
