@@ -46,20 +46,97 @@ function localizarCSV() {
     return encontrado;
 }
 
-function snapshotProyectos(rutaCSV) {
+function leerFilas(rutaCSV) {
     const contenido = fs.readFileSync(rutaCSV, "utf8");
-    const filas = Papa.parse(contenido, { header: true, skipEmptyLines: true }).data;
+    const resultado = Papa.parse(contenido, {
+        header: true,
+        skipEmptyLines: true,
+        transformHeader: (header, index) => `${header}__${index}`
+    });
+
+    // Papa renombra duplicados; necesitamos recuperar las cabeceras originales
+    // para entregar al exportador su matriz intacta. Por eso esta función no
+    // se utiliza para la exportación, solo para el snapshot de control.
+    return resultado.data;
+}
+
+function leerCSVControl(rutaCSV) {
+    const contenido = fs.readFileSync(rutaCSV, "utf8");
+    const resultado = Papa.parse(contenido, {
+        header: false,
+        skipEmptyLines: true
+    });
+    if (resultado.errors.length > 0) {
+        throw new Error(`Error leyendo CSV de control: ${JSON.stringify(resultado.errors)}`);
+    }
+    const encabezados = resultado.data[0];
+    const filas = resultado.data.slice(1);
+    return { encabezados, filas };
+}
+
+function crearIndice(encabezados) {
+    const todas = {};
+    const unicas = {};
+    encabezados.forEach((encabezado, posicion) => {
+        if (!todas[encabezado]) todas[encabezado] = [];
+        todas[encabezado].push(posicion);
+    });
+    for (const [encabezado, posiciones] of Object.entries(todas)) {
+        if (posiciones.length === 1) unicas[encabezado] = posiciones[0];
+    }
+    return { todas, unicas };
+}
+
+function snapshotProyectos(rutaCSV) {
+    const { encabezados, filas } = leerCSVControl(rutaCSV);
+    const indice = crearIndice(encabezados);
+    const posicionProyecto = indice.unicas["Proyecto"];
+
+    if (posicionProyecto === undefined) {
+        throw new Error("El CSV de control no contiene la columna única 'Proyecto'.");
+    }
 
     return new Map(
         filas
-            .filter(fila => PROYECTOS.includes(String(fila["Nombre"] || fila["Título"] || fila["Proyecto"] || "").trim()))
+            .filter(fila => PROYECTOS.includes(String(fila[posicionProyecto] || "").trim()))
             .map(fila => {
-                const nombre = String(fila["Nombre"] || fila["Título"] || fila["Proyecto"] || "").trim();
+                const nombre = String(fila[posicionProyecto] || "").trim();
                 const protegidos = {};
-                CAMPOS_PROTEGIDOS.forEach(campo => protegidos[campo] = fila[campo] ?? "");
+                CAMPOS_PROTEGIDOS.forEach(campo => {
+                    const posiciones = indice.todas[campo] || [];
+                    // Los campos de Wix duplicados no forman parte de esta
+                    // comparación; si hay una cabecera única, la capturamos.
+                    protegidos[campo] = posiciones.length === 1
+                        ? (fila[posiciones[0]] ?? "")
+                        : "";
+                });
                 return [nombre, protegidos];
             })
     );
+}
+
+function obtenerFilaProyecto(rutaCSV, nombreProyecto) {
+    const { encabezados, filas } = leerCSVControl(rutaCSV);
+    const indice = crearIndice(encabezados);
+    const posicionProyecto = indice.unicas["Proyecto"];
+
+    if (posicionProyecto === undefined) {
+        throw new Error("El CSV de control no contiene la columna única 'Proyecto'.");
+    }
+
+    const fila = filas.find(f => String(f[posicionProyecto] || "").trim() === nombreProyecto);
+    if (!fila) {
+        throw new Error(`No se encontró la fila '${nombreProyecto}' en el CSV de control.`);
+    }
+
+    const objeto = {};
+    encabezados.forEach((encabezado, posicion) => {
+        // Solo las cabeceras únicas pueden formar parte del contrato de identidad.
+        if ((indice.todas[encabezado] || []).length === 1) {
+            objeto[encabezado] = fila[posicion] ?? "";
+        }
+    });
+    return objeto;
 }
 
 function comparar(base, actual) {
@@ -104,28 +181,34 @@ async function main() {
 
     const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "mubato-datos-reales-"));
     const copia = path.join(tmp, "entrada.csv");
+    const salidaCSV = path.join(tmp, "salida-editorial.csv");
     fs.copyFileSync(rutaCSV, copia);
 
     console.log("1. Ejecutando exportación exclusivamente para Araque...");
     const salida = new SalidaEditorialCSV();
+    const filaAraque = obtenerFilaProyecto(copia, "Hogar Araque");
 
-    const resultado = await salida.generar({
-        rutaCSV: copia,
-        nombreProyecto: "Hogar Araque",
-        cambiosEditoriales: {
-            "Código MUBATO": "MUB-ARAQUE-TEST",
-            "Hero Texto": "Hero control Araque",
-            "Descripción": "Descripción control Araque",
-            "Servicios": "Diseño interior, mobiliario a medida",
-            "Slug": "hogar-araque-test",
-            "SEO Title": "Hogar Araque | MUBATO",
-            "Meta Description": "Historia de transformación de Hogar Araque.",
-            "Historia": "Historia editorial control de Araque"
+    // Contrato real de SalidaEditorialCSV V2.2:
+    // exportar({ rutaEntrada, rutaSalida, filaProyecto, editorial })
+    // No existe un método generar().
+    const resultado = salida.exportar({
+        rutaEntrada: copia,
+        rutaSalida: salidaCSV,
+        filaProyecto: filaAraque,
+        editorial: {
+            codigo: "MUB-ARAQUE-TEST",
+            heroTexto: "Hero control Araque",
+            descripcion: "Descripción control Araque",
+            servicios: "Diseño interior, mobiliario a medida",
+            slug: "hogar-araque-test",
+            seoTitle: "Hogar Araque | MUBATO",
+            metaDescription: "Historia de transformación de Hogar Araque.",
+            historia: "Historia editorial control de Araque"
         }
     });
 
     console.log("✓ Exportación controlada ejecutada.");
-    console.log(`✓ Salida: ${resultado}`);
+    console.log(`✓ Salida: ${resultado.rutaSalida}`);
     console.log("");
 
     console.log("2. Verificando que el CSV original permanezca intacto...");
@@ -137,7 +220,7 @@ async function main() {
     console.log("");
 
     console.log("3. Comparando aislamiento campo-a-campo...");
-    const estadoDespues = snapshotProyectos(copia);
+    const estadoDespues = snapshotProyectos(resultado.rutaSalida);
     const cambios = comparar(estadoAntes, estadoDespues);
 
     const cambiosAjeno = cambios.filter(c => !c.startsWith("Hogar Araque →"));
@@ -154,7 +237,7 @@ async function main() {
     console.log("");
 
     console.log("4. Verificando integridad de la salida...");
-    if (!resultado || !fs.existsSync(resultado)) {
+    if (!resultado || !resultado.rutaSalida || !fs.existsSync(resultado.rutaSalida)) {
         throw new Error("No se generó una salida editorial válida.");
     }
     console.log("✓ Salida editorial existe.");
