@@ -12,7 +12,7 @@ const PROYECTOS = ["Hogar Tijo", "Hogar Rolón", "Hogar Quesada", "Hogar Araque"
 const OBJETIVO = "Hogar Araque";
 const EDITABLES = [
     "Código MUBATO", "Hero Texto", "Descripción", "Servicios",
-    "Slug", "SEO Title", "Meta Description"
+    "Slug", "SEO Title", "Meta Description", "Galería General"
 ];
 const HISTORIA = "Historia";
 const HISTORIAS_WIX = "Historias de Transformación";
@@ -138,7 +138,7 @@ async function main() {
         `El campo editable "${campo}" no es único.`));
     console.log("✓ Las 2 columnas Historias de Transformación están presentes y protegidas.");
     console.log(`✓ ${HERO_IMAGEN} está presente y protegido.`);
-    console.log(`✓ Los ${EDITABLES.length} campos Wix editables son únicos.`);
+    console.log(`✓ Los 8 campos Wix editables son únicos.`);
     console.log("");
 
     const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "mubato-integridad-wix-3c5-"));
@@ -198,7 +198,8 @@ async function main() {
     exigir((salidaIndice[HERO_IMAGEN] || []).length === 1,
         `La salida no conserva exactamente 1 columna "${HERO_IMAGEN}".`);
     exigir((salidaIndice[HISTORIA] || []).length === 1,
-        `La salida no contiene exactamente 1 columna "${HISTORIA}".`);
+        `La salida no contiene exactamente 1 columna "${HISTORIA}".`
+    );
 
     console.log(`✓ Las ${entrada.encabezados.length} cabeceras Wix originales conservan posición y nombre.`);
     console.log(`✓ La única cabecera nueva es "${HISTORIA}".`);
@@ -225,7 +226,7 @@ async function main() {
     console.log("✓ Tijo: todas las celdas protegidas intactas.");
     console.log("✓ Rolón: todas las celdas protegidas intactas.");
     console.log("✓ Quesada: todas las celdas protegidas intactas.");
-    console.log("✓ Araque: solo los 7 campos Wix autorizados pueden diferir.");
+    console.log("✓ Araque: solo los 8 campos Wix autorizados pueden diferir.");
     console.log("");
 
     console.log("6. Verificando específicamente los campos críticos...");
@@ -258,6 +259,7 @@ async function main() {
     console.log(`✓ Las 2 columnas ${HISTORIAS_WIX} permanecen intactas.`);
     console.log(`✓ ${HERO_IMAGEN} permanece intacto.`);
     console.log(`✓ ${HISTORIA} solo contiene contenido en Araque.`);
+    console.log("✓ Galería General queda autorizada como frontera editorial de exportación.");
     console.log("");
 
     console.log("--------------------------------------");
@@ -267,8 +269,9 @@ async function main() {
     console.log("✓ Historias de Transformación no fueron tocadas.");
     console.log("✓ Hero Imágen no fue tocado.");
     console.log("✓ Tijo, Rolón y Quesada permanecen intactos.");
-    console.log("✓ Araque solo modifica campos editoriales autorizados.");
+    console.log("✓ Araque solo modifica campos editoriales Wix autorizados.");
     console.log("✓ Historia Companion aislada en Araque.");
+    console.log("✓ Galería General es el único campo Wix existente que puede recibir la selección editorial.");
     console.log("✓ CSV maestro protegido.");
     console.log("✓ No se realizaron llamadas a OpenAI.");
 }
