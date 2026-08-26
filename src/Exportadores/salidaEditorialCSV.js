@@ -19,6 +19,7 @@ const Papa = require("papaparse");
  * - "Galería General" recibe exclusivamente la galería editorial ya seleccionada.
  * - "Historia" es un campo Companion nuevo; nunca sustituye ni toca las columnas originales.
  * - "Hero Texto" es el campo Wix real para heroTexto.
+ * - La Galería General recibe únicamente la proyección física Wix de cada fotografía; los metadatos editoriales internos permanecen fuera de este campo.
  * - Verifica que los campos protegidos permanezcan intactos.
  * - No modifica silenciosamente el CSV de entrada.
  * - Genera un archivo de salida separado.
@@ -170,8 +171,26 @@ class SalidaEditorialCSV {
             "Slug": editorial.slug,
             "SEO Title": editorial.seoTitle,
             "Meta Description": editorial.metaDescription,
-            "Galería General": editorial.galeriaEditorial
+            "Galería General": this.proyectarGaleriaWix(editorial.galeriaEditorial)
         };
+    }
+
+    proyectarGaleriaWix(galeriaEditorial) {
+        return galeriaEditorial.map((foto, indice) => {
+            if (!foto || typeof foto !== "object" || Array.isArray(foto)) {
+                throw new Error(`La fotografía editorial ${indice + 1} no tiene una estructura válida.`);
+            }
+
+            const campos = ["description", "fileName", "slug", "alt", "src", "title", "type", "settings"];
+            const proyectada = {};
+            for (const campo of campos) {
+                if (foto[campo] === undefined) {
+                    throw new Error(`La fotografía editorial ${indice + 1} no contiene el campo Wix "${campo}".`);
+                }
+                proyectada[campo] = foto[campo];
+            }
+            return proyectada;
+        });
     }
 
     serializar(valor) {
