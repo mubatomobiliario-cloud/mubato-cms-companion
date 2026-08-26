@@ -160,7 +160,8 @@ async function main() {
             slug: "hogar-araque-3c5",
             seoTitle: "Hogar Araque | MUBATO — 3C.5",
             metaDescription: "Historia de transformación de Hogar Araque — control 3C.5.",
-            historia: "Historia editorial control 3C.5 de Araque"
+            historia: "Historia editorial control 3C.5 de Araque",
+            galeriaEditorial: []
         }
     });
 
