@@ -77,11 +77,12 @@ const evidenciaVisual = [
 
     console.log("3. Verificando reutilización de contexto...");
     const historiaGenerada = "Historia editorial válida en un único párrafo.";
+    const historiaWebGenerada = "Historia web válida.";
     assert.ok(openAI.etapas[1].includes(`HISTORIA_WEB:${historiaGenerada}`));
-    assert.ok(openAI.etapas[3].includes("HISTORIA_WEB:HISTORIA_WEB:"));
-    assert.ok(openAI.etapas[4].includes("HISTORIA_WEB:HISTORIA_WEB:"));
-    assert.ok(openAI.etapas[5].includes("HISTORIA_WEB:HISTORIA_WEB:"));
-    assert.ok(openAI.etapas[6].includes("HISTORIA_WEB:HISTORIA_WEB:"));
+    assert.ok(openAI.etapas[3].includes(historiaWebGenerada));
+    assert.ok(openAI.etapas[4].includes(historiaWebGenerada));
+    assert.ok(openAI.etapas[5].includes(historiaWebGenerada));
+    assert.ok(openAI.etapas[6].includes(historiaWebGenerada));
     console.log("✓ Resultado de Historia alimenta Historia Web; resultado de Historia Web se reutiliza en SEO y fotografías.\n");
 
     console.log("4. Verificando frontera de galería...");
