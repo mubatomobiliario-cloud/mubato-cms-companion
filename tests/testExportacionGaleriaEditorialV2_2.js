@@ -115,12 +115,14 @@ function compararNoEditables(matrizBase, matrizSalida, proyecto) {
             const posicionSalida = posicionesSalida[indiceDuplicado];
             const antes = String(baseFila[posicionBase] ?? "");
             const despues = String(salidaFila[posicionSalida] ?? "");
-            if (antes !== despues) {
-                diferencias.push({ campo, posicion: posicionBase + 1, antes, despues });
-            }
+            if (antes !== despues) diferencias.push({ campo, posicion: posicionBase + 1, antes, despues });
         });
     });
     return diferencias;
+}
+
+function fotografia(fileName, slug, alt, src, title, settings, description, keywords, nombreSEO) {
+    return { fileName, slug, alt, src, title, type: "image", settings, description, keywords, nombreSEO };
 }
 
 async function main() {
@@ -128,7 +130,7 @@ async function main() {
     console.log("PRUEBA — EXPORTACIÓN GALERÍA EDITORIAL V2.2");
     console.log("======================================");
     console.log("");
-    console.log("Objetivo: verificar que galeriaEditorial[] cruce la frontera Editorial → Exportación → Galería General.");
+    console.log("Objetivo: verificar que la selección editorial respete 1 Hero + N-1 Galería y que galeriaEditorial[] cruce Editorial → Exportación → Galería General.");
     console.log("La prueba no realiza llamadas a OpenAI.");
     console.log("");
 
@@ -142,61 +144,66 @@ async function main() {
 
     console.log(`✓ CSV maestro: ${rutaCSV}`);
     console.log(`✓ Proyectos capturados: ${entradaProyectos.size}`);
-    exigir(entradaProyectos.size === PROYECTOS.length,
-        "El CSV maestro no contiene exactamente los cuatro proyectos esperados.");
+    exigir(entradaProyectos.size === PROYECTOS.length, "El CSV maestro no contiene exactamente los cuatro proyectos esperados.");
 
-    console.log("1. Verificando contrato físico de Galería General...");
-    exigir((entradaIndice["Galería General"] || []).length === 1,
-        "Galería General debe existir como una única columna Wix.");
-    exigir((entradaIndice[HISTORIAS_WIX] || []).length === 2,
-        `Se esperaban exactamente 2 columnas "${HISTORIAS_WIX}".`);
-    exigir((entradaIndice[HERO_IMAGEN] || []).length === 1,
-        `Se esperaba exactamente 1 columna "${HERO_IMAGEN}".`);
+    console.log("1. Verificando contrato físico de Hero y Galería...");
+    exigir((entradaIndice["Galería General"] || []).length === 1, "Galería General debe existir como una única columna Wix.");
+    exigir((entradaIndice[HISTORIAS_WIX] || []).length === 2, `Se esperaban exactamente 2 columnas "${HISTORIAS_WIX}".`);
+    exigir((entradaIndice[HERO_IMAGEN] || []).length === 1, `Se esperaba exactamente 1 columna "${HERO_IMAGEN}".`);
     exigir(!entradaIndice[HISTORIA], `El campo Companion "${HISTORIA}" ya existe en el CSV maestro.`);
     console.log("✓ Galería General existe como columna Wix única.");
     console.log("✓ Historias de Transformación ×2 y Hero Imágen están presentes.");
     console.log("");
 
-    const fotos = [
-        {
-            fileName: "hogar-araque-cocina-01.jpg",
-            slug: "hogar-araque-cocina-01",
-            alt: "Cocina del Hogar Araque",
-            src: "https://static.wixstatic.com/media/hogar-araque-cocina-01.jpg",
-            title: "Cocina del Hogar Araque",
-            type: "image",
-            settings: { focalPoint: { x: 0.5, y: 0.5 }, height: 1200, width: 1800 },
-            description: "Cocina renovada del Hogar Araque.",
-            keywords: ["cocina", "mobiliario", "Araque"],
-            nombreSEO: "cocina-hogar-araque"
-        },
-        {
-            fileName: "hogar-araque-sala-02.jpg",
-            slug: "hogar-araque-sala-02",
-            alt: "Sala del Hogar Araque",
-            src: "https://static.wixstatic.com/media/hogar-araque-sala-02.jpg",
-            title: "Sala del Hogar Araque",
-            type: "image",
-            settings: { focalPoint: { x: 0.4, y: 0.6 }, height: 1350, width: 2025 },
-            description: "Sala transformada del Hogar Araque.",
-            keywords: ["sala", "interiorismo", "Araque"],
-            nombreSEO: "sala-hogar-araque"
-        },
-        {
-            fileName: "hogar-araque-estudio-03.jpg",
-            slug: "hogar-araque-estudio-03",
-            alt: "Estudio del Hogar Araque",
-            src: "https://static.wixstatic.com/media/hogar-araque-estudio-03.jpg",
-            title: "Estudio del Hogar Araque",
-            type: "image",
-            settings: { focalPoint: { x: 0.6, y: 0.45 }, height: 1100, width: 1650 },
-            description: "Estudio diseñado a medida para el Hogar Araque.",
-            keywords: ["estudio", "mobiliario", "Araque"],
-            nombreSEO: "estudio-hogar-araque"
-        }
+    const heroFoto = fotografia(
+        "hogar-araque-hero-01.jpg",
+        "hogar-araque-hero-01",
+        "Hero del Hogar Araque",
+        "https://static.wixstatic.com/media/hogar-araque-hero-01.jpg",
+        "Hero del Hogar Araque",
+        { focalPoint: { x: 0.5, y: 0.5 }, height: 1400, width: 2100 },
+        "Fotografía Hero controlada para la prueba 5.5.",
+        ["hero", "Araque"],
+        "hero-hogar-araque"
+    );
+
+    const fotosGaleria = [
+        fotografia(
+            "hogar-araque-sala-02.jpg",
+            "hogar-araque-sala-02",
+            "Sala del Hogar Araque",
+            "https://static.wixstatic.com/media/hogar-araque-sala-02.jpg",
+            "Sala del Hogar Araque",
+            { focalPoint: { x: 0.4, y: 0.6 }, height: 1350, width: 2025 },
+            "Sala transformada del Hogar Araque.",
+            ["sala", "interiorismo", "Araque"],
+            "sala-hogar-araque"
+        ),
+        fotografia(
+            "hogar-araque-estudio-03.jpg",
+            "hogar-araque-estudio-03",
+            "Estudio del Hogar Araque",
+            "https://static.wixstatic.com/media/hogar-araque-estudio-03.jpg",
+            "Estudio del Hogar Araque",
+            { focalPoint: { x: 0.6, y: 0.45 }, height: 1100, width: 1650 },
+            "Estudio diseñado a medida para el Hogar Araque.",
+            ["estudio", "mobiliario", "Araque"],
+            "estudio-hogar-araque"
+        )
     ];
 
-    console.log(`2. Preparando galería editorial controlada: ${fotos.length} fotografías...`);
+    const fotosSeleccionadas = [heroFoto, ...fotosGaleria];
+    exigir(fotosSeleccionadas.length === 3, "El escenario controlado debe contener exactamente 3 fotografías seleccionadas.");
+    exigir(fotosGaleria.length === fotosSeleccionadas.length - 1, "La galería debe contener N-1 fotografías respecto del conjunto seleccionado.");
+    exigir(!fotosGaleria.some(foto => foto.fileName === heroFoto.fileName), "La fotografía Hero no puede pertenecer simultáneamente a la galería exportada.");
+
+    console.log("2. Preparando selección editorial controlada...");
+    console.log(`✓ Fotografías seleccionadas: ${fotosSeleccionadas.length}`);
+    console.log("✓ Hero: 1 fotografía");
+    console.log(`✓ Galería General: ${fotosGaleria.length} fotografías (N-1)`);
+    console.log("✓ Hero separado de galeriaEditorial[].");
+    console.log("");
+
     const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "mubato-exportacion-galeria-v2-2-"));
     const copiaEntrada = path.join(tmp, "entrada.csv");
     const salidaCSV = path.join(tmp, "salida-editorial.csv");
@@ -211,11 +218,9 @@ async function main() {
         seoTitle: "Hogar Araque | MUBATO — 5.5",
         metaDescription: "Historia de transformación de Hogar Araque — control 5.5.",
         historia: "Historia editorial control 5.5 de Araque",
-        galeriaEditorial: fotos
+        heroImagen: heroFoto,
+        galeriaEditorial: fotosGaleria
     };
-
-    console.log("✓ Contrato editorial V2.2 preparado.");
-    console.log("");
 
     console.log("3. Ejecutando SalidaEditorialCSV...");
     const salida = new SalidaEditorialCSV();
@@ -226,8 +231,7 @@ async function main() {
         editorial
     });
 
-    exigir(resultado && fs.existsSync(resultado.rutaSalida),
-        "La salida editorial no fue creada.");
+    exigir(resultado && fs.existsSync(resultado.rutaSalida), "La salida editorial no fue creada.");
     console.log("✓ Salida editorial generada.");
     console.log("");
 
@@ -240,16 +244,10 @@ async function main() {
 
     console.log("5. Verificando estructura física de la salida...");
     const salidaMatriz = leer(resultado.rutaSalida);
-    exigir(salidaMatriz.encabezados.length === entrada.encabezados.length + 1,
-        "La salida debe contener únicamente la columna Companion Historia adicional.");
-    entrada.encabezados.forEach((campo, posicion) => {
-        exigir(salidaMatriz.encabezados[posicion] === campo,
-            `La cabecera en posición ${posicion + 1} cambió.`);
-    });
-    exigir(salidaMatriz.encabezados[salidaMatriz.encabezados.length - 1] === HISTORIA,
-        `La única cabecera nueva debe ser "${HISTORIA}".`);
-    exigir((indice(salidaMatriz.encabezados)["Galería General"] || []).length === 1,
-        "Galería General debe permanecer como una columna única.");
+    exigir(salidaMatriz.encabezados.length === entrada.encabezados.length + 1, "La salida debe contener únicamente la columna Companion Historia adicional.");
+    entrada.encabezados.forEach((campo, posicion) => exigir(salidaMatriz.encabezados[posicion] === campo, `La cabecera en posición ${posicion + 1} cambió.`));
+    exigir(salidaMatriz.encabezados[salidaMatriz.encabezados.length - 1] === HISTORIA, `La única cabecera nueva debe ser "${HISTORIA}".`);
+    exigir((indice(salidaMatriz.encabezados)["Galería General"] || []).length === 1, "Galería General debe permanecer como una columna única.");
     console.log("✓ Cabeceras Wix originales conservan posición y nombre.");
     console.log("✓ Galería General permanece como columna Wix existente.");
     console.log("");
@@ -264,46 +262,36 @@ async function main() {
     }
 
     exigir(Array.isArray(galeriaExportada), "Galería General debe serializar un array JSON.");
-    exigir(galeriaExportada.length === fotos.length,
-        `Galería General debe contener ${fotos.length} fotografías; contiene ${galeriaExportada.length}.`);
-
-    fotos.forEach((foto, indiceFoto) => {
+    exigir(galeriaExportada.length === fotosGaleria.length, `Galería General debe contener ${fotosGaleria.length} fotografías; contiene ${galeriaExportada.length}.`);
+    fotosGaleria.forEach((foto, indiceFoto) => {
         const esperado = objetoWixEsperado(foto);
         const actual = galeriaExportada[indiceFoto];
-        exigir(JSON.stringify(actual) === JSON.stringify(esperado),
-            `La fotografía ${indiceFoto + 1} no coincide con la proyección Wix esperada.`);
-        exigir(!Object.prototype.hasOwnProperty.call(actual, "keywords"),
-            `La fotografía ${indiceFoto + 1} no debe exportar keywords dentro de Galería General.`);
-        exigir(!Object.prototype.hasOwnProperty.call(actual, "nombreSEO"),
-            `La fotografía ${indiceFoto + 1} no debe exportar nombreSEO dentro de Galería General.`);
+        exigir(JSON.stringify(actual) === JSON.stringify(esperado), `La fotografía ${indiceFoto + 1} no coincide con la proyección Wix esperada.`);
+        exigir(!Object.prototype.hasOwnProperty.call(actual, "keywords"), `La fotografía ${indiceFoto + 1} no debe exportar keywords dentro de Galería General.`);
+        exigir(!Object.prototype.hasOwnProperty.call(actual, "nombreSEO"), `La fotografía ${indiceFoto + 1} no debe exportar nombreSEO dentro de Galería General.`);
+        exigir(actual.fileName !== heroFoto.fileName, `La fotografía Hero apareció indebidamente en Galería General.`);
     });
 
     console.log(`✓ Galería General contiene exactamente ${galeriaExportada.length} fotografías.`);
-    console.log("✓ Orden editorial conservado.");
+    console.log("✓ Cantidad = N-1 respecto de las 3 fotografías seleccionadas.");
+    console.log("✓ Hero no aparece en Galería General.");
+    console.log("✓ Orden editorial de la galería conservado.");
     console.log("✓ Identidad y estructura Wix conservadas por fotografía.");
     console.log("✓ keywords y nombreSEO permanecen fuera de Galería General.");
     console.log("");
 
     console.log("7. Verificando aislamiento de proyectos y campos protegidos...");
     const diferenciasNoEditables = [];
-    PROYECTOS.forEach(proyecto => {
-        diferenciasNoEditables.push(...compararNoEditables(entrada, salidaMatriz, proyecto));
-    });
-    exigir(diferenciasNoEditables.length === 0,
-        `Se detectaron ${diferenciasNoEditables.length} mutaciones fuera del contrato.`);
-
-    exigir(valorCelda(salidaMatriz, OBJETIVO, HISTORIA) === editorial.historia,
-        "Historia no fue exportada correctamente al proyecto objetivo.");
-    exigir(valorCelda(salidaMatriz, "Hogar Tijo", HISTORIA) === "",
-        "Historia no debe contener contenido en Tijo.");
-    exigir(valorCelda(salidaMatriz, "Hogar Rolón", HISTORIA) === "",
-        "Historia no debe contener contenido en Rolón.");
-    exigir(valorCelda(salidaMatriz, "Hogar Quesada", HISTORIA) === "",
-        "Historia no debe contener contenido en Quesada.");
+    PROYECTOS.forEach(proyecto => diferenciasNoEditables.push(...compararNoEditables(entrada, salidaMatriz, proyecto)));
+    exigir(diferenciasNoEditables.length === 0, `Se detectaron ${diferenciasNoEditables.length} mutaciones fuera del contrato.`);
+    exigir(valorCelda(salidaMatriz, OBJETIVO, HISTORIA) === editorial.historia, "Historia no fue exportada correctamente al proyecto objetivo.");
+    exigir(valorCelda(salidaMatriz, "Hogar Tijo", HISTORIA) === "", "Historia no debe contener contenido en Tijo.");
+    exigir(valorCelda(salidaMatriz, "Hogar Rolón", HISTORIA) === "", "Historia no debe contener contenido en Rolón.");
+    exigir(valorCelda(salidaMatriz, "Hogar Quesada", HISTORIA) === "", "Historia no debe contener contenido en Quesada.");
 
     console.log("✓ Tijo, Rolón y Quesada permanecen intactos fuera de campos autorizados.");
     console.log("✓ Historias de Transformación permanecen intactas.");
-    console.log("✓ Hero Imágen permanece intacto.");
+    console.log("✓ Hero Imágen permanece intacto y fuera de la escritura de Galería General.");
     console.log("✓ Historia Companion permanece aislada en Araque.");
     console.log("");
 
@@ -311,7 +299,9 @@ async function main() {
     console.log("PRUEBA SUPERADA — 5.5.1");
     console.log("--------------------------------------");
     console.log("");
+    console.log("✓ Selección editorial: 1 Hero + N-1 fotografías de Galería.");
     console.log("✓ galeriaEditorial[] cruza Editorial → Exportación → Galería General.");
+    console.log("✓ Hero separado de la colección exportada.");
     console.log("✓ Galería General conserva cantidad y orden editorial.");
     console.log("✓ Estructura Wix por fotografía verificada.");
     console.log("✓ Campos fotográficos no pertenecientes a Galería General no fueron exportados.");
