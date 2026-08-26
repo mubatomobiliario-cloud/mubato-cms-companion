@@ -16,6 +16,7 @@ const Papa = require("papaparse");
  * - Nunca usa como identidad un campo que Editorial vaya a modificar.
  * - Las dos columnas originales "Historias de Transformación" son SIEMPRE protegidas.
  * - "Hero Imágen" es SIEMPRE protegida y nunca es escrita por Editorial.
+ * - "Galería General" recibe exclusivamente la galería editorial ya seleccionada.
  * - "Historia" es un campo Companion nuevo; nunca sustituye ni toca las columnas originales.
  * - "Hero Texto" es el campo Wix real para heroTexto.
  * - Verifica que los campos protegidos permanezcan intactos.
@@ -31,7 +32,8 @@ class SalidaEditorialCSV {
         "Servicios",
         "Slug",
         "SEO Title",
-        "Meta Description"
+        "Meta Description",
+        "Galería General"
     ]);
 
     static CAMPO_HISTORIA_COMPANION = "Historia";
@@ -152,6 +154,10 @@ class SalidaEditorialCSV {
         if (editorial.historia === undefined || editorial.historia === null || !String(editorial.historia).trim()) {
             throw new Error("El contrato editorial exige una Historia válida.");
         }
+
+        if (!Array.isArray(editorial.galeriaEditorial)) {
+            throw new Error("El contrato editorial exige galeriaEditorial[] como array.");
+        }
     }
 
     construirCambios(editorial) {
@@ -163,7 +169,8 @@ class SalidaEditorialCSV {
             "Servicios": editorial.servicios,
             "Slug": editorial.slug,
             "SEO Title": editorial.seoTitle,
-            "Meta Description": editorial.metaDescription
+            "Meta Description": editorial.metaDescription,
+            "Galería General": editorial.galeriaEditorial
         };
     }
 
