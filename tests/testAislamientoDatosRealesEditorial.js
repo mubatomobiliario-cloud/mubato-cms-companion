@@ -203,7 +203,8 @@ async function main() {
             slug: "hogar-araque-test",
             seoTitle: "Hogar Araque | MUBATO",
             metaDescription: "Historia de transformación de Hogar Araque.",
-            historia: "Historia editorial control de Araque"
+            historia: "Historia editorial control de Araque",
+            galeriaEditorial: []
         }
     });
 
