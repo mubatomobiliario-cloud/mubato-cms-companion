@@ -138,7 +138,8 @@ class DirectorProyecto {
                 servicios: resultadoEditorial.servicios,
                 slug: resultadoEditorial.slug,
                 seoTitle: resultadoEditorial.seo.seoTitle,
-                metaDescription: resultadoEditorial.seo.metaDescription
+                metaDescription: resultadoEditorial.seo.metaDescription,
+                galeriaEditorial: resultadoEditorial.galeriaEditorial
             }
         });
 
