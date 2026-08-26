@@ -1,17 +1,17 @@
 # MUBATO CMS Companion — Matriz Viva de Componentes
 
 <!-- CONTINUIDAD_AUTO_START -->
-- Generado automáticamente: `2026-08-24 21:01:29.241Z`
-- Commit observado: `58c9fdc`
+- Generado automáticamente: `2026-08-26 01:53:19.384Z`
+- Commit observado: `e601565`
 - Rama: `feat/csv-editorial-v1`
-- Archivos versionados: `105`
+- Archivos versionados: `136`
 - Verificaciones: **OK** — canon documental, bifurcación Parser, contrato de salida y campos Wix protegidos.
 - Últimos commits:
-  - 58c9fdc — 2026-08-24 — fix: blindar Hero Imágen en contrato de salida
-  - a0eb18c — 2026-08-24 — docs: reconciliar memoria histórica y canon de continuidad
-  - 01137cd — 2026-08-24 — fix: blindar continuidad contra estados duplicados por mayúsculas
-  - 1e39221 — 2026-08-24 — chore(continuidad): remove legacy state generator
-  - d208877 — 2026-08-24 — feat(continuidad): automate canonical state synchronization
+  - e601565 — 2026-08-25 — docs(4.4): cerrar consolidacion editorial
+  - a3f5837 — 2026-08-25 — fix(4.3.3): validar contexto web reutilizado en SEO y galeria
+  - 61bf9af — 2026-08-25 — fix(4.3.3): validar reutilización con resultados reales de etapas
+  - 69fc1f0 — 2026-08-25 — docs(4.3.3): documentar criterio de correccion del test
+  - 2f0b817 — 2026-08-25 — test(4.3.3): consolidar flujo editorial V2.2 ejecutable
 <!-- CONTINUIDAD_AUTO_END -->
 
 > Documento canónico de estado funcional. Se actualiza con cada cambio significativo.
