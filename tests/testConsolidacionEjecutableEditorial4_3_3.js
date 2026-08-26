@@ -76,12 +76,13 @@ const evidenciaVisual = [
     console.log("✓ Orden confirmado: Historia → Historia Web → Hero → SEO → galería.\n");
 
     console.log("3. Verificando reutilización de contexto...");
-    assert.ok(openAI.etapas[1].includes("HISTORIA:Proyecto Control 4.3.3"));
-    assert.ok(openAI.etapas[3].includes("HISTORIA_WEB:"));
-    assert.ok(openAI.etapas[4].includes("HISTORIA_WEB:"));
-    assert.ok(openAI.etapas[5].includes("HISTORIA_WEB:"));
-    assert.ok(openAI.etapas[6].includes("HISTORIA_WEB:"));
-    console.log("✓ Historia alimenta Historia Web; Historia Web se reutiliza en SEO y las fotografías.\n");
+    const historiaGenerada = "Historia editorial válida en un único párrafo.";
+    assert.ok(openAI.etapas[1].includes(`HISTORIA_WEB:${historiaGenerada}`));
+    assert.ok(openAI.etapas[3].includes("HISTORIA_WEB:HISTORIA_WEB:"));
+    assert.ok(openAI.etapas[4].includes("HISTORIA_WEB:HISTORIA_WEB:"));
+    assert.ok(openAI.etapas[5].includes("HISTORIA_WEB:HISTORIA_WEB:"));
+    assert.ok(openAI.etapas[6].includes("HISTORIA_WEB:HISTORIA_WEB:"));
+    console.log("✓ Resultado de Historia alimenta Historia Web; resultado de Historia Web se reutiliza en SEO y fotografías.\n");
 
     console.log("4. Verificando frontera de galería...");
     assert.strictEqual(salida.galeriaEditorial.length, 3);
