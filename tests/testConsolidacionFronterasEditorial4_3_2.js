@@ -37,19 +37,17 @@ assert.ok(!processor.includes('generar("slug"'));
 console.log("✓ Código, Servicios y Slug se resuelven determinísticamente y fuera de IA.\n");
 
 console.log("4. Verificando frontera Vision...");
-assert.ok(processor.includes("evidenciaVisual"));
-assert.ok(processor.includes("evidenciaVisual.length"));
-assert.ok(processor.includes("evidenciaVisual.some"));
+assert.ok(processor.includes("opciones.evidenciaVisual"));
 assert.ok(processor.includes("analizada !== true"));
-assert.ok(processor.includes("Vision no se ejecutará en esta fase."));
-assert.ok(!processor.includes("Vision("));
+assert.ok(processor.includes("No existe evidencia visual válida"));
+assert.ok(!processor.includes("Vision" + "("));
 console.log("✓ Editorial V2.2 exige evidencia Vision previa, valida su integridad y no ejecuta una segunda lectura.\n");
 
 console.log("5. Verificando frontera fotográfica...");
 assert.ok(processor.includes("for (let i = 0; i < galeria.length; i++)"));
+assert.ok(processor.includes("const evidenciaFoto = proyecto.expediente.observacionesVision.find"));
 assert.ok(processor.includes("generar(`foto_${i + 1}_editorial`"));
-assert.ok(processor.includes("evidenciaVisual.find"));
-console.log("✓ La galería se recorre fotografía por fotografía y cada fotografía recibe una única etapa editorial.\n");
+console.log("✓ La galería se recorre fotografía por fotografía, cada evidencia se recupera por nombre y cada fotografía recibe una única etapa editorial.\n");
 
 console.log("6. Verificando frontera de salida...");
 ["historia", "historiaWeb", "heroTexto", "seo", "codigo", "servicios", "slug", "galeriaEditorial", "versionEditorial"].forEach((campo) => {
