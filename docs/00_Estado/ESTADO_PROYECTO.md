@@ -1,5 +1,19 @@
 # MUBATO CMS Companion — Estado del Proyecto
 
+<!-- CONTINUIDAD_AUTO_START -->
+- Generado automáticamente: `2026-08-24 21:01:29.241Z`
+- Commit observado: `58c9fdc`
+- Rama: `feat/csv-editorial-v1`
+- Archivos versionados: `105`
+- Verificaciones: **OK** — canon documental, bifurcación Parser, contrato de salida y campos Wix protegidos.
+- Últimos commits:
+  - 58c9fdc — 2026-08-24 — fix: blindar Hero Imágen en contrato de salida
+  - a0eb18c — 2026-08-24 — docs: reconciliar memoria histórica y canon de continuidad
+  - 01137cd — 2026-08-24 — fix: blindar continuidad contra estados duplicados por mayúsculas
+  - 1e39221 — 2026-08-24 — chore(continuidad): remove legacy state generator
+  - d208877 — 2026-08-24 — feat(continuidad): automate canonical state synchronization
+<!-- CONTINUIDAD_AUTO_END -->
+
 > Documento canónico de continuidad. Describe el estado real del repositorio y las decisiones editoriales vigentes.
 
 ## Última sincronización

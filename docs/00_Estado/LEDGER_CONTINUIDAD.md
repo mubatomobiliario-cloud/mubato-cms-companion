@@ -1,5 +1,19 @@
 # MUBATO CMS Companion — Ledger de Continuidad
 
+<!-- CONTINUIDAD_AUTO_START -->
+- Generado automáticamente: `2026-08-24 21:01:29.241Z`
+- Commit observado: `58c9fdc`
+- Rama: `feat/csv-editorial-v1`
+- Archivos versionados: `105`
+- Verificaciones: **OK** — canon documental, bifurcación Parser, contrato de salida y campos Wix protegidos.
+- Últimos commits:
+  - 58c9fdc — 2026-08-24 — fix: blindar Hero Imágen en contrato de salida
+  - a0eb18c — 2026-08-24 — docs: reconciliar memoria histórica y canon de continuidad
+  - 01137cd — 2026-08-24 — fix: blindar continuidad contra estados duplicados por mayúsculas
+  - 1e39221 — 2026-08-24 — chore(continuidad): remove legacy state generator
+  - d208877 — 2026-08-24 — feat(continuidad): automate canonical state synchronization
+<!-- CONTINUIDAD_AUTO_END -->
+
 > Cronología canónica de decisiones, implementaciones y validaciones significativas. No sustituye la Matriz Viva ni el Estado del Proyecto.
 
 ## 2026-08-19 — Instalación del sistema de continuidad
