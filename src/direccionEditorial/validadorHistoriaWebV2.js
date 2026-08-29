@@ -46,7 +46,7 @@ class ValidadorHistoriaWebV2 {
         const palabras = this.contarPalabras(texto);
         const parrafos = this.contarParrafos(texto);
 
-        if (palabras < 150 || palabras > 220) errores.push(`La Historia Web tiene ${palabras} palabras; exige entre 150 y 220.`);
+        if (palabras < 35 || palabras > 60) errores.push(`La Historia Web tiene ${palabras} palabras; exige entre 35 y 60.`);
         if (parrafos !== 1) errores.push(`La Historia Web contiene ${parrafos} párrafos; exige exactamente uno.`);
 
         if (/\b(?:expediente|contexto suministrado|datos disponibles|informacion proporcionada|observaciones|fotografias como fuente|segun el expediente|de acuerdo con el expediente)\b/.test(normalizado)) {

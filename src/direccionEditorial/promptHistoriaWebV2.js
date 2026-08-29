@@ -50,7 +50,7 @@ VOZ
 - No menciones expediente, contexto, fotografías, observaciones ni proceso editorial.
 
 TEXTO FINAL
-- Entre 150 y 220 palabras.
+- Entre 35 y 60 palabras.
 - EXACTAMENTE un párrafo.
 - Sin saltos de línea.
 - Sin título.

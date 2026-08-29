@@ -26,7 +26,7 @@ async function main() {
         __dirname,
         "..",
         "Proyectos",
-        "Andrés Giraldo"
+        "Araque"
     );
 
     console.log("Importando proyecto...");

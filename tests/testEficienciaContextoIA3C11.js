@@ -47,7 +47,7 @@ async function main() {
     console.log("======================================");
     console.log("PRUEBA — EFICIENCIA CONTEXTO IA 3C.11");
     console.log("======================================");
-    console.log("\nObjetivo: medir la repetición de contexto en las 6 llamadas IA post-3C.8 y establecer una línea base para reducir tokens sin eliminar llamadas ni alterar contratos.");
+    console.log("\nObjetivo: medir la repetición de contexto en las 5 llamadas IA post-3C.12 y establecer una línea base para reducir tokens sin eliminar llamadas ni alterar contratos.");
     console.log("La prueba usa dependencias controladas y NO realiza llamadas reales a OpenAI.\n");
 
     const openAI = new OpenAIControlado();
@@ -56,13 +56,13 @@ async function main() {
     const salida = await procesador.generar(fixture(), { evidenciaVisual: evidencia });
 
     console.log("1. Verificando presupuesto IA...");
-    assert.strictEqual(salida.llamadasIA, 6);
-    assert.strictEqual(openAI.llamadas.length, 6);
-    console.log("✓ Presupuesto post-3C.8 confirmado: 6 llamadas IA.\n");
+    assert.strictEqual(salida.llamadasIA, 5);
+    assert.strictEqual(openAI.llamadas.length, 5);
+    console.log("✓ Presupuesto post-3C.12 confirmado: 5 llamadas IA.\n");
 
     console.log("2. Midiendo contexto enviado a cada llamada...");
-    const longitudes = Object.fromEntries(openAI.llamadas.map((llamada, indice) => [`${indice + 1}.${llamada.contrato}`, llamada.prompt.length]));
-    const totalContexto = openAI.llamadas.reduce((total, llamada) => total + llamada.prompt.length, 0);
+    const longitudes = Object.fromEntries(openAI.llamadas.map((llamada, indice) => [`${indice + 1}.${llamada.contrato}`, llamada.length]));
+    const totalContexto = openAI.llamadas.reduce((total, llamada) => total + llamada.length, 0);
     console.log(`✓ Contexto total medido: ${totalContexto} caracteres.`);
     for (const [clave, longitud] of Object.entries(longitudes)) console.log(`  • ${clave}: ${longitud} caracteres`);
 
@@ -71,27 +71,26 @@ async function main() {
     const historiaWeb = openAI.llamadas.find(x => x.contrato === "HISTORIA_WEB");
     const seo = openAI.llamadas.find(x => x.contrato === "SEO");
     const fotos = openAI.llamadas.filter(x => x.contrato === "PHOTO_EDITORIAL");
-    assert.ok(historia); assert.ok(historiaWeb); assert.ok(seo); assert.strictEqual(fotos.length, 2);
+    assert.ok(historia); assert.ok(!historiaWeb); assert.ok(seo); assert.strictEqual(fotos.length, 2);
 
     // El procesador pasa a Historia Web el TEXTO RESULTANTE de la llamada Historia.
     // Por eso la prueba debe comprobar esa salida, no el prompt original de Historia.
     const resultadoHistoria = "HISTORIA CONTROLADA — intervención comprobada en cocina en Bogotá.";
     assert.ok(historiaWeb.prompt.includes(resultadoHistoria));
 
-    // El procesador extrae contratoHistoriaWeb.texto y lo reutiliza en SEO y fotografías.
-    const resultadoHistoriaWeb = "HISTORIA WEB CONTROLADA — transformación comprobada.";
-    assert.ok(seo.prompt.includes(resultadoHistoriaWeb));
-    assert.ok(fotos.every(x => x.prompt.includes(resultadoHistoriaWeb)));
+    // La narrativa maestra se reutiliza directamente en SEO y fotografías.
+    assert.ok(seo.prompt.includes(resultadoHistoria));
+    assert.ok(fotos.every(x => x.prompt.includes(resultadoHistoria)));
 
-    console.log("✓ Historia se reutiliza como contexto de Historia Web.");
-    console.log("✓ Historia Web se reutiliza como contexto de SEO.");
-    console.log("✓ Historia Web se reutiliza en ambas fotografías.");
-    const repeticionHistoriaWeb = openAI.llamadas.filter(x => x.prompt.includes(resultadoHistoriaWeb)).length;
-    console.log(`✓ El resultado de Historia Web aparece en ${repeticionHistoriaWeb} prompts posteriores.`);
+    console.log("✓ La narrativa maestra se reutiliza aguas abajo.");
+    console.log("✓ La narrativa maestra se reutiliza como contexto de SEO.");
+    console.log("✓ La narrativa maestra se reutiliza en ambas fotografías.");
+    const repeticionHistoriaWeb = openAI.llamadas.filter(x => x.prompt.includes(resultadoHistoria)).length;
+    console.log(`✓ La narrativa maestra aparece en ${repeticionHistoriaWeb} prompts posteriores.`);
 
     console.log("\n4. Verificando que 3C.11 NO reduzca llamadas ni toque contratos protegidos...");
-    assert.strictEqual(salida.llamadasIA, 6);
-    console.log("✓ 3C.11 conserva las 6 llamadas IA.");
+    assert.strictEqual(salida.llamadasIA, 5);
+    console.log("✓ 3C.11 conserva las 5 llamadas IA.");
     console.log("✓ Esta fase mide eficiencia de contexto; no elimina llamadas.");
     console.log("✓ Historias de Transformación y Historias de Transformación1 permanecen fuera del flujo editable.");
     console.log("✓ Hero Imágen permanece fuera del flujo editable.");
@@ -104,7 +103,7 @@ async function main() {
     console.log("\n--------------------------------------");
     console.log("PRUEBA PRELIMINAR — 3C.11");
     console.log("--------------------------------------");
-    console.log("✓ 6 llamadas IA preservadas.");
+    console.log("✓ 5 llamadas IA preservadas.");
     console.log("✓ Reutilización de contexto identificada.");
     console.log("✓ Repetición de Historia Web cuantificada.");
     console.log("✓ Línea base de contexto establecida.");

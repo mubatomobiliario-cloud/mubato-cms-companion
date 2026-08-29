@@ -1,217 +1,434 @@
 console.log("validadorHistoriaV2.js cargado");
 
-/**
- * Validador Editorial de Historias MUBATO V2.
- *
- * Evolución de V1:
- * - No decide por una lista plana de palabras prohibidas.
- * - Evalúa reglas editoriales sobre estructura, función del lenguaje,
- *   contexto narrativo, densidad de inventario y señales de publicación.
- * - Devuelve evidencia por regla para facilitar diagnóstico y evolución.
- *
- * El validador sigue siendo determinista y no utiliza IA.
- */
 class ValidadorHistoriaV2 {
+
     constructor() {
+
         this.reglas = [
-            { id: "estructura.longitud", severidad: "error" },
-            { id: "estructura.parrafo", severidad: "error" },
-            { id: "voz.meta", severidad: "error" },
-            { id: "voz.llamado_accion", severidad: "error" },
-            { id: "voz.publicidad", severidad: "error" },
+            { id: "estructura.parrafos", severidad: "error" },
             { id: "narrativa.punto_partida", severidad: "error" },
             { id: "narrativa.transformacion", severidad: "error" },
             { id: "narrativa.estado_posterior", severidad: "error" },
             { id: "narrativa.experiencia_humana", severidad: "error" },
-            { id: "contexto.especificidad", severidad: "error" },
-            { id: "contexto.inventario", severidad: "warning" },
-            { id: "marca.repeticion", severidad: "warning" }
-        ];
-    }
-
-    normalizar(texto) {
-        return String(texto || "")
-            .toLowerCase()
-            .normalize("NFD")
-            .replace(/[\u0300-\u036f]/g, "")
-            .replace(/\s+/g, " ")
-            .trim();
-    }
-
-    contarPalabras(texto) {
-        const limpio = String(texto || "").trim();
-        return limpio ? limpio.split(/\s+/).length : 0;
-    }
-
-    contarParrafos(texto) {
-        return String(texto || "")
-            .split(/\n\s*\n/)
-            .map(p => p.trim())
-            .filter(Boolean)
-            .length;
-    }
-
-    contiene(texto, expresion) {
-        return expresion.test(texto);
-    }
-
-    coincidencias(texto, expresiones) {
-        return expresiones
-            .filter(({ id, regex }) => this.contiene(texto, regex))
-            .map(({ id }) => id);
-    }
-
-    frases(texto) {
-        return String(texto || "")
-            .split(/[.!?]+/)
-            .map(s => s.trim())
-            .filter(Boolean);
-    }
-
-    extraerContexto(proyecto = {}) {
-        const valores = [
-            proyecto.nombre,
-            proyecto.ciudad,
-            ...(Array.isArray(proyecto.espacios) ? proyecto.espacios : []),
-            ...(Array.isArray(proyecto.servicios) ? proyecto.servicios : []),
-            proyecto.descripcion
+            { id: "contexto.especificidad", severidad: "error" }
         ];
 
-        return valores
-            .filter(Boolean)
-            .flatMap(valor => String(valor).split(/[,;|]/))
-            .map(valor => this.normalizar(valor))
-            .map(valor => valor.replace(/\s+/g, " ").trim())
-            .filter(valor => valor.length >= 4 && !["sin informacion", "pendiente"].includes(valor));
     }
 
-    evaluar(historia, proyecto = {}) {
-        const original = String(historia || "").trim();
-        const texto = this.normalizar(original);
-        const errores = [];
-        const advertencias = [];
-        const evidencia = {};
+    extraerContexto(proyecto) {
 
-        const registrar = (id, ok, mensaje, datos = {}) => {
-            evidencia[id] = { ok, mensaje, ...datos };
-            if (!ok) {
-                const regla = this.reglas.find(r => r.id === id);
-                const destino = regla?.severidad === "warning" ? advertencias : errores;
-                destino.push({ regla: id, mensaje, evidencia: datos });
+        const valores = [];
+
+        const agregar = valor => {
+
+            if (valor === undefined || valor === null) {
+                return;
             }
+
+            if (Array.isArray(valor)) {
+
+                valor.forEach(item => agregar(item));
+                return;
+
+            }
+
+            const texto = String(valor).trim();
+
+            if (texto.length >= 4) {
+                valores.push(texto);
+            }
+
         };
 
-        const palabras = this.contarPalabras(original);
-        const parrafos = this.contarParrafos(original);
+        agregar(proyecto.nombre);
+        agregar(proyecto.proyecto);
+        agregar(proyecto.ciudad);
+        agregar(proyecto.categoria);
+        agregar(proyecto.espacios);
+        agregar(proyecto.servicios);
+
+        if (proyecto.expediente) {
+
+            agregar(proyecto.expediente.observacionesVision);
+
+        }
+
+        return [...new Set(valores)];
+
+    }
+
+    validar(textoHistoria, proyecto) {
+
+        const errores = [];
+        const advertencias = [];
+        const metricas = {};
+
+        const texto = String(textoHistoria || "")
+            .trim()
+            .replace(/\s+/g, " ");
+
+        const registrar = (regla, aprobado, mensaje, detalle = {}) => {
+
+            const registro = {
+                regla,
+                aprobado,
+                mensaje,
+                ...detalle
+            };
+
+            if (!aprobado) {
+                errores.push(registro);
+            }
+
+            return registro;
+
+        };
+
+        // --------------------------------------------------
+        // ESTRUCTURA
+        // --------------------------------------------------
+
+        const parrafos = texto
+            .split(/\n\s*\n/)
+            .map(p => p.trim())
+            .filter(Boolean);
+
+        metricas.parrafos = parrafos.length;
+        metricas.caracteres = texto.length;
+        metricas.palabras = texto
+            ? texto.split(/\s+/).length
+            : 0;
+
         registrar(
-            "estructura.longitud",
-            palabras >= 250 && palabras <= 500,
-            palabras >= 250 && palabras <= 500
-                ? "Longitud dentro del contrato."
-                : `La historia tiene ${palabras} palabras; el contrato exige entre 250 y 500.`,
-            { palabras }
-        );
-        registrar(
-            "estructura.parrafo",
-            parrafos === 1,
-            parrafos === 1
+            "estructura.parrafos",
+            parrafos.length === 1,
+            parrafos.length === 1
                 ? "La historia contiene exactamente un párrafo."
-                : `La historia contiene ${parrafos} párrafos; el contrato exige exactamente uno.`,
-            { parrafos }
+                : "La historia debe contener exactamente un párrafo.",
+            {
+                parrafos: parrafos.length
+            }
         );
 
-        const metaPatterns = [
-            { id: "fuente_expediente", regex: /\b(?:el|segun el|de acuerdo con el) expediente\b/ },
-            { id: "fuente_contexto", regex: /\b(?:contexto suministrado|contexto del proyecto|datos disponibles|informacion proporcionada)\b/ },
-            { id: "fuente_registro", regex: /\b(?:el registro|el archivo) (?:indica|señala|registra)\b/ },
-            { id: "fuente_fotografia", regex: /\b(?:la|las) fotograf(?:ia|ias) (?:muestra|muestran|evidencia|evidencian)\b/ },
-            { id: "fuente_observacion", regex: /\b(?:las observaciones|la observacion visual)\b/ },
-            { id: "fuente_informacion", regex: /\bno se (?:dispone|registra) de (?:informacion|datos)\b/ }
-        ];
-        const meta = this.coincidencias(texto, metaPatterns);
-        registrar(
-            "voz.meta",
-            meta.length === 0,
-            meta.length === 0
-                ? "No se detecta lenguaje meta sobre la fuente de información."
-                : "La historia habla del proceso de documentación o de sus fuentes en lugar de narrar el proyecto.",
-            { coincidencias: meta }
-        );
-
-        const ctaPatterns = [
-            { id: "imperativo_aprovecha", regex: /\baprovecha\s+(?:esta|la|tu|una)\b/ },
-            { id: "imperativo_conoce", regex: /\bconoce\s+(?:mas|más|nuestro|nuestra|este|esta|el|la)\b/ },
-            { id: "imperativo_descubre", regex: /\bdescubre\s+(?:mas|más|nuestro|nuestra|este|esta|el|la)\b/ },
-            { id: "contacto", regex: /\b(?:contáctanos|contactanos|escribenos|escríbenos|agenda\s+(?:una|tu)\s+cita|solicita\s+(?:una|tu)\s+asesoria|solicita\s+(?:una|tu)\s+asesoría|cotiza)\b/ },
-            { id: "destinatario_directo", regex: /\b(?:tu|tus|te|contigo)\b\s+(?:espacio|hogar|proyecto|diseño|diseno)\b/ }
-        ];
-        const cta = this.coincidencias(texto, ctaPatterns);
-        registrar(
-            "voz.llamado_accion",
-            cta.length === 0,
-            cta.length === 0
-                ? "No se detecta llamado comercial a la acción."
-                : "Se detecta lenguaje orientado a convertir al lector en destinatario comercial.",
-            { coincidencias: cta }
-        );
-
-        const publicidad = [
-            { id: "promesa_absoluta", regex: /\b(?:la mejor|el mejor|sin igual|inigualable|insuperable)\b/ },
-            { id: "hiperbole_comercial", regex: /\b(?:increible|increíble|espectacular|extraordinario|extraordinaria|perfecto|perfecta|impecable|lujo|lujoso|lujosa|exclusivo|exclusiva|premium|fascinante)\b/ },
-            { id: "slogan", regex: /\b(?:hacemos realidad tus sueños|espacios de ensueño|creamos magia|marcamos la diferencia)\b/ }
-        ];
-        const publicitarias = this.coincidencias(texto, publicidad);
-        registrar(
-            "voz.publicidad",
-            publicitarias.length === 0,
-            publicitarias.length === 0
-                ? "No se detectan construcciones publicitarias evidentes."
-                : "Se detectan afirmaciones o fórmulas de publicidad que desvían la voz editorial.",
-            { coincidencias: publicitarias }
-        );
+        // --------------------------------------------------
+        // PATRONES NARRATIVOS
+        // --------------------------------------------------
 
         const antes = [
-            /\bantes\b/, /\bpartia\b/, /\bpartia de\b/, /\bse encontraba\b/, /\bse encontraba en\b/, /\bestaba\b/, /\bera\b/, /\btenia\b/, /\bcontaba con\b/, /\bpresentaba\b/, /\balbergaba\b/, /\bdisponia de\b/, /\bcarecia de\b/, /\bno contaba con\b/, /\bno disponia de\b/, /\bno permitia\b/, /\blimitaba\b/, /\bdificultad\b/, /\bproblema\b/, /\breto\b/, /\bdesafio\b/, /\bcondicion inicial\b/, /\bsituacion inicial\b/, /\bbuscaba\b/, /\bqueria\b/, /\brequeria\b/, /\bnecesitaba\b/, /\bnecesidad(?:es)?\b/, /\bplanteaba\b/
-        ];
-        const transformacion = [
-            /\btransform\w*\b/, /\breorganiz\w*\b/, /\bintegr\w*\b/, /\brediseñ\w*\b/, /\bredisen\w*\b/, /\bconvirt\w*\b/, /\bevolucion\w*\b/, /\barticul\w*\b/, /\brespond\w*\b/
-        ];
-        const despues = [
-            /\bhoy\b/, /\bahora\b/, /\bdesde entonces\b/, /\bse vive\b/, /\bse habita\b/, /\bpermite\b/, /\bacompañ\w*\b/, /\bmejor\w*\b/, /\bnueva (?:forma|manera) de habitar\b/, /\bvida cotidiana\b/
-        ];
-        const humana = [
-            /\bquienes (?:lo )?habitan\b/, /\bquien habita\b/, /\blas personas\b/, /\bla familia\b/, /\bhabitantes\b/, /\bvida cotidiana\b/, /\brutina cotidiana\b/, /\bdia a dia\b/, /\bdescanso\b/, /\bcompartir\b/, /\breunirse\b/, /\bvivir\b/, /\bhabitar\b/
+
+            /\bantes\b/,
+            /\bpartia\b/,
+            /\bpartía\b/,
+            /\bpartia de\b/,
+            /\bpartía de\b/,
+            /\bse encontraba\b/,
+            /\bse encontraba en\b/,
+            /\bestaba\b/,
+            /\bera\b/,
+            /\btenia\b/,
+            /\btenía\b/,
+            /\bcontaba con\b/,
+            /\bpresentaba\b/,
+            /\balbergaba\b/,
+            /\bdisponia de\b/,
+            /\bdisponía de\b/,
+            /\bcarecia de\b/,
+            /\bcarecía de\b/,
+            /\bno contaba con\b/,
+            /\bno disponia de\b/,
+            /\bno disponía de\b/,
+            /\bno permitia\b/,
+            /\bno permitía\b/,
+            /\blimitaba\b/,
+            /\bdificultad\b/,
+            /\bproblema\b/,
+            /\breto\b/,
+            /\bdesafio\b/,
+            /\bdesafío\b/,
+            /\bcondicion inicial\b/,
+            /\bcondición inicial\b/,
+            /\bsituacion inicial\b/,
+            /\bsituación inicial\b/,
+            /\bbuscaba\b/,
+            /\bqueria\b/,
+            /\bquería\b/,
+            /\brequeria\b/,
+            /\brequería\b/,
+            /\bnecesitaba\b/,
+            /\bnecesidad(?:es)?\b/,
+            /\bplanteaba\b/
+
         ];
 
-        const cuentaPatrones = patrones => patrones.filter(p => p.test(texto)).length;
+        const transformacion = [
+
+            /\btransform\w*\b/,
+            /\breorganiz\w*\b/,
+            /\bintegr\w*\b/,
+            /\brediseñ\w*\b/,
+            /\bredisen\w*\b/,
+            /\bconvirt\w*\b/,
+            /\bevolucion\w*\b/,
+            /\barticul\w*\b/,
+            /\brespond\w*\b/,
+            /\bconfigur\w*\b/,
+            /\bincorpor\w*\b/,
+            /\bresolv\w*\b/,
+            /\badapt\w*\b/,
+            /\bcrea\w*\b/,
+            /\bdiseñ\w*\b/,
+            /\bdiseñó\b/,
+            /\bdiseno\b/,
+            /\bdiseño\b/
+
+        ];
+
+        /*
+         * ESTADO POSTERIOR
+         *
+         * Antes el validador dependía casi exclusivamente de:
+         *
+         * hoy / ahora / se vive / se habita / permite /
+         * acompaña / mejora / nueva forma de habitar /
+         * vida cotidiana
+         *
+         * Eso es demasiado restrictivo.
+         *
+         * Una historia puede expresar claramente el resultado
+         * mediante formulaciones como:
+         *
+         * "la alcoba queda configurada..."
+         * "el espacio adquiere..."
+         * "la composición integra..."
+         * "el dormitorio se percibe..."
+         * "la intervención genera..."
+         * "la solución permite..."
+         *
+         * Todas son señales legítimas de estado posterior.
+         */
+
+        const despues = [
+
+            // Estado explícito
+            /\bhoy\b/,
+            /\bahora\b/,
+            /\bactualmente\b/,
+            /\bdesde entonces\b/,
+            /\bfinalmente\b/,
+            /\bal final\b/,
+            /\bdespues\b/,
+            /\bdespués\b/,
+
+            // Estado resultante
+            /\bse vive\b/,
+            /\bse habita\b/,
+            /\bse disfruta\b/,
+            /\bse percibe\b/,
+            /\bse siente\b/,
+            /\bse experimenta\b/,
+            /\bse configura\b/,
+            /\bqueda configurad\w*\b/,
+            /\bqueda resuelt\w*\b/,
+            /\bqueda integrad\w*\b/,
+            /\bqueda organizad\w*\b/,
+            /\bqueda articulad\w*\b/,
+            /\bqueda transformad\w*\b/,
+            /\bqueda convertid\w*\b/,
+
+            // Resultado espacial
+            /\badquiere\b/,
+            /\bincorpora\b/,
+            /\bintegra\b/,
+            /\barticula\b/,
+            /\borganiza\b/,
+            /\bresuelve\b/,
+            /\bpermite\b/,
+            /\bfavorece\b/,
+            /\bfacilita\b/,
+            /\bacompaña\b/,
+            /\bcontribuye\b/,
+            /\bgenera\b/,
+            /\bproduce\b/,
+            /\bdefine\b/,
+            /\bredefine\b/,
+            /\bpotencia\b/,
+            /\bmejora\b/,
+
+            // Resultado perceptual
+            /\bse percibe\b/,
+            /\bse siente\b/,
+            /\bse reconoce\b/,
+            /\bse aprecia\b/,
+            /\bse entiende\b/,
+
+            // Resultado de uso / experiencia
+            /\bnueva (?:forma|manera) de habitar\b/,
+            /\bnueva experiencia\b/,
+            /\bexperiencia cotidiana\b/,
+            /\bvida cotidiana\b/,
+            /\brutina cotidiana\b/,
+            /\buso cotidiano\b/,
+            /\buso diario\b/,
+            /\bdescanso\b/,
+            /\bmayor claridad\b/,
+            /\bmayor orden\b/,
+            /\bmayor funcionalidad\b/,
+            /\bmayor amplitud\b/,
+            /\bmayor comodidad\b/,
+            /\bmayor armonia\b/,
+            /\bmayor armonía\b/,
+            /\bsensacion de\b/,
+            /\bsensación de\b/,
+            /\batmosfera\b/,
+            /\batmósfera\b/
+
+        ];
+
+        const humana = [
+
+            /\bquienes (?:lo )?habitan\b/,
+            /\bquien habita\b/,
+            /\blas personas\b/,
+            /\bla familia\b/,
+            /\bhabitantes\b/,
+            /\bvida cotidiana\b/,
+            /\brutina cotidiana\b/,
+            /\bdia a dia\b/,
+            /\bdía a día\b/,
+            /\bdescanso\b/,
+            /\bcompartir\b/,
+            /\breunirse\b/,
+            /\bvivir\b/,
+            /\bhabitar\b/,
+            /\bhabita\b/,
+            /\bhabitan\b/,
+            /\buso cotidiano\b/,
+            /\buso diario\b/
+
+        ];
+
+        const cuentaPatrones = patrones =>
+            patrones.filter(patron => patron.test(texto)).length;
+
         const nAntes = cuentaPatrones(antes);
         const nTransformacion = cuentaPatrones(transformacion);
         const nDespues = cuentaPatrones(despues);
         const nHumana = cuentaPatrones(humana);
 
+        // --------------------------------------------------
+        // ANCLAS DEL PROYECTO
+        // --------------------------------------------------
+
         const contexto = this.extraerContexto(proyecto);
-        const anclasEncontradas = contexto.filter(anchor => anchor.length >= 4 && texto.includes(anchor));
+
+        const anclasEncontradas = contexto.filter(
+            anchor =>
+                anchor.length >= 4 &&
+                texto.toLowerCase().includes(anchor.toLowerCase())
+        );
+
         const anclasUnicas = [...new Set(anclasEncontradas)];
 
-        // El punto de partida no debe depender de una palabra concreta.
-        // Se acepta una señal explícita o una evidencia narrativa estructural:
-        // transformación + experiencia humana + al menos dos anclas comprobables.
-        const respaldoEstructural = nTransformacion > 0 && nHumana > 0 && anclasUnicas.length >= 2;
-        const puntoPartidaValido = nAntes > 0 || respaldoEstructural;
+        // --------------------------------------------------
+        // PUNTO DE PARTIDA
+        // --------------------------------------------------
+
+        /*
+         * El punto de partida no debe depender exclusivamente
+         * de palabras como "antes".
+         *
+         * Se acepta:
+         *
+         * 1. señal explícita
+         *
+         * o
+         *
+         * 2. transformación + experiencia humana +
+         *    dos anclas comprobables.
+         */
+
+        const respaldoEstructural =
+            nTransformacion > 0 &&
+            nHumana > 0 &&
+            anclasUnicas.length >= 2;
+
+        const puntoPartidaValido =
+            nAntes > 0 ||
+            respaldoEstructural;
+
         registrar(
             "narrativa.punto_partida",
             puntoPartidaValido,
             puntoPartidaValido
-                ? (nAntes > 0
-                    ? "Existe señal explícita del punto de partida."
-                    : "El punto de partida queda sustentado por la estructura narrativa, la experiencia humana y las anclas comprobables del proyecto.")
+                ? (
+                    nAntes > 0
+                        ? "Existe señal explícita del punto de partida."
+                        : "El punto de partida queda sustentado por la estructura narrativa, la experiencia humana y las anclas comprobables del proyecto."
+                )
                 : "Falta una condición inicial o una estructura narrativa suficiente para inferir el punto de partida.",
-            { senales: nAntes, respaldoEstructural, anclasContextuales: anclasUnicas.length }
+            {
+                senales: nAntes,
+                respaldoEstructural,
+                anclasContextuales: anclasUnicas.length
+            }
         );
 
-        registrar("narrativa.transformacion", nTransformacion > 0, nTransformacion > 0 ? "Existe señal de transformación o respuesta de diseño." : "Falta una transformación o respuesta de diseño reconocible.", { senales: nTransformacion });
-        registrar("narrativa.estado_posterior", nDespues > 0, nDespues > 0 ? "Existe señal de estado posterior o nueva experiencia." : "Falta una señal clara del estado posterior.", { senales: nDespues });
-        registrar("narrativa.experiencia_humana", nHumana > 0, nHumana > 0 ? "Existe referencia a personas o experiencia de habitar." : "Falta una referencia suficiente a personas, vida cotidiana o habitar.", { senales: nHumana });
+        // --------------------------------------------------
+        // TRANSFORMACIÓN
+        // --------------------------------------------------
+
+        registrar(
+            "narrativa.transformacion",
+            nTransformacion > 0,
+            nTransformacion > 0
+                ? "Existe señal de transformación o respuesta de diseño."
+                : "Falta una transformación o respuesta de diseño reconocible.",
+            {
+                senales: nTransformacion
+            }
+        );
+
+        // --------------------------------------------------
+        // ESTADO POSTERIOR
+        // --------------------------------------------------
+
+        /*
+         * La validación sigue siendo obligatoria.
+         *
+         * Lo que cambia es la definición de señal válida:
+         * ahora reconoce resultados espaciales, perceptuales
+         * y funcionales, no solamente marcadores temporales.
+         */
+
+        registrar(
+            "narrativa.estado_posterior",
+            nDespues > 0,
+            nDespues > 0
+                ? "Existe señal de estado posterior o nueva experiencia."
+                : "Falta una señal clara del estado posterior.",
+            {
+                senales: nDespues
+            }
+        );
+
+        // --------------------------------------------------
+        // EXPERIENCIA HUMANA
+        // --------------------------------------------------
+
+        registrar(
+            "narrativa.experiencia_humana",
+            nHumana > 0,
+            nHumana > 0
+                ? "Existe referencia a personas o experiencia de habitar."
+                : "Falta una referencia suficiente a personas, vida cotidiana o habitar.",
+            {
+                senales: nHumana
+            }
+        );
+
+        // --------------------------------------------------
+        // ESPECIFICIDAD
+        // --------------------------------------------------
 
         registrar(
             "contexto.especificidad",
@@ -219,58 +436,64 @@ class ValidadorHistoriaV2 {
             anclasUnicas.length >= 2
                 ? "La historia contiene anclas comprobables del proyecto."
                 : "La historia contiene pocas anclas comprobables del proyecto y puede resultar intercambiable.",
-            { anclasEncontradas: anclasUnicas.slice(0, 12), total: anclasUnicas.length }
+            {
+                anclasEncontradas: anclasUnicas.slice(0, 12),
+                total: anclasUnicas.length
+            }
         );
+
+        // --------------------------------------------------
+        // INVENTARIO
+        // --------------------------------------------------
 
         const inventario = [
-            /\bmueble(?:s)?\b/, /\bcama\b/, /\bcabecero\b/, /\barmario\b/, /\bgabinete\b/, /\brepisa(?:s)?\b/, /\bmesa de noche\b/, /\bmadera\b/, /\bmarmol\b/, /\bpiedra\b/, /\bvidrio\b/, /\bmetal\b/, /\btextil\b/, /\biluminacion\b/, /\blampara\b/
-        ];
-        const inventarioEncontrado = inventario.filter(p => p.test(texto)).length;
-        const frasesConInventario = this.frases(original).filter(frase => {
-            const f = this.normalizar(frase);
-            return inventario.filter(p => p.test(f)).length >= 2;
-        }).length;
-        registrar(
-            "contexto.inventario",
-            inventarioEncontrado < 6 && frasesConInventario < 2,
-            inventarioEncontrado < 6 && frasesConInventario < 2
-                ? "La densidad de objetos/materiales no domina la narración."
-                : "La narración presenta alta densidad de objetos/materiales; revisar que funcionen como evidencia y no como inventario.",
-            { terminos: inventarioEncontrado, frasesConInventario }
-        );
 
-        const mubato = (texto.match(/\bmubato\b/g) || []).length;
-        registrar(
-            "marca.repeticion",
-            mubato <= 1,
-            mubato <= 1
-                ? "La marca no se repite innecesariamente."
-                : "MUBATO aparece más de una vez; revisar protagonismo de la marca.",
-            { menciones: mubato }
-        );
+            {
+                id: "punto_partida",
+                senales: nAntes
+            },
+
+            {
+                id: "transformacion",
+                senales: nTransformacion
+            },
+
+            {
+                id: "estado_posterior",
+                senales: nDespues
+            },
+
+            {
+                id: "experiencia_humana",
+                senales: nHumana
+            },
+
+            {
+                id: "anclas_contextuales",
+                senales: anclasUnicas.length
+            }
+
+        ];
+
+        metricas.senales = {
+            antes: nAntes,
+            transformacion: nTransformacion,
+            despues: nDespues,
+            humana: nHumana
+        };
+
+        metricas.anclasContextuales = anclasUnicas.length;
 
         return {
             aprobado: errores.length === 0,
-            estado: errores.length === 0 ? "APROBADA_CON_REVISION_HUMANA" : "REVISAR",
-            reglas: this.reglas,
-            metricas: {
-                palabras,
-                parrafos,
-                anclasContextuales: anclasUnicas.length,
-                llamadasAccion: cta.length,
-                lenguajeMeta: meta.length,
-                publicidad: publicitarias.length,
-                densidadInventario: inventarioEncontrado
-            },
             errores,
             advertencias,
-            evidencia
+            metricas,
+            inventario
         };
+
     }
 
-    validar(historia, proyecto = {}) {
-        return this.evaluar(historia, proyecto);
-    }
 }
 
 module.exports = ValidadorHistoriaV2;

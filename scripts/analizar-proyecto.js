@@ -1,4 +1,5 @@
 const Parser = require("../src/core/parser");
+
 const DirectorProyecto = require("../src/workflow/directorProyecto");
 
 async function ejecutar() {
@@ -6,13 +7,15 @@ async function ejecutar() {
     const carpeta = process.argv[2];
 
     if (!carpeta) {
+
         throw new Error(
             'Uso: node scripts/analizar-proyecto.js "RUTA_DE_LA_CARPETA"'
         );
+
     }
 
     console.log("======================================");
-    console.log("ANÁLISIS DEL PROYECTO — FASE 1");
+    console.log("PROCESAMIENTO REAL DEL PROYECTO");
     console.log("======================================");
     console.log("Carpeta:", carpeta);
 
@@ -21,40 +24,56 @@ async function ejecutar() {
     const proyecto = parser.importarCarpeta(carpeta);
 
     console.log("✓ Proyecto importado:", proyecto.nombre);
+
     console.log(
         "✓ Fotografías:",
         proyecto.obtenerFotografias().length
     );
 
+    console.log("");
+
     const director = new DirectorProyecto();
 
-    console.log("");
-    console.log("VISION");
-    console.log("");
-
-    const resultado = await director.analizar(proyecto);
+    const resultado = await director.ejecutar(proyecto);
 
     console.log("");
+
     console.log("======================================");
-    console.log("ANÁLISIS VISUAL COMPLETADO");
+    console.log("PROYECTO PROCESADO COMPLETAMENTE");
     console.log("======================================");
 
     console.log("✓ Proyecto:", resultado.nombre);
+
     console.log(
         "✓ Fotografías analizadas:",
         resultado.obtenerFotografias().filter(f => f.analizada).length
     );
 
+    console.log(
+        "✓ Editorial V2.2 completada."
+    );
+
+    console.log(
+        "✓ Salida editorial:",
+        resultado.salidaEditorialCSV.rutaSalida
+    );
+
     console.log("");
-    console.log("Ahora podemos ejecutar Editorial V2.1.");
+
+    console.log("✓ FLUJO COMPLETO SUPERADO");
+
 }
 
 ejecutar().catch(error => {
 
     console.error("");
-    console.error("✗ ANÁLISIS DEL PROYECTO FALLIDO");
+
+    console.error("✗ PROCESAMIENTO DEL PROYECTO FALLIDO");
+
     console.error("");
+
     console.error(error);
 
     process.exit(1);
+
 });

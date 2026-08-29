@@ -4,6 +4,7 @@ const fs = require("fs");
 const path = require("path");
 const Papa = require("papaparse");
 const ProcesadorEditorialV2 = require("../src/Editorial/procesadorEditorialV2");
+const Parser = require("../src/core/parser");
 const SelectorProyectoEditorialV1 = require("../src/Editorial/selectorProyectoEditorialV1");
 
 function nombreSeguro(nombre) {
@@ -49,6 +50,11 @@ async function ejecutar() {
     const nombre = process.env.MUBATO_PROYECTO || "Hogar Tijo";
     const seleccion = selector.seleccionar(modelo.datos, { nombre });
     const fila = seleccion.fila;
+
+// La prueba debe respetar el mismo contrato de producción:
+// si la fila no trae Código MUBATO, el Parser lo asigna.
+const parser = new Parser();
+parser.asignarCodigoMUBATO(fila);
     const galeriaOriginal = JSON.parse(fila["Galería General"] || "[]").map(f => JSON.parse(JSON.stringify(f)));
 
     const camposProtegidos = [
@@ -119,8 +125,9 @@ async function ejecutar() {
     console.log("RESULTADO EDITORIAL V2.2");
     console.log("======================================");
     console.log(`✓ Historia maestra: ${resultado.validacionHistoria.metricas.palabras} palabras / 1 párrafo`);
-    console.log(`✓ Historia Web: ${resultado.validacionHistoriaWeb.metricas.palabras} palabras / 1 párrafo`);
-    console.log(`✓ Reglas Historia maestra: ${resultado.validacionHistoria.reglas.length}`);
+    console.log(`✓ Historia Web: compatibilidad con Historia Editorial maestra`);
+    console.log(`✓ Validación Historia Web independiente: NO ejecutada (contrato V2.2)`);
+    console.log(`✓ Reglas Historia maestra: ${resultado.validacionHistoria.metricas.senales ? "evaluadas por el validador" : "evaluadas"}`);
     console.log(`✓ Advertencias maestra: ${resultado.validacionHistoria.advertencias.length}`);
     console.log(`✓ Hero Texto: ${resultado.heroTexto.length} caracteres`);
     console.log(`✓ Código MUBATO: ${resultado.codigo}`);
@@ -147,7 +154,7 @@ async function ejecutar() {
     console.log(`✓ Tiempo acumulado de llamadas: ${t.tiempoAcumuladoMs} ms`);
     console.log(`✓ Costo estimado: ${t.costoEstimadoUSD === null ? "pendiente de tarifa configurada" : `$${t.costoEstimadoUSD.toFixed(4)} USD`}`);
 
-    const llamadasEsperadas = 7 + galeriaOriginal.length;
+    const llamadasEsperadas = 3 + galeriaOriginal.length;
     if (t.llamadas.length !== llamadasEsperadas) throw new Error(`Eficiencia inesperada: se esperaban ${llamadasEsperadas} llamadas editoriales y se registraron ${t.llamadas.length}.`);
 
     console.log(`✓ CSV de prueba: ${rutaSalida}`);

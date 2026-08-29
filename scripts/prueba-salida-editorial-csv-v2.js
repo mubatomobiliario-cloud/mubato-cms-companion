@@ -117,7 +117,29 @@ function main() {
         servicios: ["Diseño interior", "Mobiliario a medida"],
         slug: "hogar-araque",
         seoTitle: "Hogar Araque | MUBATO",
-        metaDescription: "Historia de transformación del Hogar Araque diseñada por MUBATO."
+        metaDescription: "Historia de transformación del Hogar Araque diseñada por MUBATO.",
+        galeriaEditorial: [
+            {
+                description: "Fotografía editorial de prueba 1.",
+                fileName: "hogar-araque-01.jpg",
+                slug: "hogar-araque-01",
+                alt: "Hogar Araque MUBATO fotografía 1",
+                src: "https://static.wixstatic.com/media/hogar-araque-01.jpg",
+                title: "Hogar Araque — MUBATO",
+                type: "image",
+                settings: {}
+            },
+            {
+                description: "Fotografía editorial de prueba 2.",
+                fileName: "hogar-araque-02.jpg",
+                slug: "hogar-araque-02",
+                alt: "Hogar Araque MUBATO fotografía 2",
+                src: "https://static.wixstatic.com/media/hogar-araque-02.jpg",
+                title: "Hogar Araque — MUBATO",
+                type: "image",
+                settings: {}
+            }
+        ]
     };
 
     const salida = new SalidaEditorialCSV().exportar({
@@ -128,7 +150,7 @@ function main() {
     });
 
     assert(fs.existsSync(rutaSalida), "Se generó el CSV de salida");
-    assert(salida.camposActualizados.length === 8, "Se aplicaron exactamente 8 campos editoriales autorizados");
+    assert(salida.camposActualizados.length === 9, "Se aplicaron exactamente 9 campos editoriales autorizados");
 
     const despues = leerMatriz(rutaSalida);
     const encabezadosDespues = despues[0];

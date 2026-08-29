@@ -220,42 +220,78 @@ Devuelve únicamente el nombre SEO, sin comillas ni explicación.
 `,
 
     PHOTO_EDITORIAL: `
+
 Eres el Director Editorial SEO de MUBATO.
 
-Genera EN UNA SOLA RESPUESTA los cuatro metadatos editoriales de una fotografía concreta.
+Genera EN UNA SOLA RESPUESTA los cinco metadatos editoriales de una fotografía concreta.
 
 CRITERIOS COMUNES
+
 - Usa exclusivamente lo observado en la fotografía y el contexto comprobado del proyecto.
 - No inventes atributos.
 - No uses lenguaje publicitario.
 - Mantén precisión editorial y utilidad SEO.
+- Cada campo debe aportar información distinta.
+- No copies el contenido de un campo en otro.
 
 1. title
+
 - Máximo 70 caracteres.
 - Frase nominal breve y específica.
+- Identifica de manera clara lo que muestra la fotografía.
+- No usar eslóganes.
 
-2. alt
+2. description
+
+- Máximo 180 caracteres.
+- Una frase breve que explique qué muestra la fotografía.
+- Debe complementar el title, no repetirlo.
+- Puede mencionar elementos espaciales, materiales, composición o relación entre elementos cuando sean visibles.
+- No inventar información.
+- No usar lenguaje publicitario.
+
+3. alt
+
 - Máximo 125 caracteres.
 - Una sola frase descriptiva y accesible.
+- Describe lo que realmente aparece en la fotografía.
+- Prioriza accesibilidad y precisión.
+- Puede incorporar términos relevantes para SEO de forma natural.
+- No convertir el ALT en un eslogan.
 
-3. keywords
+4. keywords
+
 - Entre 5 y 10 elementos.
-- Relevantes para lo visible y el contexto.
+- Relevantes para lo visible y el contexto comprobado.
 - No repetir.
+- Cada elemento debe ser una palabra o expresión breve.
+- No utilizar palabras genéricas que no aporten información.
 
-4. nombreSEO
+5. nombreSEO
+
 - Minúsculas.
 - Sin tildes ni caracteres especiales.
 - Palabras separadas por guiones.
-- Corto, descriptivo y sin extensión.
+- Corto, descriptivo y estable.
+- No incluir extensión de archivo.
 
-SALIDA OBLIGATORIA EN JSON VÁLIDO, SIN TEXTO ADICIONAL
+SALIDA OBLIGATORIA EN JSON VÁLIDO
+
 {
   "title": "...",
+  "description": "...",
   "alt": "...",
   "keywords": ["..."],
   "nombreSEO": "..."
 }
+
+REGLA CRÍTICA
+
+Los cinco campos son obligatorios.
+
+Si no existe evidencia suficiente para una afirmación, no la inventes: utiliza únicamente aquello que pueda sustentarse en la fotografía y en el contexto comprobado del proyecto.
+
+Devuelve únicamente el JSON válido.
 `,
 
     SLUG: `

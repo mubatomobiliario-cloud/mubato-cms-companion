@@ -252,35 +252,69 @@ class ProcesadorEditorialV2 {
                 );
             }
 
-            const contratoHistoriaWeb = json(
+            // 3C.12 — HISTORIA WEB INDEPENDIENTE
+            //
+            // La Historia Editorial maestra es la fuente.
+            // Historia Web es una síntesis independiente.
+            //
+            // UNA SOLA llamada IA.
+            // Su resultado alimenta directamente descripcion.
 
-                await generar(
-                    "historia_web",
-                    this.contexto.construirHistoriaWeb(
-                        historia.trim()
-                    )
-                ),
+            const historiaWebRaw = await generar(
+                "historia_web",
+                this.contexto.construirHistoriaWeb(historia)
+            );
 
+            const historiaWebContrato = json(
+                historiaWebRaw,
                 "HISTORIA_WEB"
-
             );
 
             const validacionHistoriaWeb =
-                this.validadorHistoriaWeb.validarContrato(
-                    contratoHistoriaWeb,
+                this.validadorHistoriaWeb.validar(
+                    historiaWebContrato,
                     proyecto
                 );
 
             if (!validacionHistoriaWeb.aprobado) {
+                const detalle =
+                    validacionHistoriaWeb.errores
+                        .map(
+                            error =>
+                                typeof error === "string"
+                                    ? error
+                                    : `${error.regla}: ${error.mensaje}`
+                        )
+                        .join(" | ");
 
                 throw new Error(
-                    `Historia Web rechazada: ${validacionHistoriaWeb.errores.join(" | ")}`
+                    `Historia Web rechazada: ${detalle}`
                 );
-
             }
 
-            const historiaWeb =
-                contratoHistoriaWeb.texto.trim();
+            const descripcion =
+                String(historiaWebContrato.texto || "").trim();
+
+            // BARRERA DETERMINISTA — DESCRIPCIÓN CMS
+            //
+            // Esta comprobación no consume IA.
+            // Impide que descripcion pueda superar el contrato
+            // de 35–60 palabras.
+
+            const palabrasDescripcion =
+                descripcion
+                    .split(/\s+/)
+                    .filter(Boolean)
+                    .length;
+
+            if (
+                palabrasDescripcion < 35 ||
+                palabrasDescripcion > 60
+            ) {
+                throw new Error(
+                    `Descripción editorial inválida: ${palabrasDescripcion} palabras. Debe contener entre 35 y 60.`
+                );
+            }
 
             const heroTexto =
                 await generar(
@@ -297,7 +331,7 @@ class ProcesadorEditorialV2 {
                     "seo",
                     this.contexto.construirSEO(
                         proyecto,
-                        historiaWeb
+                        descripcion
                     )
                 ),
                 "SEO"
@@ -402,7 +436,7 @@ class ProcesadorEditorialV2 {
                         this.contexto.construirMetadatosFotografia(
                             proyecto,
                             contextoFoto,
-                            historiaWeb
+                            descripcion
                         )
                     ),
 
@@ -412,6 +446,7 @@ class ProcesadorEditorialV2 {
 
                 if (
                     !metadatos.title ||
+                    !metadatos.description ||
                     !metadatos.alt ||
                     !metadatos.nombreSEO ||
                     !Array.isArray(metadatos.keywords) ||
@@ -422,26 +457,81 @@ class ProcesadorEditorialV2 {
                     );
                 }
 
+                const tituloFoto =
+                    String(metadatos.title).trim();
+
+                const descripcionFoto =
+                    String(metadatos.description).trim();
+
+                const altFoto =
+                    String(metadatos.alt).trim();
+
+                const nombreSEOFoto =
+                    String(metadatos.nombreSEO).trim();
+
+                const keywordsFoto =
+                    metadatos.keywords
+                        .map(x => String(x).trim())
+                        .filter(Boolean);
+
+                if (tituloFoto.length > 70) {
+                    throw new Error(
+                        `Title inválido en foto ${i + 1}: ${tituloFoto.length} caracteres. Máximo 70.`
+                    );
+                }
+
+                if (descripcionFoto.length > 180) {
+                    throw new Error(
+                        `Description inválida en foto ${i + 1}: ${descripcionFoto.length} caracteres. Máximo 180.`
+                    );
+                }
+
+                if (altFoto.length > 125) {
+                    throw new Error(
+                        `ALT inválido en foto ${i + 1}: ${altFoto.length} caracteres. Máximo 125.`
+                    );
+                }
+
+                if (
+                    keywordsFoto.length < 5 ||
+                    keywordsFoto.length > 10
+                ) {
+                    throw new Error(
+                        `Keywords inválidas en foto ${i + 1}: ${keywordsFoto.length} elementos. Deben ser entre 5 y 10.`
+                    );
+                }
+
+                const keywordsNormalizadas =
+                    keywordsFoto.map(x => x.toLowerCase());
+
+                if (
+                    new Set(keywordsNormalizadas).size !==
+                    keywordsNormalizadas.length
+                ) {
+                    throw new Error(
+                        `Keywords repetidas en foto ${i + 1}.`
+                    );
+                }
+
+                if (
+                    !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(
+                        nombreSEOFoto
+                    )
+                ) {
+                    throw new Error(
+                        `nombreSEO inválido en foto ${i + 1}: "${nombreSEOFoto}".`
+                    );
+                }
+
                 galeriaEditorial.push({
 
                     ...foto,
 
-                    title:
-                        String(metadatos.title).trim(),
-
-                    alt:
-                        String(metadatos.alt).trim(),
-
-                    description:
-                        foto.description || "",
-
-                    keywords:
-                        metadatos.keywords,
-
-                    nombreSEO:
-                        String(
-                            metadatos.nombreSEO
-                        ).trim()
+                    title: tituloFoto,
+                    alt: altFoto,
+                    description: descripcionFoto,
+                    keywords: keywordsFoto,
+                    nombreSEO: nombreSEOFoto
 
                 });
 
@@ -457,15 +547,16 @@ class ProcesadorEditorialV2 {
                 historia:
                     historia.trim(),
 
-                historiaWeb,
+                historiaWeb:
+                    descripcion,
 
-                contratoHistoriaWeb,
+                contratoHistoriaWeb:
+                    historiaWebContrato,
 
                 heroTexto:
                     heroTexto.trim(),
 
-                descripcion:
-                    historiaWeb,
+                descripcion,
 
                 codigo,
 

@@ -73,9 +73,26 @@ class DirectorProyecto {
             throw new Error("El proyecto no tiene rutaCSV para generar la salida editorial.");
         }
 
-        const extension = path.extname(proyecto.rutaCSV);
-        const base = proyecto.rutaCSV.slice(0, -extension.length);
-        return `${base}.salida-editorial-proyecto-v2.csv`;
+        if (!proyecto.nombre) {
+            throw new Error("El proyecto no tiene nombre para generar la salida editorial.");
+        }
+
+        const timestamp = new Date()
+            .toISOString()
+            .replace(/[-:]/g, "")
+            .replace("T", "")
+            .slice(0, 14);
+
+        const nombreProyecto = String(proyecto.nombre)
+            .trim()
+            .replace(/[\\/:*?"<>|]/g, "-");
+
+        const directorio = path.dirname(proyecto.rutaCSV);
+
+        return path.join(
+            directorio,
+            `${nombreProyecto}_Editorial_${timestamp}.csv`
+        );
     }
 
     async ejecutar(proyecto) {
@@ -117,6 +134,22 @@ class DirectorProyecto {
             }
         );
 
+        console.log("");
+        console.log("======================================");
+        console.log("DESCRIPCIÓN GENERADA — TRAZA REAL");
+        console.log("======================================");
+        console.log(resultadoEditorial.descripcion);
+        console.log("");
+        console.log(
+            "Palabras:",
+            String(resultadoEditorial.descripcion || "")
+                .trim()
+                .split(/\s+/)
+                .filter(Boolean)
+                .length
+        );
+        console.log("======================================");
+        console.log("");
         console.log("✓ Editorial Proyecto V2.2 completada.");
         console.log("");
 
@@ -147,11 +180,10 @@ class DirectorProyecto {
         console.log(`✓ Archivo: ${salida.rutaSalida}`);
         console.log("");
 
-        return {
-            ...proyecto,
-            resultadoEditorial,
-            salidaEditorialCSV: salida
-        };
+        proyecto.resultadoEditorial = resultadoEditorial;
+        proyecto.salidaEditorialCSV = salida;
+
+        return proyecto;
     }
 }
 

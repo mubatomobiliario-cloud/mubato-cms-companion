@@ -1,17 +1,17 @@
 # MUBATO CMS Companion — Ledger de Continuidad
 
 <!-- CONTINUIDAD_AUTO_START -->
-- Generado automáticamente: `2026-08-26 16:37:11.113Z`
-- Commit observado: `dd3a594`
+- Generado automáticamente: `2026-08-28 15:33:25.541Z`
+- Commit observado: `f0f4bfa`
 - Rama: `feat/csv-editorial-v1`
-- Archivos versionados: `137`
+- Archivos versionados: `138`
 - Verificaciones: **OK** — canon documental, bifurcación Parser, contrato de salida y campos Wix protegidos.
 - Últimos commits:
-  - dd3a594 — 2026-08-26 — fix(5.5.1): proyectar galeria editorial al contrato Wix
-  - e18b3d0 — 2026-08-26 — feat(5.5): exportar galeria editorial al campo Wix
-  - 32537b7 — 2026-08-26 — test(5.5.1): separar hero de galeria editorial
-  - fb7bd32 — 2026-08-26 — test(5.5): blindar exportacion de galeria editorial V2.2
-  - 547d7ea — 2026-08-25 — docs(continuidad): sincronizar estado tras cierre 4.4
+  - f0f4bfa — 2026-08-26 — feat: conectar catalogo de servicios al editorial
+  - 371b74a — 2026-08-26 — fix(5.6): conectar galeria editorial con exportacion
+  - 4ea336f — 2026-08-26 — test(3C.4): adaptar fixture al contrato editorial vigente
+  - ff320cf — 2026-08-26 — test(3C.5): autorizar galeria general como frontera editorial
+  - cefd802 — 2026-08-26 — test(5.5.2): adaptar regresion 3C.5 al contrato editorial vigente
 <!-- CONTINUIDAD_AUTO_END -->
 
 > Cronología canónica de decisiones, implementaciones y validaciones significativas. No sustituye la Matriz Viva ni el Estado del Proyecto.

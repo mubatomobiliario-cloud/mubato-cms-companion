@@ -108,7 +108,7 @@ async function main() {
     console.log("======================================");
     console.log("PRUEBA — DEPENDENCIAS LLAMADAS IA 3C.10");
     console.log("======================================");
-    console.log("\nObjetivo: identificar reutilización real de resultados entre las 6 llamadas IA post-3C.8 y determinar si alguna puede eliminarse sin romper el contrato.");
+    console.log("\nObjetivo: identificar reutilización real de resultados entre las 5 llamadas IA post-3C.12 y determinar si alguna puede eliminarse sin romper el contrato.");
     console.log("La prueba usa dependencias controladas y NO realiza llamadas reales a OpenAI.\n");
 
     const openAI = new OpenAIControlado();
@@ -126,20 +126,19 @@ async function main() {
 
     const salida = await procesador.generar(fixture(), { evidenciaVisual: evidencia });
 
-    console.log("1. Verificando presupuesto post-3C.8...");
-    assert.strictEqual(salida.llamadasIA, 6, "La línea post-3C.8 debe conservar 6 llamadas IA.");
-    console.log("✓ 6 llamadas IA ejecutadas.\n");
+    console.log("1. Verificando presupuesto post-3C.12...");
+    assert.strictEqual(salida.llamadasIA, 5, "La línea post-3C.12 debe conservar 5 llamadas IA.");
+    console.log("✓ 5 llamadas IA ejecutadas.\n");
 
     console.log("2. Construyendo grafo de dependencias...");
     const porContrato = Object.fromEntries(openAI.llamadas.map(x => [x.contrato, x.prompt]));
-    const historiaGenerada = "La historia editorial de control parte de una intervención comprobada en cocina en Bogotá.";
-    assert.ok(porContrato.HISTORIA_WEB.includes(historiaGenerada));
+    assert.ok(porContrato.HISTORIA.includes("HISTORIA INPUT Hogar Araque"));
     assert.ok(porContrato.SEO.includes("SEO INPUT") && porContrato.SEO.includes(salida.historiaWeb));
     assert.ok(porContrato.PHOTO_EDITORIAL.includes("HISTORIA_WEB REUTILIZADA") && porContrato.PHOTO_EDITORIAL.includes(salida.historiaWeb));
     assert.ok(porContrato.HERO.includes("HERO INPUT Hogar Araque"));
-    console.log("✓ Historia → Historia Web: resultado de Historia reutilizado como contexto.");
-    console.log("✓ Historia Web → SEO: resultado de Historia Web reutilizado como contexto.");
-    console.log("✓ Historia Web → fotografía editorial: resultado de Historia Web reutilizado como contexto.");
+    console.log("✓ Narrativa maestra generada una sola vez.");
+    console.log("✓ Narrativa maestra reutilizada como contexto de SEO.");
+    console.log("✓ Narrativa maestra reutilizada en fotografía editorial.");
     console.log("✓ Hero permanece como salida editorial independiente.\n");
 
     console.log("3. Buscando llamadas IA redundantes por datos ya disponibles...");
@@ -147,15 +146,15 @@ async function main() {
     assert.strictEqual(openAI.llamadas.filter(x => x.contrato === "SERVICIOS").length, 0);
     assert.strictEqual(openAI.llamadas.filter(x => x.contrato === "SLUG").length, 0);
     console.log("✓ Código, Servicios y Slug continúan fuera de IA.");
-    console.log("✓ Ninguna de las 6 llamadas actuales repite una salida determinista eliminable.\n");
+    console.log("✓ Ninguna de las 5 llamadas actuales repite una salida determinista eliminable.\n");
 
     console.log("4. Verificando reutilización sin duplicar llamadas...");
     assert.strictEqual(openAI.llamadas.filter(x => x.contrato === "HISTORIA").length, 1);
-    assert.strictEqual(openAI.llamadas.filter(x => x.contrato === "HISTORIA_WEB").length, 1);
+    assert.strictEqual(openAI.llamadas.filter(x => x.contrato === "HISTORIA_WEB").length, 0);
     assert.strictEqual(openAI.llamadas.filter(x => x.contrato === "HERO").length, 1);
     assert.strictEqual(openAI.llamadas.filter(x => x.contrato === "SEO").length, 1);
     assert.strictEqual(openAI.llamadas.filter(x => x.contrato === "PHOTO_EDITORIAL").length, 2);
-    console.log("✓ Historia Web se genera una sola vez y se reutiliza.");
+    console.log("✓ Historia Web no genera una llamada IA independiente.");
     console.log("✓ Cada fotografía conserva exactamente una llamada editorial.");
     console.log("✓ No existe segunda lectura Vision.\n");
 
@@ -167,12 +166,12 @@ async function main() {
     console.log("PRUEBA SUPERADA — 3C.10");
     console.log("--------------------------------------");
     console.log("✓ Grafo de dependencias IA reproducible.");
-    console.log("✓ Historia Web reutilizada por SEO y fotografía.");
+    console.log("✓ Narrativa maestra reutilizada por SEO y fotografía.");
     console.log("✓ No hay llamadas redundantes evidentes que puedan eliminarse con seguridad.");
-    console.log("✓ Presupuesto permanece en 6 llamadas IA.");
+    console.log("✓ Presupuesto permanece en 5 llamadas IA.");
     console.log("✓ No se modificaron campos internos Wix protegidos.");
     console.log("✓ No se realizaron llamadas reales a OpenAI.");
-    console.log("\nCONCLUSIÓN 3C.10: la optimización adicional no debe forzarse; las seis llamadas restantes tienen fronteras editoriales distintas y comparten contexto donde corresponde.");
+    console.log("\nCONCLUSIÓN 3C.10: la optimización adicional no debe forzarse; las cinco llamadas restantes tienen fronteras editoriales distintas y comparten contexto donde corresponde.");
 }
 
 main().catch(error => {
