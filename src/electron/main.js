@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog } = require("electron");
+const { app, BrowserWindow, ipcMain, dialog, shell } = require("electron");
 const path = require("path");
 const Parser = require("../core/parser");
 const DirectorProyecto = require("../workflow/directorProyecto");
@@ -29,21 +29,20 @@ function crearVentanaPrincipal() {
     ventanaPrincipal.loadFile(
         path.join(__dirname, "../renderer/index.html")
     );
+
     ventanaPrincipal.webContents.on("did-finish-load", () => {
-
         console.log("Renderer cargado correctamente.");
-
     });
-    ventanaPrincipal.once("ready-to-show", () => {
 
+    ventanaPrincipal.once("ready-to-show", () => {
         ventanaPrincipal.show();
         ventanaPrincipal.focus();
-
     });
 
     ventanaPrincipal.webContents.openDevTools();
 
 }
+
 app.whenReady().then(() => {
 
     crearVentanaPrincipal();
@@ -51,37 +50,31 @@ app.whenReady().then(() => {
     app.on("activate", () => {
 
         if (BrowserWindow.getAllWindows().length === 0) {
-
             crearVentanaPrincipal();
-
         }
 
     });
 
 });
+
 ipcMain.handle("seleccionarProyecto", async () => {
 
     const resultado = await dialog.showOpenDialog({
-
         properties: ["openDirectory"]
-
     });
 
     if (resultado.canceled) {
-
         return null;
-
     }
 
     return resultado.filePaths[0];
 
 });
+
 app.on("window-all-closed", () => {
 
     if (process.platform !== "darwin") {
-
         app.quit();
-
     }
 
 });
@@ -94,64 +87,85 @@ function serializarProyecto(proyecto) {
     return {
 
         nombre: proyecto.nombre,
-
         codigo: proyecto.codigo,
-
         cliente: proyecto.cliente,
-
         ciudad: proyecto.ciudad,
-
         estado: proyecto.estado,
-
         categoria: proyecto.categoria,
-
         servicios: proyecto.servicios,
-
         espacios: proyecto.espacios,
 
         heroImagen: hero ? {
-
             nombre: hero.nombre,
-
             enGaleria: hero.enGaleria,
-
             esHero: hero.esHero,
-
             wixHeroSrc: hero.wixHeroSrc || null,
-
             wixMedia: hero.wixMedia || null
-
         } : null,
 
         galeria: galeria.map(foto => ({
-
             nombre: foto.nombre,
-
             enGaleria: foto.enGaleria,
-
             esHero: foto.esHero,
-
             wixMedia: foto.wixMedia || null
-
         })),
 
         fotografias: proyecto.cantidadFotografias(),
 
         listaFotografias: proyecto.obtenerFotografias().map(foto => ({
-
             nombre: foto.nombre,
-
             ruta: foto.ruta,
-
             extension: foto.extension,
-
             tamano: foto.tamano,
-
             enGaleria: foto.enGaleria,
-
             esHero: foto.esHero
-
         }))
+
+    };
+
+}
+
+function serializarResultadoEditorial(proyecto) {
+
+    const editorial = proyecto.resultadoEditorial;
+
+    return {
+
+        ...serializarProyecto(proyecto),
+
+        expediente: proyecto.expediente || null,
+
+        salidaEditorialCSV: proyecto.salidaEditorialCSV ? {
+            rutaSalida: proyecto.salidaEditorialCSV.rutaSalida || null
+        } : null,
+
+        editorial: editorial ? {
+            versionEditorial: editorial.versionEditorial || null,
+            codigo: editorial.codigo || null,
+            heroTexto: editorial.heroTexto || "",
+            historia: editorial.historia || "",
+            descripcion: editorial.descripcion || "",
+            servicios: editorial.servicios || [],
+            slug: editorial.slug || "",
+            seo: editorial.seo || {
+                seoTitle: "",
+                metaDescription: ""
+            },
+            galeriaEditorial: Array.isArray(editorial.galeriaEditorial)
+                ? editorial.galeriaEditorial.map(foto => ({
+                    fileName: foto.fileName,
+                    title: foto.title,
+                    description: foto.description,
+                    alt: foto.alt,
+                    keywords: foto.keywords,
+                    nombreSEO: foto.nombreSEO,
+                    esHero: Boolean(foto.esHero),
+                    enGaleria: Boolean(foto.enGaleria)
+                }))
+                : [],
+            llamadasIA: editorial.llamadasIA || 0,
+            telemetria: editorial.telemetria || null
+        } : null
 
     };
 
@@ -159,12 +173,8 @@ function serializarProyecto(proyecto) {
 
 ipcMain.handle("importarProyecto", async (event, carpeta) => {
 
-    const Parser = require("../core/parser");
-
     const parser = new Parser();
-
     const proyecto = parser.importarCarpeta(carpeta);
-
     const resultado = serializarProyecto(proyecto);
 
     console.log("IMPORTACIÓN COMPLETADA");
@@ -176,64 +186,34 @@ ipcMain.handle("importarProyecto", async (event, carpeta) => {
 
 });
 
-ipcMain.handle("analizarProyecto", async (event, carpeta) => {
+ipcMain.handle("ejecutarProyecto", async (event, carpeta) => {
+
+    if (!carpeta) {
+        throw new Error("No se recibió una carpeta de proyecto.");
+    }
 
     const parser = new Parser();
-
     const proyecto = parser.importarCarpeta(carpeta);
-
     const director = new DirectorProyecto();
 
-    const resultado = await director.analizar(proyecto);
+    const resultado = await director.ejecutar(proyecto);
 
-    return {
+    console.log("EJECUCIÓN COMPLETA — ELECTRON");
+    console.log("Proyecto:", resultado.nombre);
+    console.log("Salida Editorial:", resultado.salidaEditorialCSV?.rutaSalida || "NO GENERADA");
 
-        nombre: resultado.nombre,
+    return serializarResultadoEditorial(resultado);
 
-        codigo: resultado.codigo,
+});
 
-        cliente: resultado.cliente,
+ipcMain.handle("mostrarSalidaEditorial", async (event, rutaSalida) => {
 
-        ciudad: resultado.ciudad,
+    if (!rutaSalida) {
+        throw new Error("No existe una ruta de salida editorial para mostrar.");
+    }
 
-        estado: resultado.estado,
+    shell.showItemInFolder(rutaSalida);
 
-        expediente: resultado.expediente,
-
-        listaFotografias: resultado.obtenerFotografias().map(foto => ({
-
-            nombre: foto.nombre,
-
-            ruta: foto.ruta,
-
-            extension: foto.extension,
-
-            tamano: foto.tamano,
-
-            analizada: foto.analizada,
-
-            espacio: foto.espacio,
-
-            tipo: foto.tipo,
-
-            plano: foto.plano,
-
-            estilo: foto.estilo,
-
-            materiales: foto.materiales,
-
-            colores: foto.colores,
-
-            elementos: foto.elementos,
-
-            iluminacion: foto.iluminacion,
-
-            sensacion: foto.sensacion,
-
-            confianza: foto.confianza
-
-        }))
-
-    };
+    return true;
 
 });
