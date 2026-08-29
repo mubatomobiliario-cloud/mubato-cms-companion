@@ -9,7 +9,6 @@ const photoPanel = document.getElementById("photoPanel");
 let proyectoSeleccionado = null;
 let carpetaSeleccionada = null;
 
-
 //==================================================
 // SELECCIONAR PROYECTO
 //==================================================
@@ -23,19 +22,15 @@ selectProjectButton.addEventListener("click", async () => {
         const carpeta = await window.companion.seleccionarProyecto();
 
         if (!carpeta) {
-
             status.innerHTML = "Operación cancelada.";
-
             return;
-
         }
 
         carpetaSeleccionada = carpeta;
 
         status.innerHTML = "Importando proyecto...";
 
-        const proyecto =
-            await window.companion.importarProyecto(carpeta);
+        const proyecto = await window.companion.importarProyecto(carpeta);
 
         proyectoSeleccionado = proyecto;
 
@@ -48,14 +43,11 @@ selectProjectButton.addEventListener("click", async () => {
         mostrarProyecto(proyecto);
 
         analyzeButton.disabled = false;
-
         exportButton.disabled = true;
 
-        status.innerHTML = "✓ Proyecto listo para análisis.";
+        status.innerHTML = "✓ Proyecto listo para ejecutar el flujo editorial completo.";
 
-    }
-
-    catch (error) {
+    } catch (error) {
 
         console.error(error);
 
@@ -63,16 +55,13 @@ selectProjectButton.addEventListener("click", async () => {
         carpetaSeleccionada = null;
 
         analyzeButton.disabled = true;
-
         exportButton.disabled = true;
 
-        status.innerHTML =
-            "❌ Error importando el proyecto.";
+        status.innerHTML = "❌ Error importando el proyecto.";
 
     }
 
 });
-
 
 //==================================================
 // MOSTRAR PROYECTO
@@ -81,39 +70,14 @@ selectProjectButton.addEventListener("click", async () => {
 function mostrarProyecto(proyecto) {
 
     projectPanel.innerHTML = `
-
         <h2>📁 ${proyecto.nombre}</h2>
 
-        <p>
-            <strong>Código:</strong>
-            ${proyecto.codigo || "Pendiente de generar"}
-        </p>
-
-        <p>
-            <strong>Cliente:</strong>
-            ${proyecto.cliente || "Sin información"}
-        </p>
-
-        <p>
-            <strong>Ciudad:</strong>
-            ${proyecto.ciudad || "Sin información"}
-        </p>
-
-        <p>
-            <strong>Estado:</strong>
-            ${proyecto.estado || "Sin información"}
-        </p>
-
-        <p>
-            <strong>Fotografías:</strong>
-            ${proyecto.listaFotografias.length}
-        </p>
-
-        <p>
-            <strong>Hero:</strong>
-            ${proyecto.heroImagen?.nombre || "No definido"}
-        </p>
-
+        <p><strong>Código:</strong> ${proyecto.codigo || "Pendiente de generar"}</p>
+        <p><strong>Cliente:</strong> ${proyecto.cliente || "Sin información"}</p>
+        <p><strong>Ciudad:</strong> ${proyecto.ciudad || "Sin información"}</p>
+        <p><strong>Estado:</strong> ${proyecto.estado || "Sin información"}</p>
+        <p><strong>Fotografías:</strong> ${proyecto.listaFotografias.length}</p>
+        <p><strong>Hero:</strong> ${proyecto.heroImagen?.nombre || "No definido"}</p>
         <p>
             <strong>Galería:</strong>
             ${proyecto.galeria?.length || 0}
@@ -128,38 +92,21 @@ function mostrarProyecto(proyecto) {
                 ${(proyecto.expediente.espacios || []).join(", ") || "Ninguno"}
             </p>
         ` : ""}
-
     `;
-
 
     let html = `
-
         <h2>Fotografías</h2>
-
         <div class="photoGrid">
-
     `;
-
 
     proyecto.listaFotografias.forEach(foto => {
 
-        const rutaImagen =
-            "file://" + foto.ruta.replace(/\\/g, "/");
+        const rutaImagen = "file://" + foto.ruta.replace(/\\/g, "/");
 
         html += `
-
             <div class="photoCard">
-
-                <img
-                    src="${rutaImagen}"
-                    alt="${foto.nombre}"
-                >
-
-                <div class="photoName">
-
-                    ${foto.nombre}
-
-                </div>
+                <img src="${rutaImagen}" alt="${foto.nombre}">
+                <div class="photoName">${foto.nombre}</div>
 
                 ${foto.analizada ? `
                     <div class="photoAnalysis">
@@ -167,83 +114,179 @@ function mostrarProyecto(proyecto) {
                         ${foto.plano ? ` · ${foto.plano}` : ""}
                     </div>
                 ` : ""}
-
             </div>
-
         `;
 
     });
 
-
-    html += `
-
-        </div>
-
-    `;
-
+    html += `</div>`;
     photoPanel.innerHTML = html;
 
 }
 
-
 //==================================================
-// ANALIZAR FOTOGRAFÍAS
+// EJECUTAR COMPANION — PIPELINE COMPLETO
 //==================================================
 
 analyzeButton.addEventListener("click", async () => {
 
     if (!proyectoSeleccionado || !carpetaSeleccionada) {
-
-        status.innerHTML =
-            "⚠️ Primero debes seleccionar un proyecto.";
-
+        status.innerHTML = "⚠️ Primero debes seleccionar un proyecto.";
         return;
-
     }
 
     try {
 
         analyzeButton.disabled = true;
+        selectProjectButton.disabled = true;
         exportButton.disabled = true;
 
         status.innerHTML = `
-            Analizando fotografías de
+            Ejecutando <strong>MUBATO CMS Companion</strong> para
             <strong>${proyectoSeleccionado.nombre}</strong>...
             <br><br>
-            Vision está trabajando. Esto puede tardar.
+            1. Vision analizará las fotografías.<br>
+            2. Se construirá la evidencia visual.<br>
+            3. Editorial Proyecto V2.2 generará el contenido.<br>
+            4. Se generará la Salida Editorial CSV.
+            <br><br>
+            <strong>No cierres la aplicación durante el proceso.</strong>
         `;
 
         const resultado =
-            await window.companion.analizarProyecto(carpetaSeleccionada);
+            await window.companion.ejecutarProyecto(carpetaSeleccionada);
 
         proyectoSeleccionado = resultado;
 
-        mostrarProyecto(resultado);
+        mostrarResultadoEditorial(resultado);
 
         status.innerHTML = `
-            <strong>✓ Análisis completado.</strong>
+            <strong>✓ COMPANION COMPLETADO.</strong>
             <br><br>
-            Fotografías analizadas:
-            ${resultado.listaFotografias.length}
-            <br>
-            Expediente construido correctamente.
+            Proyecto: <strong>${resultado.nombre}</strong><br>
+            Fotografías analizadas: <strong>${resultado.listaFotografias.length}</strong><br>
+            Llamadas IA: <strong>${resultado.editorial?.llamadasIA || 0}</strong><br>
+            Salida Editorial CSV: <strong>generada correctamente</strong>
         `;
 
+        exportButton.disabled = !resultado.salidaEditorialCSV?.rutaSalida;
         analyzeButton.disabled = false;
+        selectProjectButton.disabled = false;
 
-    }
-
-    catch (error) {
+    } catch (error) {
 
         console.error(error);
 
         analyzeButton.disabled = false;
+        selectProjectButton.disabled = false;
         exportButton.disabled = true;
 
         status.innerHTML = `
-            ❌ Error durante el análisis.
-            <br>
-            Revisa la consola para ver el detalle.
+            ❌ <strong>El flujo editorial no pudo completarse.</strong>
+            <br><br>
+            ${error.message || "Revisa la consola para ver el detalle."}
+        `;
+
+    }
+
+});
+
+//==================================================
+// MOSTRAR RESULTADO EDITORIAL
+//==================================================
+
+function mostrarResultadoEditorial(resultado) {
+
+    const editorial = resultado.editorial;
+
+    if (!editorial) {
+        throw new Error("Electron recibió el proyecto pero no recibió resultado editorial.");
+    }
+
+    projectPanel.innerHTML = `
+        <h2>✓ ${resultado.nombre}</h2>
+
+        <p><strong>Código MUBATO:</strong> ${editorial.codigo || resultado.codigo || ""}</p>
+        <p><strong>Cliente:</strong> ${resultado.cliente || "Sin información"}</p>
+        <p><strong>Ciudad:</strong> ${resultado.ciudad || "Sin información"}</p>
+        <p><strong>Slug:</strong> ${editorial.slug}</p>
+
+        <hr>
+
+        <h3>Hero</h3>
+        <p>${editorial.heroTexto}</p>
+
+        <h3>Historia Editorial</h3>
+        <p>${editorial.historia}</p>
+
+        <h3>Descripción CMS</h3>
+        <p>${editorial.descripcion}</p>
+
+        <h3>SEO</h3>
+        <p><strong>SEO Title:</strong> ${editorial.seo?.seoTitle || ""}</p>
+        <p><strong>Meta Description:</strong> ${editorial.seo?.metaDescription || ""}</p>
+
+        <h3>Salida Editorial CSV</h3>
+        <p>${resultado.salidaEditorialCSV?.rutaSalida || "No generada"}</p>
+    `;
+
+    let html = `
+        <h2>Galería Editorial</h2>
+        <p><strong>${editorial.galeriaEditorial.length}</strong> fotografías editoriales.</p>
+    `;
+
+    editorial.galeriaEditorial.forEach((foto, indice) => {
+
+        html += `
+            <div class="photoCard">
+                <div class="photoName">
+                    ${indice + 1}. ${foto.fileName}
+                </div>
+                <div class="photoAnalysis">
+                    <strong>Title:</strong> ${foto.title}<br>
+                    <strong>Description:</strong> ${foto.description}<br>
+                    <strong>ALT:</strong> ${foto.alt}<br>
+                    <strong>nombreSEO:</strong> ${foto.nombreSEO}<br>
+                    <strong>Keywords:</strong> ${(foto.keywords || []).join(", ")}
+                </div>
+            </div>
+        `;
+
+    });
+
+    photoPanel.innerHTML = html;
+
+}
+
+//==================================================
+// MOSTRAR CSV EN FINDER
+//==================================================
+
+exportButton.addEventListener("click", async () => {
+
+    const rutaSalida = proyectoSeleccionado?.salidaEditorialCSV?.rutaSalida;
+
+    if (!rutaSalida) {
+        status.innerHTML = "⚠️ No existe una salida editorial para mostrar.";
+        return;
+    }
+
+    try {
+
+        await window.companion.mostrarSalidaEditorial(rutaSalida);
+
+        status.innerHTML = `
+            ✓ Salida Editorial localizada en Finder.<br><br>
+            <strong>${rutaSalida}</strong>
+        `;
+
+    } catch (error) {
+
+        console.error(error);
+
+        status.innerHTML = `
+            ❌ No fue posible mostrar la salida editorial.<br>
+            ${error.message || "Revisa la consola."}
         `;
 
     }
