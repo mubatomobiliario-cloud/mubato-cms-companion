@@ -1,17 +1,17 @@
 # MUBATO CMS Companion — Estado del Proyecto
 
 <!-- CONTINUIDAD_AUTO_START -->
-- Generado automáticamente: `2026-08-29 21:59:55.202Z`
-- Commit observado: `dc7874d`
+- Generado automáticamente: `2026-08-29 22:00:19.644Z`
+- Commit observado: `87f2cb4`
 - Rama: `feat/csv-editorial-v1`
 - Archivos versionados: `141`
 - Verificaciones: **OK** — canon documental, bifurcación Parser, contrato de salida y campos Wix protegidos.
 - Últimos commits:
+  - 87f2cb4 — 2026-08-29 — Actualizar interfaz Electron para ejecución completa
+  - 8bcc905 — 2026-08-29 — Ejecutar pipeline editorial completo desde Electron
+  - e8663f2 — 2026-08-29 — chore(continuidad): update canonical checkpoint
   - dc7874d — 2026-08-29 — Exponer ejecución editorial completa a Electron
   - 99d6021 — 2026-08-29 — Conectar Electron al pipeline editorial completo
-  - 90fd82f — 2026-08-29 — chore(continuidad): update canonical checkpoint
-  - 1a6be94 — 2026-08-29 — Consolidar Editorial V2.2, Galería y SEO
-  - f0f4bfa — 2026-08-26 — feat: conectar catalogo de servicios al editorial
 <!-- CONTINUIDAD_AUTO_END -->
 
 > Documento canónico de continuidad. Describe el estado real del repositorio y las decisiones editoriales vigentes.
