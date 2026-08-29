@@ -17,7 +17,7 @@ const Papa = require("papaparse");
  * - Las dos columnas originales "Historias de Transformación" son SIEMPRE protegidas.
  * - "Hero Imágen" es SIEMPRE protegida y nunca es escrita por Editorial.
  * - "Galería General" recibe exclusivamente la galería editorial ya seleccionada.
- * - "Historia" es un campo Companion nuevo; nunca sustituye ni toca las columnas originales.
+ * - "Historia" es un campo editorial Wix existente y autorizado para actualización.
  * - "Hero Texto" es el campo Wix real para heroTexto.
  * - La Galería General recibe únicamente la proyección física Wix de cada fotografía; los metadatos editoriales internos permanecen fuera de este campo.
  * - Verifica que los campos protegidos permanezcan intactos.
@@ -29,6 +29,7 @@ class SalidaEditorialCSV {
     static CAMPOS_WIX_EDITABLES = Object.freeze([
         "Código MUBATO",
         "Hero Texto",
+        "Historia",
         "Descripción",
         "Servicios",
         "Slug",
@@ -37,7 +38,6 @@ class SalidaEditorialCSV {
         "Galería General"
     ]);
 
-    static CAMPO_HISTORIA_COMPANION = "Historia";
     static CAMPOS_IDENTIDAD = Object.freeze(["ID", "Proyecto"]);
     static CAMPOS_PROTEGIDOS_POR_REGLA = Object.freeze([
         "Historias de Transformación",
@@ -74,15 +74,6 @@ class SalidaEditorialCSV {
 
         for (const [campo, valor] of Object.entries(cambios)) {
             if (valor === undefined || valor === null) continue;
-
-            if (campo === SalidaEditorialCSV.CAMPO_HISTORIA_COMPANION && indice.unicas[campo] === undefined) {
-                encabezados.push(campo);
-                filasDatos.forEach((filaExistente, indiceFila) => {
-                    filaExistente.push(indiceFila === posicionFila ? this.serializar(valor) : "");
-                });
-                camposActualizados.push(campo);
-                continue;
-            }
 
             const posicion = indice.unicas[campo];
             if (posicion === undefined) {
@@ -134,11 +125,6 @@ class SalidaEditorialCSV {
             if (indice.unicas[campo] === undefined) {
                 throw new Error(`El contrato editorial exige el campo Wix "${campo}", pero no existe como cabecera única en el CSV.`);
             }
-        }
-
-        const historiaOriginal = indice.todas[SalidaEditorialCSV.CAMPO_HISTORIA_COMPANION];
-        if (historiaOriginal && historiaOriginal.length > 0) {
-            throw new Error(`El campo Companion "${SalidaEditorialCSV.CAMPO_HISTORIA_COMPANION}" ya existe en el CSV; se requiere una columna nueva inequívoca para evitar colisión con campos originales.`);
         }
 
         for (const campo of SalidaEditorialCSV.CAMPOS_PROTEGIDOS_POR_REGLA) {
