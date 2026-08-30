@@ -1,17 +1,17 @@
 # MUBATO CMS Companion — Estado del Proyecto
 
 <!-- CONTINUIDAD_AUTO_START -->
-- Generado automáticamente: `2026-08-30 00:41:36.499Z`
-- Commit observado: `56b9ff8`
+- Generado automáticamente: `2026-08-30 00:42:05.106Z`
+- Commit observado: `c2ffd0c`
 - Rama: `feat/csv-editorial-v1`
 - Archivos versionados: `141`
 - Verificaciones: **OK** — canon documental, bifurcación Parser, contrato de salida y campos Wix protegidos.
 - Últimos commits:
+  - c2ffd0c — 2026-08-29 — feat(ui): estilizar consola de ejecucion
+  - 2a3ee37 — 2026-08-29 — feat(ui): agregar consola visual de ejecucion
+  - e4f5803 — 2026-08-30 — chore(continuidad): update canonical checkpoint
   - 56b9ff8 — 2026-08-29 — feat(ui): seleccionar CSV fuente y mostrar consola real
   - 37614d3 — 2026-08-30 — chore(continuidad): update canonical checkpoint
-  - b572028 — 2026-08-29 — feat(electron): exponer seleccion de CSV y consola de ejecucion
-  - 76b4347 — 2026-08-29 — feat(electron): seleccionar CSV y transmitir consola de ejecucion
-  - 3b92da2 — 2026-08-30 — chore(continuidad): update canonical checkpoint
 <!-- CONTINUIDAD_AUTO_END -->
 
 > Documento canónico de continuidad. Describe el estado real del repositorio y las decisiones editoriales vigentes.
