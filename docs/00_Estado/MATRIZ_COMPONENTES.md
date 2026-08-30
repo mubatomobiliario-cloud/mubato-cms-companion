@@ -1,17 +1,17 @@
 # MUBATO CMS Companion — Matriz Viva de Componentes
 
 <!-- CONTINUIDAD_AUTO_START -->
-- Generado automáticamente: `2026-08-30 00:40:59.846Z`
-- Commit observado: `15c3a31`
+- Generado automáticamente: `2026-08-30 00:41:21.186Z`
+- Commit observado: `b572028`
 - Rama: `feat/csv-editorial-v1`
 - Archivos versionados: `141`
 - Verificaciones: **OK** — canon documental, bifurcación Parser, contrato de salida y campos Wix protegidos.
 - Últimos commits:
+  - b572028 — 2026-08-29 — feat(electron): exponer seleccion de CSV y consola de ejecucion
+  - 76b4347 — 2026-08-29 — feat(electron): seleccionar CSV y transmitir consola de ejecucion
+  - 3b92da2 — 2026-08-30 — chore(continuidad): update canonical checkpoint
   - 15c3a31 — 2026-08-29 — feat(importacion): seleccionar CSV fuente explicitamente
   - ca7f85c — 2026-08-29 — chore(continuidad): update canonical checkpoint
-  - 7673f8c — 2026-08-29 — fix(csv): actualizar Historia existente de Wix
-  - e54df08 — 2026-08-29 — chore(continuidad): update canonical checkpoint
-  - 87f2cb4 — 2026-08-29 — Actualizar interfaz Electron para ejecución completa
 <!-- CONTINUIDAD_AUTO_END -->
 
 > Documento canónico de estado funcional. Se actualiza con cada cambio significativo.
