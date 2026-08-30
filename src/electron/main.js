@@ -1,29 +1,63 @@
 const { app, BrowserWindow, ipcMain, dialog, shell } = require("electron");
 const path = require("path");
+const { format } = require("util");
 const Parser = require("../core/parser");
 const DirectorProyecto = require("../workflow/directorProyecto");
 
 let ventanaPrincipal = null;
 
+function emitirProgreso(...args) {
+    if (
+        ventanaPrincipal &&
+        !ventanaPrincipal.isDestroyed() &&
+        ventanaPrincipal.webContents
+    ) {
+        ventanaPrincipal.webContents.send("progresoEjecucion", format(...args));
+    }
+}
+
+async function ejecutarConConsolaVisible(fn) {
+    const logOriginal = console.log;
+    const errorOriginal = console.error;
+    const warnOriginal = console.warn;
+
+    console.log = (...args) => {
+        logOriginal(...args);
+        emitirProgreso(...args);
+    };
+
+    console.error = (...args) => {
+        errorOriginal(...args);
+        emitirProgreso("ERROR:", ...args);
+    };
+
+    console.warn = (...args) => {
+        warnOriginal(...args);
+        emitirProgreso("ADVERTENCIA:", ...args);
+    };
+
+    try {
+        return await fn();
+    } finally {
+        console.log = logOriginal;
+        console.error = errorOriginal;
+        console.warn = warnOriginal;
+    }
+}
+
 function crearVentanaPrincipal() {
 
     ventanaPrincipal = new BrowserWindow({
-
         width: 1400,
         height: 900,
-
         show: false,
-
         title: "MUBATO CMS Companion",
-
         autoHideMenuBar: true,
-
         webPreferences: {
             contextIsolation: true,
             nodeIntegration: false,
             preload: path.join(__dirname, "preload.js")
         }
-
     });
 
     ventanaPrincipal.loadFile(
@@ -40,7 +74,6 @@ function crearVentanaPrincipal() {
     });
 
     ventanaPrincipal.webContents.openDevTools();
-
 }
 
 app.whenReady().then(() => {
@@ -48,11 +81,9 @@ app.whenReady().then(() => {
     crearVentanaPrincipal();
 
     app.on("activate", () => {
-
         if (BrowserWindow.getAllWindows().length === 0) {
             crearVentanaPrincipal();
         }
-
     });
 
 });
@@ -68,15 +99,42 @@ ipcMain.handle("seleccionarProyecto", async () => {
     }
 
     return resultado.filePaths[0];
+});
 
+ipcMain.handle("seleccionarCSV", async (event, carpeta) => {
+
+    if (!carpeta) {
+        throw new Error("No se recibió la carpeta del proyecto.");
+    }
+
+    const resultado = await dialog.showOpenDialog({
+        defaultPath: carpeta,
+        properties: ["openFile"],
+        filters: [
+            { name: "Archivos CSV", extensions: ["csv"] }
+        ]
+    });
+
+    if (resultado.canceled) {
+        return null;
+    }
+
+    const rutaCSV = path.resolve(resultado.filePaths[0]);
+    const rutaCarpeta = path.resolve(carpeta);
+
+    if (path.dirname(rutaCSV) !== rutaCarpeta) {
+        throw new Error(
+            "El CSV seleccionado debe estar dentro de la carpeta del proyecto."
+        );
+    }
+
+    return rutaCSV;
 });
 
 app.on("window-all-closed", () => {
-
     if (process.platform !== "darwin") {
         app.quit();
     }
-
 });
 
 function serializarProyecto(proyecto) {
@@ -85,7 +143,6 @@ function serializarProyecto(proyecto) {
     const galeria = proyecto.obtenerGaleria();
 
     return {
-
         nombre: proyecto.nombre,
         codigo: proyecto.codigo,
         cliente: proyecto.cliente,
@@ -94,6 +151,7 @@ function serializarProyecto(proyecto) {
         categoria: proyecto.categoria,
         servicios: proyecto.servicios,
         espacios: proyecto.espacios,
+        csvFuente: proyecto.rutaCSV || null,
 
         heroImagen: hero ? {
             nombre: hero.nombre,
@@ -120,9 +178,7 @@ function serializarProyecto(proyecto) {
             enGaleria: foto.enGaleria,
             esHero: foto.esHero
         }))
-
     };
-
 }
 
 function serializarResultadoEditorial(proyecto) {
@@ -130,15 +186,11 @@ function serializarResultadoEditorial(proyecto) {
     const editorial = proyecto.resultadoEditorial;
 
     return {
-
         ...serializarProyecto(proyecto),
-
         expediente: proyecto.expediente || null,
-
         salidaEditorialCSV: proyecto.salidaEditorialCSV ? {
             rutaSalida: proyecto.salidaEditorialCSV.rutaSalida || null
         } : null,
-
         editorial: editorial ? {
             versionEditorial: editorial.versionEditorial || null,
             codigo: editorial.codigo || null,
@@ -166,44 +218,57 @@ function serializarResultadoEditorial(proyecto) {
             llamadasIA: editorial.llamadasIA || 0,
             telemetria: editorial.telemetria || null
         } : null
-
     };
-
 }
 
-ipcMain.handle("importarProyecto", async (event, carpeta) => {
+ipcMain.handle("importarProyecto", async (event, carpeta, rutaCSV) => {
 
     const parser = new Parser();
-    const proyecto = parser.importarCarpeta(carpeta);
+    const proyecto = parser.importarCarpeta(carpeta, rutaCSV);
     const resultado = serializarProyecto(proyecto);
 
     console.log("IMPORTACIÓN COMPLETADA");
     console.log("Proyecto:", resultado.nombre);
+    console.log("CSV fuente:", resultado.csvFuente);
     console.log("Hero:", resultado.heroImagen ? resultado.heroImagen.nombre : "NINGUNO");
     console.log("Galería:", resultado.galeria.map(foto => foto.nombre));
 
     return resultado;
-
 });
 
-ipcMain.handle("ejecutarProyecto", async (event, carpeta) => {
+ipcMain.handle("ejecutarProyecto", async (event, carpeta, rutaCSV) => {
 
     if (!carpeta) {
         throw new Error("No se recibió una carpeta de proyecto.");
     }
 
-    const parser = new Parser();
-    const proyecto = parser.importarCarpeta(carpeta);
-    const director = new DirectorProyecto();
+    if (!rutaCSV) {
+        throw new Error("No se recibió el CSV fuente del proyecto.");
+    }
 
-    const resultado = await director.ejecutar(proyecto);
+    return ejecutarConConsolaVisible(async () => {
+        emitirProgreso("");
+        emitirProgreso("======================================");
+        emitirProgreso("MUBATO COMPANION — EJECUCIÓN");
+        emitirProgreso("======================================");
+        emitirProgreso(`CSV fuente: ${rutaCSV}`);
 
-    console.log("EJECUCIÓN COMPLETA — ELECTRON");
-    console.log("Proyecto:", resultado.nombre);
-    console.log("Salida Editorial:", resultado.salidaEditorialCSV?.rutaSalida || "NO GENERADA");
+        const parser = new Parser();
+        const proyecto = parser.importarCarpeta(carpeta, rutaCSV);
+        const director = new DirectorProyecto();
 
-    return serializarResultadoEditorial(resultado);
+        const resultado = await director.ejecutar(proyecto);
 
+        console.log("EJECUCIÓN COMPLETA — ELECTRON");
+        console.log("Proyecto:", resultado.nombre);
+        console.log("Salida Editorial:", resultado.salidaEditorialCSV?.rutaSalida || "NO GENERADA");
+
+        emitirProgreso("======================================");
+        emitirProgreso("✓ COMPANION COMPLETADO");
+        emitirProgreso("======================================");
+
+        return serializarResultadoEditorial(resultado);
+    });
 });
 
 ipcMain.handle("mostrarSalidaEditorial", async (event, rutaSalida) => {
@@ -215,5 +280,4 @@ ipcMain.handle("mostrarSalidaEditorial", async (event, rutaSalida) => {
     shell.showItemInFolder(rutaSalida);
 
     return true;
-
 });
