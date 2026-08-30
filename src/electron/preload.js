@@ -8,18 +8,35 @@ contextBridge.exposeInMainWorld("companion", {
         return ipcRenderer.invoke("seleccionarProyecto");
     },
 
-    importarProyecto(carpeta) {
+    seleccionarCSV(carpeta) {
+        return ipcRenderer.invoke("seleccionarCSV", carpeta);
+    },
+
+    importarProyecto(carpeta, rutaCSV) {
         return ipcRenderer.invoke(
             "importarProyecto",
-            carpeta
+            carpeta,
+            rutaCSV
         );
     },
 
-    ejecutarProyecto(carpeta) {
+    ejecutarProyecto(carpeta, rutaCSV) {
         return ipcRenderer.invoke(
             "ejecutarProyecto",
-            carpeta
+            carpeta,
+            rutaCSV
         );
+    },
+
+    onProgreso(callback) {
+        if (typeof callback !== "function") return () => {};
+
+        const listener = (event, mensaje) => callback(mensaje);
+        ipcRenderer.on("progresoEjecucion", listener);
+
+        return () => {
+            ipcRenderer.removeListener("progresoEjecucion", listener);
+        };
     },
 
     mostrarSalidaEditorial(rutaSalida) {
