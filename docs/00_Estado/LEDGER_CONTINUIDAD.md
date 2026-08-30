@@ -1,17 +1,17 @@
 # MUBATO CMS Companion — Ledger de Continuidad
 
 <!-- CONTINUIDAD_AUTO_START -->
-- Generado automáticamente: `2026-08-30 00:41:21.186Z`
-- Commit observado: `b572028`
+- Generado automáticamente: `2026-08-30 00:41:36.499Z`
+- Commit observado: `56b9ff8`
 - Rama: `feat/csv-editorial-v1`
 - Archivos versionados: `141`
 - Verificaciones: **OK** — canon documental, bifurcación Parser, contrato de salida y campos Wix protegidos.
 - Últimos commits:
+  - 56b9ff8 — 2026-08-29 — feat(ui): seleccionar CSV fuente y mostrar consola real
+  - 37614d3 — 2026-08-30 — chore(continuidad): update canonical checkpoint
   - b572028 — 2026-08-29 — feat(electron): exponer seleccion de CSV y consola de ejecucion
   - 76b4347 — 2026-08-29 — feat(electron): seleccionar CSV y transmitir consola de ejecucion
   - 3b92da2 — 2026-08-30 — chore(continuidad): update canonical checkpoint
-  - 15c3a31 — 2026-08-29 — feat(importacion): seleccionar CSV fuente explicitamente
-  - ca7f85c — 2026-08-29 — chore(continuidad): update canonical checkpoint
 <!-- CONTINUIDAD_AUTO_END -->
 
 > Cronología canónica de decisiones, implementaciones y validaciones significativas. No sustituye la Matriz Viva ni el Estado del Proyecto.
