@@ -5,18 +5,42 @@ const exportButton = document.getElementById("exportButton");
 const status = document.getElementById("status");
 const projectPanel = document.getElementById("projectPanel");
 const photoPanel = document.getElementById("photoPanel");
+const executionPanel = document.getElementById("executionPanel");
+const executionConsole = document.getElementById("executionConsole");
 
 let proyectoSeleccionado = null;
 let carpetaSeleccionada = null;
+let csvSeleccionado = null;
+
+function agregarLog(mensaje) {
+    if (!executionConsole) return;
+
+    const texto = String(mensaje ?? "");
+    executionConsole.textContent += `${texto}\n`;
+    executionConsole.scrollTop = executionConsole.scrollHeight;
+
+    if (executionPanel) {
+        executionPanel.hidden = false;
+    }
+}
+
+if (window.companion.onProgreso) {
+    window.companion.onProgreso(agregarLog);
+}
+
+function limpiarConsola() {
+    if (executionConsole) {
+        executionConsole.textContent = "";
+    }
+}
 
 //==================================================
-// SELECCIONAR PROYECTO
+// SELECCIONAR PROYECTO Y CSV FUENTE
 //==================================================
 
 selectProjectButton.addEventListener("click", async () => {
 
     try {
-
         status.innerHTML = "Seleccionando proyecto...";
 
         const carpeta = await window.companion.seleccionarProyecto();
@@ -28,14 +52,29 @@ selectProjectButton.addEventListener("click", async () => {
 
         carpetaSeleccionada = carpeta;
 
+        status.innerHTML = "Selecciona ahora el CSV fuente de Wix...";
+
+        const rutaCSV = await window.companion.seleccionarCSV(carpeta);
+
+        if (!rutaCSV) {
+            carpetaSeleccionada = null;
+            status.innerHTML = "Operación cancelada: no se seleccionó CSV.";
+            return;
+        }
+
+        csvSeleccionado = rutaCSV;
         status.innerHTML = "Importando proyecto...";
 
-        const proyecto = await window.companion.importarProyecto(carpeta);
+        const proyecto = await window.companion.importarProyecto(
+            carpeta,
+            rutaCSV
+        );
 
         proyectoSeleccionado = proyecto;
 
         console.log("IMPORTACIÓN COMPLETADA — RENDERER");
         console.log("Proyecto:", proyecto.nombre);
+        console.log("CSV fuente:", proyecto.csvFuente);
         console.log("Hero:", proyecto.heroImagen);
         console.log("Galería:", proyecto.galeria);
         console.log("Fotografías:", proyecto.listaFotografias);
@@ -45,7 +84,10 @@ selectProjectButton.addEventListener("click", async () => {
         analyzeButton.disabled = false;
         exportButton.disabled = true;
 
-        status.innerHTML = "✓ Proyecto listo para ejecutar el flujo editorial completo.";
+        status.innerHTML = `
+            ✓ Proyecto listo para ejecutar.<br><br>
+            <strong>CSV fuente:</strong> ${rutaCSV}
+        `;
 
     } catch (error) {
 
@@ -53,12 +95,15 @@ selectProjectButton.addEventListener("click", async () => {
 
         proyectoSeleccionado = null;
         carpetaSeleccionada = null;
+        csvSeleccionado = null;
 
         analyzeButton.disabled = true;
         exportButton.disabled = true;
 
-        status.innerHTML = "❌ Error importando el proyecto.";
-
+        status.innerHTML = `
+            ❌ <strong>Error importando el proyecto.</strong><br><br>
+            ${error.message || "Revisa la consola."}
+        `;
     }
 
 });
@@ -76,6 +121,7 @@ function mostrarProyecto(proyecto) {
         <p><strong>Cliente:</strong> ${proyecto.cliente || "Sin información"}</p>
         <p><strong>Ciudad:</strong> ${proyecto.ciudad || "Sin información"}</p>
         <p><strong>Estado:</strong> ${proyecto.estado || "Sin información"}</p>
+        <p><strong>CSV fuente:</strong> ${proyecto.csvFuente || csvSeleccionado || "No definido"}</p>
         <p><strong>Fotografías:</strong> ${proyecto.listaFotografias.length}</p>
         <p><strong>Hero:</strong> ${proyecto.heroImagen?.nombre || "No definido"}</p>
         <p>
@@ -130,8 +176,8 @@ function mostrarProyecto(proyecto) {
 
 analyzeButton.addEventListener("click", async () => {
 
-    if (!proyectoSeleccionado || !carpetaSeleccionada) {
-        status.innerHTML = "⚠️ Primero debes seleccionar un proyecto.";
+    if (!proyectoSeleccionado || !carpetaSeleccionada || !csvSeleccionado) {
+        status.innerHTML = "⚠️ Primero debes seleccionar proyecto y CSV fuente.";
         return;
     }
 
@@ -141,20 +187,20 @@ analyzeButton.addEventListener("click", async () => {
         selectProjectButton.disabled = true;
         exportButton.disabled = true;
 
+        limpiarConsola();
+        if (executionPanel) executionPanel.hidden = false;
+
         status.innerHTML = `
             Ejecutando <strong>MUBATO CMS Companion</strong> para
-            <strong>${proyectoSeleccionado.nombre}</strong>...
-            <br><br>
-            1. Vision analizará las fotografías.<br>
-            2. Se construirá la evidencia visual.<br>
-            3. Editorial Proyecto V2.2 generará el contenido.<br>
-            4. Se generará la Salida Editorial CSV.
-            <br><br>
-            <strong>No cierres la aplicación durante el proceso.</strong>
+            <strong>${proyectoSeleccionado.nombre}</strong>...<br><br>
+            <strong>La consola inferior mostrará el proceso real.</strong>
         `;
 
         const resultado =
-            await window.companion.ejecutarProyecto(carpetaSeleccionada);
+            await window.companion.ejecutarProyecto(
+                carpetaSeleccionada,
+                csvSeleccionado
+            );
 
         proyectoSeleccionado = resultado;
 
@@ -186,7 +232,6 @@ analyzeButton.addEventListener("click", async () => {
             <br><br>
             ${error.message || "Revisa la consola para ver el detalle."}
         `;
-
     }
 
 });
@@ -209,6 +254,7 @@ function mostrarResultadoEditorial(resultado) {
         <p><strong>Código MUBATO:</strong> ${editorial.codigo || resultado.codigo || ""}</p>
         <p><strong>Cliente:</strong> ${resultado.cliente || "Sin información"}</p>
         <p><strong>Ciudad:</strong> ${resultado.ciudad || "Sin información"}</p>
+        <p><strong>CSV fuente:</strong> ${resultado.csvFuente || csvSeleccionado || ""}</p>
         <p><strong>Slug:</strong> ${editorial.slug}</p>
 
         <hr>
@@ -288,7 +334,6 @@ exportButton.addEventListener("click", async () => {
             ❌ No fue posible mostrar la salida editorial.<br>
             ${error.message || "Revisa la consola."}
         `;
-
     }
 
 });
