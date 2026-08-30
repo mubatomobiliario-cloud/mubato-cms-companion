@@ -25,17 +25,46 @@ class Parser {
     buscarCSV(rutaCarpeta) {
         const archivos = fs.readdirSync(rutaCarpeta);
 
-        const archivoCSV = archivos.find(archivo =>
+        const archivosCSV = archivos.filter(archivo =>
             archivo.toLowerCase().endsWith(".csv")
         );
 
-        if (!archivoCSV) {
+        const archivosEntrada = archivosCSV.filter(archivo =>
+            !/_Editorial_\d+\.csv$/i.test(archivo)
+        );
+
+        if (archivosEntrada.length === 0) {
             throw new Error(
-                "No se encontró ningún archivo CSV en la carpeta."
+                "No se encontró un CSV fuente de Wix en la carpeta del proyecto."
             );
         }
 
-        return path.join(rutaCarpeta, archivoCSV);
+        if (archivosEntrada.length > 1) {
+            throw new Error(
+                `Se encontraron varios CSV fuente posibles: ${archivosEntrada.join(", ")}. Selecciona el CSV de origen explícitamente.`
+            );
+        }
+
+        return path.join(rutaCarpeta, archivosEntrada[0]);
+    }
+
+    validarRutaCSV(rutaCSV, rutaCarpeta) {
+        if (!rutaCSV) {
+            throw new Error("No se recibió un CSV fuente.");
+        }
+
+        const csv = path.resolve(rutaCSV);
+        const carpeta = path.resolve(rutaCarpeta);
+
+        if (path.dirname(csv) !== carpeta) {
+            throw new Error(
+                "El CSV seleccionado debe estar dentro de la carpeta del proyecto."
+            );
+        }
+
+        if (!csv.toLowerCase().endsWith(".csv")) {
+            throw new Error("El archivo seleccionado no es un CSV.");
+        }
     }
 
     buscarProyectoPendiente(filas) {
@@ -102,6 +131,8 @@ class Parser {
     }
 
     importarProyecto(rutaCSV, carpetaProyecto) {
+        this.validarRutaCSV(rutaCSV, carpetaProyecto);
+
         const filas = this.leerCSV(rutaCSV);
 
         if (filas.length === 0) {
@@ -157,10 +188,6 @@ class Parser {
         proyecto.observaciones =
             String(filaProyecto["Observaciones"] || "");
 
-        /*
-         * La fila ya contiene el Código MUBATO generado.
-         * Se conserva como la fila CSV de trabajo del proyecto.
-         */
         proyecto.filaCSV = {
             ...filaProyecto
         };
@@ -174,12 +201,11 @@ class Parser {
         return proyecto;
     }
 
-    importarCarpeta(rutaCarpeta) {
-        const rutaCSV =
-            this.buscarCSV(rutaCarpeta);
+    importarCarpeta(rutaCarpeta, rutaCSV = null) {
+        const csvFuente = rutaCSV || this.buscarCSV(rutaCarpeta);
 
         return this.importarProyecto(
-            rutaCSV,
+            csvFuente,
             rutaCarpeta
         );
     }
