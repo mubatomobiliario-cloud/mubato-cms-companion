@@ -26,6 +26,25 @@ La memoria técnica oficial del proyecto vive exclusivamente en `docs/00_Estado/
 
 `docs/04_Guías/Estado_Proyecto.md` **no existe** y no es una ubicación alternativa de continuidad.
 
+## Prioridad del proyecto
+
+El camino crítico no es Portfolio. La prioridad es:
+
+1. **Terminar PROYECTO**.
+2. **Finiquitar COMPANION**.
+3. **Concluir y entregar el nuevo HOME de MUBATO**, único entregable válido.
+
+Las líneas secundarias no deben desplazar este orden.
+
+## Estados de continuidad
+
+- 🟢 **Cerrado / Comprobado** — contrato, implementación y prueba suficiente para el alcance actual.
+- 🔵 **Diseñado** — decisión o contrato cerrado, pero todavía no implementado.
+- 🟡 **En implementación / consolidación** — existe código o trabajo activo, pero el cierre todavía no está demostrado.
+- 🟠 **En validación** — implementación disponible, pendiente de prueba definitiva.
+- ⚪ **Pendiente** — todavía no iniciado.
+- 🔴 **Conflicto** — existe una contradicción que debe resolverse antes de continuar.
+
 | Componente | Responsabilidad | Estado | Contrato | Camino crítico |
 |---|---|---|---|---|
 | `core/parser.js` | Encontrar CSV/proyecto e iniciar importación y bifurcación editorial | 🟢 Comprobado | `Observaciones` vacía → PROYECTO; no vacía → PORTFOLIO | Sí |
@@ -56,9 +75,26 @@ La memoria técnica oficial del proyecto vive exclusivamente en `docs/00_Estado/
 | Historia Companion | Campo editorial de salida | 🟢 Comprobado | Columna independiente `Historia` | Sí |
 | **Bifurcación editorial** | Seleccionar pipeline | 🟢 Comprobado | `Observaciones` vacía → PROYECTO; no vacía → PORTFOLIO | Sí |
 | **Editorial Proyecto V2.2** | Narrar transformación | 🟢 Comprobado | Historia + Historia Web + Hero + SEO + foto + estructurados | Sí |
-| **Editorial Portfolio** | Describir/posicionar visualmente mobiliario | 🟡 Diseño acordado; implementación pendiente | Contrato por definir | Sí |
-| Optimización de consumo IA | Reducir llamadas/tokens sin degradar calidad | 🟡 Pendiente | Línea base: 9 llamadas / 15.290 tokens | Sí |
-| Continuidad documental | Estado + matriz + ledger | 🟢 Canon fijado y documentos sincronizados; automatización operacional pendiente de verificación | Tres documentos canónicos en `docs/00_Estado/` | Sí |
+| **Editorial Portfolio** | Describir/posicionar visualmente mobiliario | 🔵 Diseñado; implementación posterior | Capas VISION → REUNIR → ABRIR V0.1 → EXPRESAR V0.1 → VALIDAR V0.1 | No por ahora |
+| Optimización de consumo IA | Reducir llamadas/tokens sin degradar calidad | 🟡 Pendiente | Línea base: 9 llamadas / 15.290 tokens | Sí, después de PROYECTO |
+| Continuidad documental | Preservar memoria técnica y estado del proyecto | 🟢 Operativa; auditoría documental actualizada | Tres documentos canónicos en `docs/00_Estado/` | Sí |
+
+## Contratos Portfolio ya diseñados
+
+### VISION
+Observa y aporta evidencia. No decide selección, orden ni importancia editorial.
+
+### REUNIR
+Reconoce la variedad significativa de soluciones, características o posibilidades presentes en el conjunto. No se limita al número de fotografías.
+
+### ABRIR V0.1
+Identifica posibilidades de comunicación ancladas en observaciones de Vision. Una fotografía puede tener varias posibilidades o ninguna si la evidencia no las sostiene. La prioridad de una posibilidad no modifica el orden de la Galería.
+
+### EXPRESAR V0.1
+Expresa una posibilidad seleccionada mediante un **párrafo corto** con una sola idea editorial dominante. No enumera inventario, no repite discurso comercial genérico y no agota las posibilidades restantes.
+
+### VALIDAR V0.1
+No crea ni mejora contenido. Protege el contrato mediante controles de integridad, trazabilidad, fronteras entre capas, calidad editorial, diversidad de colección, respeto del orden de Galería y protección de la salida. Puede producir `APROBADO`, `ADVERTENCIA` o `RECHAZADO`.
 
 ## Reglas congeladas
 
@@ -76,11 +112,20 @@ La memoria técnica oficial del proyecto vive exclusivamente en `docs/00_Estado/
 12. El contrato de salida común se comparte únicamente después de que cada pipeline produzca su contrato editorial interno.
 13. La memoria técnica oficial vive exclusivamente en `docs/00_Estado/`.
 14. No se mantiene un segundo documento de estado del proyecto en otra ruta.
+15. La posición de una fotografía en la Galería no autoriza a inferir importancia, representatividad o calidad.
+16. El orden de Galería se conserva; la prioridad contextual no lo modifica.
+17. El contexto de mobiliario es una instrucción de observación, no una conclusión de Vision.
+18. Las posibilidades no seleccionadas de una fotografía no se destruyen.
+19. El Companion realiza su mejor esfuerzo editorial, pero no garantiza que el visitante continúe a la siguiente fotografía.
+20. **Economía circular de implementación:** reutilizar primero, adaptar después, crear solo cuando sea necesario.
+21. Ningún componente nuevo debe duplicar una capacidad existente que haya demostrado funcionar.
+22. Ningún cambio significativo se considera cerrado hasta que contrato, implementación, prueba y documentación estén sincronizados.
+23. La prioridad absoluta es PROYECTO → COMPANION → HOME MUBATO.
 
 ## Último cambio significativo
 
-Se incorporó al `Parser` la decisión binaria de tipo editorial. El último commit funcional de código es `9247fa9`. Posteriormente se sincronizó y auditó el sistema documental de continuidad; esos commits son documentales y no alteran el pipeline editorial.
+La bifurcación editorial binaria quedó incorporada al Parser. El último commit funcional de referencia es `9247fa9`. Los commits posteriores de interfaz y continuidad no sustituyen ese hito funcional.
 
 ## Próximo punto de validación
 
-Definir y probar el contrato de Editorial Portfolio con el mismo rigor contractual usado para Proyecto, manteniendo intactos los campos Wix protegidos y reutilizando la evidencia visual sin una segunda lectura innecesaria.
+**PROYECTO, no Portfolio:** consolidar la integración de `SalidaEditorialCSV` en el workflow y ejecutar la prueba end-to-end definitiva. Portfolio queda documentado para retomarse después sin alterar el pipeline probado de Proyecto.
