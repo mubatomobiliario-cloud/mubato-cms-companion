@@ -28,11 +28,11 @@ La memoria técnica oficial del proyecto vive exclusivamente en `docs/00_Estado/
 
 ## Prioridad del proyecto
 
-El camino crítico no es Portfolio. La prioridad es:
+El camino crítico es:
 
-1. **Terminar PROYECTO**.
-2. **Finiquitar COMPANION**.
-3. **Concluir y entregar el nuevo HOME de MUBATO**, único entregable válido.
+1. **PROYECTO — 🟢 cerrado/comprobado.**
+2. **COMPANION — siguiente objetivo: consolidación/finiquitación.**
+3. **Nuevo HOME de MUBATO — único entregable válido.**
 
 Las líneas secundarias no deben desplazar este orden.
 
@@ -48,7 +48,7 @@ Las líneas secundarias no deben desplazar este orden.
 | Componente | Responsabilidad | Estado | Contrato | Camino crítico |
 |---|---|---|---|---|
 | `core/parser.js` | Encontrar CSV/proyecto e iniciar importación y bifurcación editorial | 🟢 Comprobado | `Observaciones` vacía → PROYECTO; no vacía → PORTFOLIO | Sí |
-| `core/proyectoManager.js` | Construir `Proyecto` desde CSV y carpeta | 🟢 Implementado | Importa datos/fotografías y conserva referencias Wix | Sí |
+| `core/proyectoManager.js` | Construir `Proyecto` desde CSV y carpeta | 🟢 Comprobado | Importa datos/fotografías y conserva referencias Wix | Sí |
 | `core/proyecto.js` | Modelo central de proyecto, Hero, Galería y fotografías | 🟢 Comprobado | Modelo Companion | Sí |
 | `core/fotografiaManager.js` | Ingestar fotografías locales | 🟢 Comprobado | Conocido | Sí |
 | `core/fotografia.js` | Modelo de fotografía y contenido editorial | 🟢 Comprobado | Conocido | Sí |
@@ -56,17 +56,17 @@ Las líneas secundarias no deben desplazar este orden.
 | `direccionEditorial/expedienteProyecto.js` | Consolidar hechos, selección MUBATO y observaciones Vision | 🟢 Comprobado | Contrato de Expediente Editorial | Sí |
 | `direccionEditorial/contextoMarca.js` | Doctrina editorial MUBATO | 🟢 Preparado | Única exportación estructurada | Sí |
 | `direccionEditorial/ConstructorContexto.js` | Construir contexto por contrato | 🟢 Comprobado | Contratos editoriales separados | Sí |
-| `direccionEditorial/directorEditorial.js` | Orquestar generación editorial | 🟡 Superado en V2.2 mediante `procesadorEditorialV2.js`; integración histórica requiere consolidación | Editorial Proyecto V2.2 | Sí |
+| `direccionEditorial/directorEditorial.js` | Orquestar generación editorial | 🟡 Superado por `procesadorEditorialV2.js`; integración histórica documentada | Editorial Proyecto V2.2 | Sí |
 | `direccionEditorial/promptHistoriaWebV2.js` | Generar Historia Web contractual | 🟢 Comprobado | Contrato JSON + validador | Sí |
 | `direccionEditorial/validadorHistoriaWebV2.js` | Validar Historia Web | 🟢 Comprobado | Contrato estructural/narrativo | Sí |
-| `Editorial/procesadorEditorialV2.js` | Pipeline Editorial Proyecto V2.2 | 🟢 Comprobado | 9 llamadas IA en prueba de referencia; evidencia Vision reutilizada | Sí |
+| `Editorial/procesadorEditorialV2.js` | Pipeline Editorial Proyecto V2.2 | 🟢 Comprobado | Evidencia Vision reutilizada; prueba de fuego Giraldo superada | Sí |
 | `Exportadores/salidaEditorialCSV.js` | Aplicar contrato de salida al CSV Wix | 🟢 Blindado V2.2 | 8 campos autorizados; 18 protegidos; salida separada | Sí |
 | `Exportadores/adaptadorCSVEditorial.js` | Adaptación histórica parcial de salida | 🟡 Legado; no es el contrato final | Sustituido conceptualmente por `salidaEditorialCSV.js` | No |
 | `Exportadores/actualizadorCSV.js` | Actualizador histórico | ⚪ Eliminado | No usar | No |
-| `workflow/directorProyecto.js` | Orquestar fases de proyecto | 🟡 En consolidación | Análisis separado de escritura CSV | Sí |
-| `electron/main.js` | IPC de operaciones de proyecto | 🟢 Análisis conectado | Conocido | Sí |
-| `electron/preload.js` | Puente seguro Renderer → Main | 🟢 Análisis conectado | Conocido | Sí |
-| `renderer/script.js` | Interfaz y disparo del análisis | 🟢 Análisis conectado | Conocido | Sí |
+| `workflow/directorProyecto.js` | Orquestar fases de proyecto | 🟢 Comprobado por prueba de fuego Giraldo | Análisis separado de escritura CSV | Sí |
+| `electron/main.js` | IPC de operaciones de proyecto | 🟢 Comprobado en ejecución de App | Conocido | Sí |
+| `electron/preload.js` | Puente seguro Renderer → Main | 🟢 Comprobado en ejecución de App | Conocido | Sí |
+| `renderer/script.js` | Interfaz y disparo del análisis | 🟢 Comprobado en ejecución de App | Selección explícita de CSV + consola real | Sí |
 | `proyecto.galeria[]` | Selección humana de fotografías | 🟢 Comprobado | Selección y orden humanos | Sí |
 | `Galería General` Wix | Representación física de galería | 🟢 Comprobado | JSON serializado de objetos multimedia Wix | Sí |
 | `Hero Imágen` Wix | Representación física del Hero | 🟢 Comprobado | URI/objeto Wix independiente de Hero Texto | Sí |
@@ -74,10 +74,36 @@ Las líneas secundarias no deben desplazar este orden.
 | Contrato de salida CSV V2.2 | Propiedad y preservación de campos | 🟢 Blindado | 8 campos autorizados; duplicados de `Historias de Transformación` protegidos | Sí |
 | Historia Companion | Campo editorial de salida | 🟢 Comprobado | Columna independiente `Historia` | Sí |
 | **Bifurcación editorial** | Seleccionar pipeline | 🟢 Comprobado | `Observaciones` vacía → PROYECTO; no vacía → PORTFOLIO | Sí |
-| **Editorial Proyecto V2.2** | Narrar transformación | 🟢 Comprobado | Historia + Historia Web + Hero + SEO + foto + estructurados | Sí |
-| **Editorial Portfolio** | Describir/posicionar visualmente mobiliario | 🔵 Diseñado; implementación posterior | Capas VISION → REUNIR → ABRIR V0.1 → EXPRESAR V0.1 → VALIDAR V0.1 | No por ahora |
-| Optimización de consumo IA | Reducir llamadas/tokens sin degradar calidad | 🟡 Pendiente | Línea base: 9 llamadas / 15.290 tokens | Sí, después de PROYECTO |
-| Continuidad documental | Preservar memoria técnica y estado del proyecto | 🟢 Operativa; auditoría documental actualizada | Tres documentos canónicos en `docs/00_Estado/` | Sí |
+| **Editorial Proyecto V2.2** | Narrar transformación | 🟢 Comprobado; prueba de fuego Giraldo superada | Historia + Historia Web + Hero + SEO + foto + estructurados | Sí |
+| **Editorial Portfolio** | Describir/posicionar visualmente mobiliario | 🔵 Diseñado; implementación posterior | VISION → REUNIR → ABRIR V0.1 → EXPRESAR V0.1 → VALIDAR V0.1 | No por ahora |
+| Optimización de consumo IA | Reducir llamadas/tokens sin degradar calidad | 🟡 Pendiente | Línea base: 9 llamadas / 15.290 tokens | Después de consolidación |
+| Continuidad documental | Preservar memoria técnica y estado del proyecto | 🟢 Operativa; auditoría conceptual/documental realizada | Tres documentos canónicos en `docs/00_Estado/` | Sí |
+
+## Prueba de fuego Giraldo — referencia de cierre de PROYECTO
+
+**Hogar Giraldo**, cliente Andres y Carolina Giraldo, con 11 fotografías, ejecutó el flujo real `EDITORIAL_PROYECTO_V2.2` de extremo a extremo y confirmó la independencia respecto de Araque.
+
+Cadena:
+
+```text
+CSV + fotografías
+→ Parser
+→ ProyectoManager / FotografiaManager
+→ Vision
+→ evidencia visual persistida
+→ DirectorProyecto
+→ Editorial Proyecto V2.2
+→ Director Editorial / IA
+→ SalidaEditorialCSV V2.2
+→ CSV editorial Giraldo
+→ Wix
+```
+
+Resultado: **éxito total**. Archivo registrado: `Hogar Giraldo_Editorial_20260830011007.csv`. Costo aproximado: USD 0,70.
+
+Regla arquitectónica confirmada: **observar → persistir → reutilizar → redactar**. Vision no vuelve a ejecutarse durante Editorial.
+
+El test de integración completo de PROYECTO V2.2 fue el antecedente que dio vía libre para llevar el pipeline a la App; Giraldo fue la validación real extremo a extremo.
 
 ## Contratos Portfolio ya diseñados
 
@@ -122,10 +148,6 @@ No crea ni mejora contenido. Protege el contrato mediante controles de integrida
 22. Ningún cambio significativo se considera cerrado hasta que contrato, implementación, prueba y documentación estén sincronizados.
 23. La prioridad absoluta es PROYECTO → COMPANION → HOME MUBATO.
 
-## Último cambio significativo
+## Próximo objetivo
 
-La bifurcación editorial binaria quedó incorporada al Parser. El último commit funcional de referencia es `9247fa9`. Los commits posteriores de interfaz y continuidad no sustituyen ese hito funcional.
-
-## Próximo punto de validación
-
-**PROYECTO, no Portfolio:** consolidar la integración de `SalidaEditorialCSV` en el workflow y ejecutar la prueba end-to-end definitiva. Portfolio queda documentado para retomarse después sin alterar el pipeline probado de Proyecto.
+**No reabrir PROYECTO.** Continuar con la consolidación/finiquitación de **COMPANION**, reutilizando lo demostrado en PROYECTO. Portfolio queda documentado para implementación posterior salvo dependencia directa del camino crítico.
