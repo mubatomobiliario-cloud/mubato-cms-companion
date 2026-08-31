@@ -22,18 +22,11 @@ El objetivo no es completar Companion como un producto aislado ni desarrollar Po
 
 El camino crítico queda establecido así:
 
-1. **Terminar PROYECTO**.
+1. **PROYECTO — 🟢 cerrado/comprobado**.
 2. **Finiquitar COMPANION**.
 3. **Concluir y entregar el nuevo HOME de MUBATO**.
 
 Toda decisión, implementación, prueba o documentación debe contribuir directa o indirectamente a ese objetivo. Ninguna línea de trabajo secundaria debe desplazar el camino crítico.
-
-## Último checkpoint funcional
-
-- Rama de trabajo: `feat/csv-editorial-v1`
-- Último cambio funcional de referencia: `9247fa9` — bifurcación editorial incorporada en `src/core/parser.js`.
-- Los commits posteriores de interfaz y continuidad no sustituyen ese hito funcional.
-- El checkpoint automático más reciente es el que aparece en `CONTINUIDAD_AUTO_START/END`.
 
 ## Canon documental de continuidad
 
@@ -56,32 +49,143 @@ No existe un segundo `Estado_Proyecto.md` canónico en `docs/04_Guías/`. Esa ru
 
 ## Estado ejecutivo vigente
 
-### 🟢 Cerrado / comprobado
+### 🟢 PROYECTO V2.2 — CERRADO / COMPROBADO
 
-- Importación de proyecto desde carpeta + CSV.
-- Modelo `Proyecto` y `Fotografia`.
-- Ingesta de fotografías y Vision por fotografía.
-- Persistencia de evidencia visual.
-- Expediente de proyecto.
-- Editorial Proyecto V2.2.
-- Evidencia Vision reutilizada en Editorial Proyecto V2.2 sin segunda lectura Vision.
-- Historia Editorial maestra y validación estructural.
-- Historia Web mediante contrato JSON y validación propia.
-- Hero, SEO, Código MUBATO, Servicios y Slug.
-- Metadatos editoriales por fotografía: `title`, `alt`, `keywords` y `nombreSEO`.
-- Telemetría editorial.
-- Prueba real `EDITORIAL V2.2` superada sobre `Hogar Araque`.
-- Prueba blindada de `SalidaEditorialCSV V2.2` superada.
-- Contrato de salida probado: exactamente 8 campos editoriales autorizados y 18 campos protegidos.
-- Las dos columnas originales `Historias de Transformación` permanecen intactas.
-- `Historia` se escribe en una columna Companion independiente.
-- `Hero Texto` se mapea al campo Wix correcto; `Hero Imágen` permanece separado e intacto.
-- Las 25 cabeceras originales permanecen en el mismo orden.
-- Filas y referencias multimedia Wix preservadas.
-- `src/core/parser.js` decide el tipo editorial en el primer contacto con la fila CSV.
-- Canon documental de Continuidad establecido en `docs/00_Estado/`.
+La prueba de fuego **Hogar Giraldo** demostró el funcionamiento extremo a extremo del flujo PROYECTO V2.2 sobre un proyecto distinto de Araque.
 
-### 🟢 Bifurcación editorial congelada
+Proyecto probado:
+- **Hogar Giraldo**
+- Cliente: Andres y Carolina Giraldo
+- 11 fotografías
+- Flujo: `EDITORIAL_PROYECTO_V2.2`
+
+La ejecución confirmó:
+
+- independencia respecto de Araque;
+- selección explícita del proyecto y del CSV;
+- Parser → ProyectoManager / FotografiaManager;
+- Vision como módulo de observación;
+- persistencia de evidencia visual;
+- reutilización de evidencia por Editorial sin volver a ejecutar Vision;
+- Editorial Proyecto V2.2;
+- generación de salida editorial para el proyecto correcto;
+- generación de un CSV separado;
+- respeto del contrato Wix y campos protegidos;
+- generalización del pipeline a un proyecto nuevo.
+
+> **Araque fue la depuración. Giraldo fue la validación.**
+
+### 🔵 COMPANION — EN CONSOLIDACIÓN
+
+La arquitectura principal está construida y varias capas están comprobadas. El siguiente trabajo consiste en consolidar el Companion como producto operativo, reutilizando la infraestructura existente y evitando duplicaciones.
+
+Principio rector:
+
+> **Reutilizar primero. Adaptar después. Crear solo cuando sea necesario.**
+
+### 🔵 PORTFOLIO — DISEÑADO / IMPLEMENTACIÓN POSTERIOR
+
+El contrato conceptual está avanzado y documentado:
+
+```text
+VISION
+  ↓
+REUNIR
+  ↓
+ABRIR V0.1
+  ↓
+EXPRESAR V0.1
+  ↓
+VALIDAR V0.1
+```
+
+Portfolio no debe desplazar la consolidación de Companion ni convertirse en un camino crítico independiente.
+
+### ⚪ NUEVO HOME MUBATO — META FINAL
+
+El HOME es el único entregable final válido. Su construcción se aborda una vez que Companion esté suficientemente terminado para soportar el flujo editorial requerido.
+
+## PRUEBA DE FUEGO GIRALDO — REGISTRO CANÓNICO
+
+### Qué fue
+
+La **prueba de fuego Giraldo** fue la primera ejecución real, de extremo a extremo, del flujo **PROYECTO V2.2** sobre un proyecto distinto de Araque, después de corregir y estabilizar el pipeline.
+
+El objetivo fue demostrar que un proyecto nuevo podía entrar como ingredientes brutos —CSV de Wix + fotografías— y salir convertido en un CSV editorial nuevo, listo para regresar a Wix, sin depender de configuraciones o archivos de Araque.
+
+### Cadena ejecutada
+
+```text
+CSV + fotografías
+      ↓
+Parser
+      ↓
+ProyectoManager / modelo Proyecto
+      ↓
+FotografiaManager / modelo Fotografia
+      ↓
+Vision
+      ↓
+Expediente / evidencia visual
+      ↓
+DirectorProyecto
+      ↓
+Editorial Proyecto V2.2
+      ↓
+Director Editorial MUBATO + llamadas editoriales
+      ↓
+SalidaEditorialCSV V2.2
+      ↓
+CSV editorial de Giraldo
+      ↓
+Wix
+```
+
+### Resultado
+
+**Éxito total.**
+
+Salida registrada:
+
+`Hogar Giraldo_Editorial_20260830011007.csv`
+
+Costo aproximado de la ejecución: **USD 0,70**.
+
+### Comprobaciones clave
+
+- El flujo dejó de depender de Araque.
+- Parser identificó el proyecto y el flujo `EDITORIAL_PROYECTO_V2.2`.
+- Vision produjo evidencia visual estructurada.
+- La evidencia quedó persistida como `Hogar Giraldo.evidencia-visual.json`.
+- Editorial reutilizó esa evidencia y no volvió a ejecutar Vision.
+- La salida editorial correspondió al proyecto correcto.
+- El CSV original no se modificó silenciosamente; se generó un archivo de salida separado.
+- El contrato Wix fue respetado, incluyendo las dos columnas originales `Historias de Transformación` y `Hero Imágen`.
+- La prueba demostró que el pipeline es generalizable a otro proyecto.
+
+Regla arquitectónica confirmada:
+
+> **observar → persistir → reutilizar → redactar**
+
+### Decisiones descartadas / superadas
+
+- seleccionar arbitrariamente el primer CSV de la carpeta;
+- depender de un archivo histórico de Araque;
+- volver a ejecutar Vision durante Editorial;
+- permitir que Vision decida la Galería General;
+- tocar las dos columnas originales `Historias de Transformación`;
+- utilizar el modelo físico de Wix como modelo interno del Companion;
+- utilizar una barra de progreso ficticia como representación de actividad real.
+
+### Relación con el test de integración previo
+
+El test de integración completo de PROYECTO V2.2 fue el antecedente que dio vía libre para llevar el pipeline a la App. La prueba Giraldo fue después la **validación real extremo a extremo desde la App**.
+
+### Nota sobre checkpoint
+
+El checkpoint canónico conocido asociado a esta etapa es `ca7f85c` (`chore(continuidad): update canonical checkpoint`). El commit exacto que contiene la totalidad de los cambios posteriores utilizados en la ejecución Giraldo debe verificarse mediante historial Git y **no debe inferirse** a partir de ese SHA.
+
+## Bifurcación editorial congelada
 
 ```text
 OBSERVACIONES vacía       → PROYECTO
@@ -103,10 +207,6 @@ No se interpreta el contenido de `Observaciones` ni se normaliza para decidir el
 - La galería puede reunir muebles de uno o varios clientes/proyectos.
 - La editorial debe describir lo que muestran las fotografías, nombrar correctamente cada imagen, producir un comentario breve y trabajar especialmente el SEO.
 - El pipeline Portfolio todavía no está implementado.
-
-## PROYECTO — prioridad inmediata
-
-Editorial Proyecto V2.2 está comprobado. El trabajo restante del camino crítico es consolidar la integración operativa, ejecutar la prueba end-to-end definitiva y cerrar PROYECTO antes de abrir nuevas líneas de implementación que no sean necesarias para ese cierre.
 
 ## Contrato de salida CSV V2.2
 
@@ -133,7 +233,7 @@ Campos autorizados en Proyecto V2.2:
 - `SEO Title`
 - `Meta Description`
 
-## PORTFOLIO — diseño conceptual avanzado, implementación no prioritaria
+## PORTFOLIO — diseño conceptual avanzado
 
 Portfolio ya no se considera un contrato por definir desde cero. Su diseño conceptual se encuentra avanzado y debe conservarse para implementación posterior sin alterar Proyecto V2.2.
 
@@ -171,19 +271,6 @@ Decisiones conceptuales congeladas hasta nuevo cambio explícito:
 - VALIDAR puede producir estados `APROBADO`, `ADVERTENCIA` o `RECHAZADO`.
 - La implementación de Portfolio debe reutilizar primero infraestructura existente, adaptar después y crear solo lo que realmente falte.
 
-## 🟡 Pendiente / camino crítico
-
-1. **Cerrar PROYECTO**: integración definitiva del componente de salida en el workflow y prueba end-to-end.
-2. **Finiquitar COMPANION**: consolidar el flujo operativo completo, sus pruebas y sus contratos.
-3. **HOME MUBATO**: utilizar el Companion terminado para producir el único entregable válido del proyecto.
-
-Trabajo secundario, a mantener sin desplazar el camino crítico:
-
-- Editorial Portfolio y su implementación posterior.
-- Optimización adicional del número de llamadas IA.
-- Determinación formal del conjunto mínimo de campos estructurales Wix.
-- Prueba end-to-end definitiva de Portfolio cuando corresponda.
-
 ## Principios congelados
 
 1. MUBATO selecciona manualmente Hero y Galería General.
@@ -204,59 +291,8 @@ Trabajo secundario, a mantener sin desplazar el camino crítico:
 16. **Economía circular de implementación:** reutilizar primero, adaptar después, crear solo cuando sea necesario.
 17. Ningún componente nuevo debe duplicar una capacidad existente que haya demostrado funcionar.
 18. Ningún cambio significativo se considera cerrado hasta que contrato, implementación, prueba y documentación estén sincronizados.
-19. La prioridad absoluta del proyecto es PROYECTO → COMPANION → HOME MUBATO.
-
-## Rendimiento de referencia — Editorial Proyecto V2.2
-
-Prueba real sobre `Hogar Araque`:
-
-- Modelo: `gpt-5.5`
-- Llamadas IA: 9
-- Vision en fase editorial: 0
-- Input tokens: 12.145
-- Output tokens: 3.145
-- Total: 15.290 tokens
-- Tiempo acumulado: 58.061 ms
-- Fotografías procesadas editorialmente: 2
-
-Estos valores son línea base de optimización, no tarifa fija.
-
-## Camino crítico vigente
-
-```text
-PROYECTO
-   ↓
-Integración + prueba E2E
-   ↓
-COMPANION terminado
-   ↓
-Aplicación al HOME MUBATO
-   ↓
-NUEVO HOME MUBATO
-   ↓
-ENTREGABLE FINAL VÁLIDO
-```
-
-La bifurcación técnica existente se conserva:
-
-```text
-CSV + carpeta
-   ↓
-Parser
-   ↓
-Determinar tipo editorial
-   ├── PROYECTO → Editorial Proyecto V2.2
-   └── PORTFOLIO → Editorial Portfolio (posterior)
-   ↓
-Contrato editorial interno
-   ↓
-SalidaEditorialCSV V2.2
-   ↓
-CSV de salida
-   ↓
-Wix
-```
+19. La prioridad absoluta del proyecto es **PROYECTO → COMPANION → HOME MUBATO**.
 
 ## Próximo objetivo operativo
 
-**Cerrar PROYECTO sin alterar el pipeline probado:** consolidar la integración del workflow, ejecutar la prueba end-to-end y dejar documentado el cierre. Portfolio permanece documentado y no debe desplazar esta prioridad.
+**No reabrir PROYECTO.** Continuar con la consolidación/finiquitación de **COMPANION**, reutilizando la arquitectura comprobada en PROYECTO. Portfolio queda documentado para implementación posterior salvo dependencia directa del camino crítico.
