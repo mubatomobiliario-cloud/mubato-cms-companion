@@ -16,13 +16,24 @@
 
 > Documento canónico de continuidad. Describe el estado real del repositorio y las decisiones editoriales vigentes.
 
-## Última sincronización
+## Prioridad absoluta del proyecto
 
-- Fecha: 2026-08-24
+El objetivo no es completar Companion como un producto aislado ni desarrollar Portfolio por sí mismo. El único entregable válido es el **nuevo HOME de MUBATO funcionando sobre el Companion terminado**.
+
+El camino crítico queda establecido así:
+
+1. **Terminar PROYECTO**.
+2. **Finiquitar COMPANION**.
+3. **Concluir y entregar el nuevo HOME de MUBATO**.
+
+Toda decisión, implementación, prueba o documentación debe contribuir directa o indirectamente a ese objetivo. Ninguna línea de trabajo secundaria debe desplazar el camino crítico.
+
+## Último checkpoint funcional
+
 - Rama de trabajo: `feat/csv-editorial-v1`
-- Commit de código de referencia: `9247fa9`
-- Último cambio funcional: bifurcación editorial incorporada en `src/core/parser.js`.
-- Continuidad: estado, matriz y ledger deben permanecer sincronizados; la automatización histórica de continuidad queda pendiente de verificación operacional.
+- Último cambio funcional de referencia: `9247fa9` — bifurcación editorial incorporada en `src/core/parser.js`.
+- Los commits posteriores de interfaz y continuidad no sustituyen ese hito funcional.
+- El checkpoint automático más reciente es el que aparece en `CONTINUIDAD_AUTO_START/END`.
 
 ## Canon documental de continuidad
 
@@ -34,9 +45,18 @@ La memoria técnica oficial del proyecto vive exclusivamente en `docs/00_Estado/
 
 No existe un segundo `Estado_Proyecto.md` canónico en `docs/04_Guías/`. Esa ruta no forma parte del sistema de continuidad vigente y no debe utilizarse como fuente de verdad.
 
+## Estados de continuidad
+
+- 🟢 **Cerrado / Comprobado** — contrato, implementación y prueba suficiente para el alcance actual.
+- 🔵 **Diseñado** — decisión o contrato cerrado, pero todavía no implementado.
+- 🟡 **En implementación / consolidación** — existe código o trabajo activo, pero el cierre todavía no está demostrado.
+- 🟠 **En validación** — implementación disponible, pendiente de prueba definitiva.
+- ⚪ **Pendiente** — todavía no iniciado.
+- 🔴 **Conflicto** — existe una contradicción que debe resolverse antes de continuar.
+
 ## Estado ejecutivo vigente
 
-### 🟢 Comprobado
+### 🟢 Cerrado / comprobado
 
 - Importación de proyecto desde carpeta + CSV.
 - Modelo `Proyecto` y `Fotografia`.
@@ -59,6 +79,7 @@ No existe un segundo `Estado_Proyecto.md` canónico en `docs/04_Guías/`. Esa ru
 - Las 25 cabeceras originales permanecen en el mismo orden.
 - Filas y referencias multimedia Wix preservadas.
 - `src/core/parser.js` decide el tipo editorial en el primer contacto con la fila CSV.
+- Canon documental de Continuidad establecido en `docs/00_Estado/`.
 
 ### 🟢 Bifurcación editorial congelada
 
@@ -83,7 +104,11 @@ No se interpreta el contenido de `Observaciones` ni se normaliza para decidir el
 - La editorial debe describir lo que muestran las fotografías, nombrar correctamente cada imagen, producir un comentario breve y trabajar especialmente el SEO.
 - El pipeline Portfolio todavía no está implementado.
 
-### 🟢 Contrato de salida CSV V2.2
+## PROYECTO — prioridad inmediata
+
+Editorial Proyecto V2.2 está comprobado. El trabajo restante del camino crítico es consolidar la integración operativa, ejecutar la prueba end-to-end definitiva y cerrar PROYECTO antes de abrir nuevas líneas de implementación que no sean necesarias para ese cierre.
+
+## Contrato de salida CSV V2.2
 
 Componente vigente: `src/Exportadores/salidaEditorialCSV.js`.
 
@@ -108,14 +133,56 @@ Campos autorizados en Proyecto V2.2:
 - `SEO Title`
 - `Meta Description`
 
-### 🟡 Pendiente de consolidación
+## PORTFOLIO — diseño conceptual avanzado, implementación no prioritaria
 
-- Editorial Portfolio.
+Portfolio ya no se considera un contrato por definir desde cero. Su diseño conceptual se encuentra avanzado y debe conservarse para implementación posterior sin alterar Proyecto V2.2.
+
+Capas acordadas:
+
+```text
+VISION
+  ↓ ¿Qué veo?
+REUNIR
+  ↓ ¿Qué variedad aparece?
+ABRIR
+  ↓ ¿Qué vale la pena abrir?
+EXPRESAR
+  ↓ ¿Cómo lo abro sin agotarlo?
+VALIDAR
+  ↓ ¿Cumple el contrato?
+```
+
+Decisiones conceptuales congeladas hasta nuevo cambio explícito:
+
+- Vision observa; no decide selección ni orden.
+- La suficiencia del Portfolio depende de la variedad significativa de soluciones, características o posibilidades reconocibles, no solo del número de fotografías.
+- La selección de Hero y Galería General es previa y humana.
+- La posición de una fotografía en la Galería no autoriza a inferir importancia, representatividad o calidad.
+- El orden de Galería se conserva; la prioridad contextual no lo modifica.
+- El contexto de mobiliario es una instrucción de observación, no una conclusión de Vision.
+- Una fotografía puede contener varias posibilidades válidas; la expresión puede activar una sola.
+- Las posibilidades no seleccionadas no se destruyen.
+- ABRIR no está obligado a producir una posibilidad artificial cuando la evidencia no la sostiene.
+- EXPRESAR no describe inventario ni convierte el Portfolio en una Historia de Transformación.
+- EXPRESAR produce un párrafo corto con una sola idea editorial dominante.
+- El párrafo debe ser específico de la fotografía, estar anclado en evidencia y dejar espacio para continuar descubriendo.
+- No se garantiza que el visitante continúe a la siguiente fotografía; el Companion solo realiza su mejor esfuerzo editorial.
+- VALIDAR no crea, mejora ni embellece; protege el contrato y devuelve el resultado cuando no cumple.
+- VALIDAR puede producir estados `APROBADO`, `ADVERTENCIA` o `RECHAZADO`.
+- La implementación de Portfolio debe reutilizar primero infraestructura existente, adaptar después y crear solo lo que realmente falte.
+
+## 🟡 Pendiente / camino crítico
+
+1. **Cerrar PROYECTO**: integración definitiva del componente de salida en el workflow y prueba end-to-end.
+2. **Finiquitar COMPANION**: consolidar el flujo operativo completo, sus pruebas y sus contratos.
+3. **HOME MUBATO**: utilizar el Companion terminado para producir el único entregable válido del proyecto.
+
+Trabajo secundario, a mantener sin desplazar el camino crítico:
+
+- Editorial Portfolio y su implementación posterior.
 - Optimización adicional del número de llamadas IA.
-- Integración definitiva de `SalidaEditorialCSV` en el workflow operativo.
-- Verificación operacional del sistema automático de continuidad.
 - Determinación formal del conjunto mínimo de campos estructurales Wix.
-- Prueba end-to-end definitiva Proyecto y Portfolio → CSV → Wix.
+- Prueba end-to-end definitiva de Portfolio cuando corresponda.
 
 ## Principios congelados
 
@@ -134,6 +201,10 @@ Campos autorizados en Proyecto V2.2:
 13. La bifurcación editorial ocurre al leer la fila CSV, antes del pipeline editorial.
 14. `Observaciones` vacía significa PROYECTO; `Observaciones` no vacía significa PORTFOLIO.
 15. Editorial Proyecto y Editorial Portfolio son contratos distintos y no deben mezclarse.
+16. **Economía circular de implementación:** reutilizar primero, adaptar después, crear solo cuando sea necesario.
+17. Ningún componente nuevo debe duplicar una capacidad existente que haya demostrado funcionar.
+18. Ningún cambio significativo se considera cerrado hasta que contrato, implementación, prueba y documentación estén sincronizados.
+19. La prioridad absoluta del proyecto es PROYECTO → COMPANION → HOME MUBATO.
 
 ## Rendimiento de referencia — Editorial Proyecto V2.2
 
@@ -153,13 +224,29 @@ Estos valores son línea base de optimización, no tarifa fija.
 ## Camino crítico vigente
 
 ```text
+PROYECTO
+   ↓
+Integración + prueba E2E
+   ↓
+COMPANION terminado
+   ↓
+Aplicación al HOME MUBATO
+   ↓
+NUEVO HOME MUBATO
+   ↓
+ENTREGABLE FINAL VÁLIDO
+```
+
+La bifurcación técnica existente se conserva:
+
+```text
 CSV + carpeta
    ↓
 Parser
    ↓
 Determinar tipo editorial
    ├── PROYECTO → Editorial Proyecto V2.2
-   └── PORTFOLIO → Editorial Portfolio (pendiente)
+   └── PORTFOLIO → Editorial Portfolio (posterior)
    ↓
 Contrato editorial interno
    ↓
@@ -170,6 +257,6 @@ CSV de salida
 Wix
 ```
 
-## Próximo objetivo
+## Próximo objetivo operativo
 
-**Respeto editorial de la bifurcación:** construir Editorial Portfolio como pipeline separado, sin alterar el pipeline probado de Editorial Proyecto V2.2, compartiendo el contrato de salida únicamente en el punto autorizado para escribir el CSV Wix.
+**Cerrar PROYECTO sin alterar el pipeline probado:** consolidar la integración del workflow, ejecutar la prueba end-to-end y dejar documentado el cierre. Portfolio permanece documentado y no debe desplazar esta prioridad.
