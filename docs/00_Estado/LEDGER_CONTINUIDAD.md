@@ -189,6 +189,97 @@ No habrá dos documentos competidores de estado del proyecto.
 
 La automatización de continuidad debe verificar además la ausencia de cualquier variante de mayúsculas/minúsculas del antiguo documento, para evitar que una diferencia de filesystem o de nombre vuelva a crear una segunda fuente de verdad.
 
+## 2026-08-31 — Auditoría de continuidad y nueva prioridad del proyecto
+
+Se realizó una auditoría del sistema de continuidad con un objetivo explícito: comprobar que la pérdida del chat no obligue a reconstruir el proyecto desde cero.
+
+### Resultado
+
+La concepción de Continuidad se mantiene. Su función es preservar la memoria técnica oficial del proyecto y permitir reconstruir el estado, decisiones y derroteros sin depender del chat.
+
+Se reafirma que los tres documentos canónicos cumplen funciones distintas:
+
+- `ESTADO_PROYECTO.md` — dónde estamos y cuál es el camino crítico.
+- `MATRIZ_COMPONENTES.md` — qué existe, qué está comprobado y qué falta.
+- `LEDGER_CONTINUIDAD.md` — qué decisiones se tomaron, cuándo y por qué.
+
+### Nueva prioridad absoluta
+
+El único entregable válido del proyecto es el **nuevo HOME de MUBATO funcionando sobre el Companion terminado**.
+
+El camino crítico queda congelado como:
+
+```text
+PROYECTO
+   ↓
+COMPANION terminado
+   ↓
+NUEVO HOME MUBATO
+   ↓
+ENTREGABLE FINAL VÁLIDO
+```
+
+Portfolio no debe desplazar este camino crítico. Su implementación queda documentada para una fase posterior, salvo que sea necesaria para completar Companion/Home.
+
+### Decisión de economía circular
+
+Se establece como principio de implementación:
+
+> **Reutilizar primero. Adaptar después. Crear solo cuando sea necesario.**
+
+Ningún componente nuevo debe duplicar una capacidad existente que ya haya demostrado funcionar.
+
+### Estados de continuidad
+
+Se adopta una clasificación documental común:
+
+- 🟢 **Cerrado / Comprobado** — contrato, implementación y prueba suficiente.
+- 🔵 **Diseñado** — decisión o contrato cerrado, pero no implementado.
+- 🟡 **En implementación / consolidación** — existe código o trabajo activo, pero el cierre no está demostrado.
+- 🟠 **En validación** — implementación disponible, pendiente de prueba definitiva.
+- ⚪ **Pendiente** — todavía no iniciado.
+- 🔴 **Conflicto** — existe contradicción que debe resolverse antes de continuar.
+
+Esto evita confundir decisiones conceptualmente cerradas con funcionalidades efectivamente comprobadas.
+
+### Portfolio — decisiones conceptuales preservadas
+
+La conversación de trabajo reciente avanzó el contrato conceptual de Portfolio y sus decisiones deben considerarse memoria de diseño, no implementación.
+
+Capas:
+
+```text
+VISION → REUNIR → ABRIR → EXPRESAR → VALIDAR
+```
+
+Decisiones preservadas:
+
+- Vision observa; no decide selección ni orden.
+- La suficiencia del Portfolio depende de variedad significativa de soluciones, características o posibilidades reconocibles, no solo del número de fotografías.
+- La selección de Hero y Galería General es humana y previa.
+- La posición de una fotografía en la Galería no autoriza inferencias de importancia, representatividad o calidad.
+- El orden de Galería se conserva; la prioridad contextual no lo modifica.
+- El contexto de mobiliario es una instrucción de observación, no una conclusión de Vision.
+- Una fotografía puede contener varias posibilidades; no todas deben expresarse.
+- Las posibilidades no seleccionadas no se destruyen.
+- ABRIR no fabrica posibilidades cuando la evidencia no las sostiene.
+- EXPRESAR no convierte Portfolio en Historia de Transformación.
+- EXPRESAR produce un **párrafo corto** con una sola idea editorial dominante.
+- El texto debe ser específico, sustentado y dejar espacio para continuar descubriendo.
+- El Companion realiza su mejor esfuerzo editorial; no controla si el visitante continúa a la siguiente fotografía.
+- VALIDAR protege el contrato; no crea, mejora ni embellece.
+- VALIDAR puede producir `APROBADO`, `ADVERTENCIA` o `RECHAZADO`.
+
+Estas decisiones permanecen subordinadas a la prioridad PROYECTO → COMPANION → HOME.
+
+## 2026-08-31 — Regla de sincronización de continuidad
+
+Se reafirma la regla:
+
+> **Ningún cambio significativo se considera cerrado hasta que contrato, implementación, prueba y documentación estén sincronizados.**
+
+La actualización de Continuidad debe acompañar cada hito significativo, pero los documentos especializados deben conservar el detalle contractual en su propia ubicación y Continuidad debe referenciarlos sin duplicarlos innecesariamente.
+
 ## Estado actual
 
 ### 🟢 Cerrado
@@ -201,22 +292,39 @@ La automatización de continuidad debe verificar además la ausencia de cualquie
 - Bifurcación binaria en Parser.
 - Canon documental de continuidad fijado en `docs/00_Estado/`.
 - Eliminación de la copia histórica competidora de `Estado_Proyecto.md`.
+- Auditoría conceptual de Continuidad realizada.
+- Prioridad absoluta PROYECTO → COMPANION → HOME registrada.
+- Principio de economía circular registrado.
 
-### 🟡 En curso
+### 🔵 Diseñado
 
-- Optimización de llamadas IA.
+- Arquitectura conceptual Editorial Portfolio: VISION → REUNIR → ABRIR → EXPRESAR → VALIDAR.
+- ABRIR V0.1.
+- EXPRESAR V0.1.
+- VALIDAR V0.1.
+
+### 🟡 En curso / consolidación
+
+- Cierre operativo de PROYECTO.
 - Integración definitiva del componente de salida en el workflow.
-- Editorial Portfolio.
-- Verificación operacional de la automatización de continuidad.
+- Prueba end-to-end definitiva.
+- Finiquitación de COMPANION.
+- Verificación operacional completa de la automatización de continuidad.
+
+### ⚪ Posterior
+
+- Implementación de Editorial Portfolio, salvo dependencia directa del camino crítico.
+- Optimización adicional de consumo IA cuando no retrase PROYECTO/COMPANION.
+- Prueba end-to-end de Portfolio cuando corresponda.
 
 ## Próximo checkpoint obligatorio
 
-Antes de alterar Editorial Proyecto V2.2:
+El siguiente checkpoint de trabajo no es Portfolio.
 
-1. Definir contrato de Editorial Portfolio.
-2. Probarlo de manera aislada.
-3. Mantener intactos los campos Wix protegidos.
-4. Reutilizar evidencia Vision ya existente.
-5. Solo después integrar ambos contratos al punto común de salida CSV.
+1. Consolidar PROYECTO.
+2. Ejecutar y superar la prueba end-to-end.
+3. Documentar el cierre de PROYECTO.
+4. Finiquitar COMPANION.
+5. Preparar la aplicación del Companion terminado al nuevo HOME de MUBATO.
 
-> Regla de continuidad: ningún cambio significativo se considera cerrado hasta que código, prueba y documentación estén sincronizados.
+> Regla de continuidad: si el chat desaparece, el repositorio debe permitir reconstruir el estado, las decisiones y el camino crítico sin empezar desde cero.
