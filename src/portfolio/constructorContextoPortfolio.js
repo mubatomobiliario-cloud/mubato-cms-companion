@@ -2,31 +2,26 @@
  * ConstructorContextoPortfolio
  *
  * Construye el contexto editorial de PORTFOLIO a partir de información
- * estructurada y evidencia visual ya persistida.
+ * estructurada y evidencia visual previamente persistida.
  *
  * PRINCIPIOS
  * - No ejecuta Vision.
  * - No decide qué fotografías pertenecen al Portfolio.
  * - No modifica ni reutiliza las reglas narrativas de Proyecto V2.2.
  * - Conserva la selección y el orden editorial recibidos.
- * - Reúne en un único contexto la información necesaria para la producción
- *   editorial, minimizando llamadas posteriores a IA.
+ * - Consume la evidencia en el contrato persistido de observacionesVision.
+ * - La lectura del archivo de evidencia pertenece a infraestructura compartida.
  */
 class ConstructorContextoPortfolio {
-    construir(portfolio = {}) {
+    construir(portfolio = {}, observacionesVision = []) {
         this.validarEntrada(portfolio);
-
-        const fotografias = Array.isArray(portfolio.fotografias)
-            ? portfolio.fotografias
-            : [];
-
-        const evidencia = this.extraerEvidencia(fotografias);
+        this.validarEvidencia(observacionesVision);
 
         return [
             this.encabezado(),
             this.seccionPieza(portfolio),
-            this.seccionEvidencia(evidencia),
-            this.seccionFotografias(fotografias),
+            this.seccionEvidencia(observacionesVision),
+            this.seccionFotografias(observacionesVision),
             this.seccionReglas()
         ].join("\n");
     }
@@ -34,6 +29,12 @@ class ConstructorContextoPortfolio {
     validarEntrada(portfolio) {
         if (!portfolio || typeof portfolio !== "object" || Array.isArray(portfolio)) {
             throw new Error("Falta un objeto Portfolio válido.");
+        }
+    }
+
+    validarEvidencia(observacionesVision) {
+        if (!Array.isArray(observacionesVision)) {
+            throw new Error("Las observacionesVision deben recibirse como arreglo.");
         }
     }
 
@@ -68,27 +69,27 @@ class ConstructorContextoPortfolio {
         ].join("\n");
     }
 
-    seccionEvidencia(evidencia) {
+    seccionEvidencia(observacionesVision) {
         return [
             "",
             "====================================================",
             "EVIDENCIA VISUAL PERSISTIDA",
             "====================================================",
             "",
-            `Fotografías recibidas: ${evidencia.total}`,
-            `Fotografías con evidencia: ${evidencia.conEvidencia}`,
-            `Materiales observados: ${this.lista(evidencia.materiales)}`,
-            `Colores observados: ${this.lista(evidencia.colores)}`,
-            `Elementos observados: ${this.lista(evidencia.elementos)}`,
-            `Estilos observados: ${this.lista(evidencia.estilos)}`,
-            `Iluminación observada: ${this.lista(evidencia.iluminacion)}`,
-            `Sensaciones observadas: ${this.lista(evidencia.sensaciones)}`
+            `Fotografías recibidas: ${observacionesVision.length}`,
+            `Fotografías con evidencia: ${observacionesVision.filter(observacion => observacion && observacion.analizada).length}`,
+            `Materiales observados: ${this.lista(this.unicos(observacionesVision, "materiales"))}`,
+            `Colores observados: ${this.lista(this.unicos(observacionesVision, "colores"))}`,
+            `Elementos observados: ${this.lista(this.unicos(observacionesVision, "elementos"))}`,
+            `Estilos observados: ${this.lista(this.unicos(observacionesVision, "estilo"))}`,
+            `Iluminación observada: ${this.lista(this.unicos(observacionesVision, "iluminacion"))}`,
+            `Sensaciones observadas: ${this.lista(this.unicos(observacionesVision, "sensacion"))}`
         ].join("\n");
     }
 
-    seccionFotografias(fotografias) {
-        const contenido = fotografias.length
-            ? fotografias.map((fotografia, indice) => this.formatearFotografia(fotografia, indice)).join("\n\n")
+    seccionFotografias(observacionesVision) {
+        const contenido = observacionesVision.length
+            ? observacionesVision.map((observacion, indice) => this.formatearFotografia(observacion, indice)).join("\n\n")
             : "Sin fotografías disponibles.";
 
         return [
@@ -104,25 +105,22 @@ class ConstructorContextoPortfolio {
         ].join("\n");
     }
 
-    formatearFotografia(fotografia, indice) {
-        const evidencia = fotografia && typeof fotografia.evidencia === "object"
-            ? fotografia.evidencia
-            : fotografia || {};
+    formatearFotografia(observacion, indice) {
+        const fotografia = observacion || {};
 
         return [
             `Fotografía ${indice + 1}`,
-            `Identificador: ${this.valor(fotografia?.id || fotografia?.nombre)}`,
-            `Espacio: ${this.valor(fotografia?.espacio)}`,
-            `Tipo: ${this.valor(fotografia?.tipo)}`,
-            `Plano: ${this.valor(fotografia?.plano)}`,
-            `Materiales: ${this.lista(evidencia.materiales)}`,
-            `Colores: ${this.lista(evidencia.colores)}`,
-            `Elementos: ${this.lista(evidencia.elementos)}`,
-            `Estilo: ${this.valor(evidencia.estilo)}`,
-            `Iluminación: ${this.valor(evidencia.iluminacion)}`,
-            `Sensación: ${this.valor(evidencia.sensacion)}`,
-            `Confianza: ${this.valor(evidencia.confianza)}`,
-            `Descripción registrada: ${this.valor(fotografia?.description || evidencia.description)}`
+            `Identificador: ${this.valor(fotografia.fotografia)}`,
+            `Espacio: ${this.valor(fotografia.espacio)}`,
+            `Tipo: ${this.valor(fotografia.tipo)}`,
+            `Plano: ${this.valor(fotografia.plano)}`,
+            `Materiales: ${this.lista(fotografia.materiales)}`,
+            `Colores: ${this.lista(fotografia.colores)}`,
+            `Elementos: ${this.lista(fotografia.elementos)}`,
+            `Estilo: ${this.valor(fotografia.estilo)}`,
+            `Iluminación: ${this.valor(fotografia.iluminacion)}`,
+            `Sensación: ${this.valor(fotografia.sensacion)}`,
+            `Confianza: ${this.valor(fotografia.confianza)}`
         ].join("\n");
     }
 
@@ -144,31 +142,14 @@ class ConstructorContextoPortfolio {
         ].join("\n");
     }
 
-    extraerEvidencia(fotografias) {
-        const unicos = valores => [...new Set(
-            valores
+    unicos(observacionesVision, clave) {
+        return [...new Set(
+            observacionesVision
+                .map(observacion => observacion && observacion[clave])
                 .flatMap(valor => Array.isArray(valor) ? valor : [valor])
                 .filter(valor => valor !== undefined && valor !== null && valor !== "")
                 .map(String)
         )];
-
-        const obtener = clave => fotografias.map(fotografia => {
-            const evidencia = fotografia && typeof fotografia.evidencia === "object"
-                ? fotografia.evidencia
-                : fotografia || {};
-            return evidencia[clave];
-        });
-
-        return {
-            total: fotografias.length,
-            conEvidencia: fotografias.filter(fotografia => fotografia?.evidencia).length,
-            materiales: unicos(obtener("materiales")),
-            colores: unicos(obtener("colores")),
-            elementos: unicos(obtener("elementos")),
-            estilos: unicos(obtener("estilo")),
-            iluminacion: unicos(obtener("iluminacion")),
-            sensaciones: unicos(obtener("sensacion"))
-        };
     }
 
     lista(valores) {
