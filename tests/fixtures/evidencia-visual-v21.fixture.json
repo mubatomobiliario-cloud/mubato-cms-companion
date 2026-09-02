@@ -1,0 +1,40 @@
+{
+  "version": "V2.1",
+  "proyecto": {
+    "nombre": "Fixture Centros de Entretenimiento",
+    "codigo": "MUBATO_FIXTURE_001",
+    "cliente": "Cliente Fixture",
+    "ciudad": "Bogotá",
+    "categoria": "Centros de Entretenimiento"
+  },
+  "observacionesVision": [
+    {
+      "fotografia": "foto-01.jpg",
+      "analizada": true,
+      "espacio": "sala",
+      "tipo": "centro de entretenimiento",
+      "plano": "frontal",
+      "estilo": "contemporáneo",
+      "materiales": ["madera", "melamina"],
+      "colores": ["madera natural", "blanco"],
+      "elementos": ["televisor", "mueble bajo", "repisas"],
+      "iluminacion": "ambiental",
+      "sensacion": "orden y calidez",
+      "confianza": 0.94
+    },
+    {
+      "fotografia": "foto-02.jpg",
+      "analizada": true,
+      "espacio": "sala",
+      "tipo": "centro de entretenimiento",
+      "plano": "angular",
+      "estilo": "contemporáneo",
+      "materiales": ["madera", "vidrio"],
+      "colores": ["madera", "turquesa"],
+      "elementos": ["televisor", "almacenamiento", "repisas"],
+      "iluminacion": "natural",
+      "sensacion": "amplitud",
+      "confianza": 0.91
+    }
+  ]
+}
