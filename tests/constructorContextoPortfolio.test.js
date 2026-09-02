@@ -22,8 +22,8 @@ assert.ok(contexto.includes("EVIDENCIA VISUAL PERSISTIDA"));
 assert.ok(contexto.includes("Fotografías recibidas: 2"));
 assert.ok(contexto.includes("Fotografía 1"));
 assert.ok(contexto.includes("Fotografía 2"));
-assert.ok(contexto.includes("Identificador: foto-001"));
-assert.ok(contexto.includes("Material: madera"));
+assert.ok(contexto.includes("Identificador: foto-01.jpg"));
+assert.ok(contexto.includes("madera"));
 assert.ok(contexto.includes("REGLAS DE INTERPRETACIÓN"));
 assert.ok(contexto.includes("Hero Texto: 22–27 palabras."));
 
