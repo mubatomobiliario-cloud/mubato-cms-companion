@@ -9,6 +9,10 @@
  *
  * La comprensión es insumo para la expresión editorial posterior:
  * Historia, Hero Texto, SEO y contenidos individuales de Galería.
+ *
+ * Las afirmaciones editoriales trazables conservan únicamente los
+ * identificadores de las fotografías que sostienen la afirmación. No se
+ * duplica aquí la evidencia Vision ni se decide selección u orden.
  */
 class ContratoPortfolio {
     static CAMPOS = Object.freeze([
@@ -64,6 +68,26 @@ class ContratoPortfolio {
             if (!Array.isArray(comprension[campo])) {
                 throw new Error(`La comprensión Portfolio requiere "${campo}" como arreglo.`);
             }
+
+            for (const valor of comprension[campo]) {
+                if (!valor || typeof valor !== "object" || Array.isArray(valor)) {
+                    throw new Error(`Cada afirmación de "${campo}" debe ser un objeto trazable.`);
+                }
+
+                if (typeof valor.texto !== "string" || !valor.texto.trim()) {
+                    throw new Error(`Cada afirmación de "${campo}" requiere un texto válido.`);
+                }
+
+                if (!Array.isArray(valor.evidencia) || valor.evidencia.length === 0) {
+                    throw new Error(`Cada afirmación de "${campo}" requiere al menos una fotografía de evidencia.`);
+                }
+
+                for (const fotografia of valor.evidencia) {
+                    if (typeof fotografia !== "string" || !fotografia.trim()) {
+                        throw new Error(`La evidencia de "${campo}" debe contener identificadores de fotografía válidos.`);
+                    }
+                }
+            }
         }
 
         return true;
@@ -72,17 +96,21 @@ class ContratoPortfolio {
     static normalizar(comprension) {
         this.validar(comprension);
 
+        const normalizarAfirmaciones = afirmaciones => afirmaciones.map(afirmacion => ({
+            texto: afirmacion.texto.trim(),
+            evidencia: afirmacion.evidencia.map(String).map(x => x.trim()).filter(Boolean)
+        }));
+
         return {
             nucleo: comprension.nucleo.trim(),
             caracter: comprension.caracter.trim(),
-            materialidad: comprension.materialidad.map(String).map(x => x.trim()).filter(Boolean),
-            funcionalidad: comprension.funcionalidad.map(String).map(x => x.trim()).filter(Boolean),
-            relacionesEspaciales: comprension.relacionesEspaciales.map(String).map(x => x.trim()).filter(Boolean),
+            materialidad: normalizarAfirmaciones(comprension.materialidad),
+            funcionalidad: normalizarAfirmaciones(comprension.funcionalidad),
+            relacionesEspaciales: normalizarAfirmaciones(comprension.relacionesEspaciales),
             experiencia: comprension.experiencia.trim(),
-            rasgosDiferenciales: comprension.rasgosDiferenciales.map(String).map(x => x.trim()).filter(Boolean),
+            rasgosDiferenciales: normalizarAfirmaciones(comprension.rasgosDiferenciales),
             enfoqueNarrativo: comprension.enfoqueNarrativo.trim()
         };
     }
 }
-
 module.exports = ContratoPortfolio;
