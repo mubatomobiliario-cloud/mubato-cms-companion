@@ -18,13 +18,22 @@ const observaciones = lector.extraerObservaciones(evidencia);
 assert.deepStrictEqual(observaciones, evidencia.observacionesVision);
 assert.strictEqual(JSON.stringify(evidencia.observacionesVision), originales);
 assert.notStrictEqual(observaciones, evidencia.observacionesVision);
+assert.notStrictEqual(observaciones[0], evidencia.observacionesVision[0]);
+assert.notStrictEqual(observaciones[0].materiales, evidencia.observacionesVision[0].materiales);
+assert.notStrictEqual(observaciones[0].elementos, evidencia.observacionesVision[0].elementos);
 
 observaciones[0].espacio = "MODIFICADO_EN_PRUEBA";
+observaciones[0].materiales.push("MATERIAL_INVENTADO_EN_PRUEBA");
+observaciones[0].elementos.pop();
+
 assert.strictEqual(evidencia.observacionesVision[0].espacio, "sala");
+assert.deepStrictEqual(evidencia.observacionesVision[0].materiales, ["madera", "melamina"]);
+assert.deepStrictEqual(evidencia.observacionesVision[0].elementos, ["televisor", "mueble bajo", "repisas"]);
+assert.strictEqual(JSON.stringify(evidencia.observacionesVision), originales);
 
 assert.throws(
     () => lector.cargar(path.join(__dirname, "fixtures", "archivo-inexistente.json")),
     /No existe el archivo/
 );
 
-console.log("✓ LectorEvidenciaVisual: prueba funcional aislada OK");
+console.log("✓ LectorEvidenciaVisual: contrato de aislamiento superado");
