@@ -1,5 +1,3 @@
-console.log("lectorEvidenciaVisual.js cargado");
-
 const fs = require("fs");
 
 /**
@@ -12,7 +10,7 @@ const fs = require("fs");
  * - Parsear y validar su estructura mínima.
  * - No ejecutar Vision.
  * - No modificar la evidencia.
- * - Entregar la misma evidencia a cualquier flujo editorial que la necesite.
+ * - Entregar una copia independiente de las observaciones a cualquier flujo editorial que la necesite.
  *
  * Este módulo no contiene reglas de Proyecto ni de Portfolio.
  */
@@ -76,7 +74,8 @@ class LectorEvidenciaVisual {
 
     extraerObservaciones(evidencia) {
         this.validar(evidencia);
-        return evidencia.observacionesVision.map(observacion => ({ ...observacion }));
+
+        return JSON.parse(JSON.stringify(evidencia.observacionesVision));
     }
 }
 
