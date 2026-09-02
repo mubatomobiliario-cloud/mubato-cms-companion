@@ -1,17 +1,17 @@
 # MUBATO CMS Companion — Ledger de Continuidad
 
 <!-- CONTINUIDAD_AUTO_START -->
-- Generado automáticamente: `2026-09-02 22:01:40.386Z`
-- Commit observado: `e3ad578`
+- Generado automáticamente: `2026-09-02 23:23:54.968Z`
+- Commit observado: `9f80602`
 - Rama: `feat/csv-editorial-v1`
-- Archivos versionados: `149`
+- Archivos versionados: `153`
 - Verificaciones: **OK** — canon documental, bifurcación Parser, contrato de salida y campos Wix protegidos.
 - Últimos commits:
-  - e3ad578 — 2026-09-02 — chore: remove provisional portfolio context constructor
-  - ea9464a — 2026-09-02 — test(portfolio): harden DirectorPortfolio contract
-  - b90294b — 2026-09-02 — test(portfolio): add isolated DirectorPortfolio contract test
-  - 86541b9 — 2026-09-02 — feat(portfolio): add isolated DirectorPortfolio
-  - 57e4a2a — 2026-09-02 — test: correct portfolio evidence fixture assertions
+  - 9f80602 — 2026-09-02 — feat(portfolio): add evidence traceability to comprehension contract
+  - 44d5650 — 2026-09-02 — test(portfolio): exercise comprehension contract against visual evidence
+  - de28f78 — 2026-09-02 — test(portfolio): validate editorial comprehension contract
+  - 4b3a173 — 2026-09-02 — feat(portfolio): define editorial comprehension contract
+  - ac3deec — 2026-09-02 — test: add isolated functional test for Portfolio context constructor
 <!-- CONTINUIDAD_AUTO_END -->
 
 > Cronología canónica de decisiones, implementaciones y validaciones significativas. No sustituye la Matriz Viva ni el Estado del Proyecto.
