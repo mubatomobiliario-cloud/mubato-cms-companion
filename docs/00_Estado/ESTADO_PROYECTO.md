@@ -1,17 +1,17 @@
 # MUBATO CMS Companion — Estado del Proyecto
 
 <!-- CONTINUIDAD_AUTO_START -->
-- Generado automáticamente: `2026-09-02 17:02:41.001Z`
-- Commit observado: `9d1dbcf`
+- Generado automáticamente: `2026-09-02 21:36:36.890Z`
+- Commit observado: `532dbb1`
 - Rama: `feat/csv-editorial-v1`
-- Archivos versionados: `144`
+- Archivos versionados: `145`
 - Verificaciones: **OK** — canon documental, bifurcación Parser, contrato de salida y campos Wix protegidos.
 - Últimos commits:
+  - 532dbb1 — 2026-09-02 — feat(core): add visual evidence reader
+  - a2baf02 — 2026-09-02 — chore(continuidad): update canonical checkpoint
   - 9d1dbcf — 2026-09-02 — feat(portfolio): add independent context constructor
   - d4c2b26 — 2026-08-31 — chore(continuidad): update canonical checkpoint
   - 24be877 — 2026-08-31 — feat(portfolio): add isolated Portfolio context builder
-  - 607c437 — 2026-08-31 — docs(continuidad): correct Project status after Giraldo
-  - a4e6218 — 2026-08-31 — docs(continuidad): record Giraldo as Project closure
 <!-- CONTINUIDAD_AUTO_END -->
 
 > Documento canónico de continuidad. Describe el estado real del repositorio y las decisiones editoriales vigentes.
