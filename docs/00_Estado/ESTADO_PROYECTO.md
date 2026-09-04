@@ -1,17 +1,17 @@
 # MUBATO CMS Companion — Estado del Proyecto
 
 <!-- CONTINUIDAD_AUTO_START -->
-- Generado automáticamente: `2026-09-04 22:16:38.981Z`
-- Commit observado: `ad603e4`
+- Generado automáticamente: `2026-09-04 22:47:18.545Z`
+- Commit observado: `c77bfe7`
 - Rama: `feat/csv-editorial-v1`
 - Archivos versionados: `165`
 - Verificaciones: **OK** — canon documental, bifurcación Parser, contrato de salida y campos Wix protegidos.
 - Últimos commits:
+  - c77bfe7 — 2026-09-04 — feat(portfolio): add editorial output director
+  - 1649b8d — 2026-09-04 — chore(continuidad): update canonical checkpoint
   - ad603e4 — 2026-09-04 — feat(portfolio): add portfolio CSV editorial output
   - 3cb9f4c — 2026-09-04 — chore(continuidad): update canonical checkpoint
   - ca065f4 — 2026-09-04 — feat(portfolio): add editorial output bridge
-  - 4500b74 — 2026-09-04 — fix(portfolio): align comprehension director test with fixture
-  - 12cf459 — 2026-09-04 — test(portfolio): add comprehension director functional test
 <!-- CONTINUIDAD_AUTO_END -->
 
 > Documento canónico de continuidad. Describe el estado real del repositorio y las decisiones editoriales vigentes.
