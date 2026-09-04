@@ -35,11 +35,11 @@ async function main() {
     });
 
     const portfolio = {
-        proyecto: "Fixture Portfolio",
+        proyecto: "Fixture Centros de Entretenimiento",
         ciudad: "Bogotá",
-        categoria: ["Residencial"],
+        categoria: ["Centros de Entretenimiento"],
         espacios: ["Sala"],
-        cliente: "Varios"
+        cliente: "Cliente Fixture"
     };
 
     const resultado = await director.comprender(portfolio, rutaEvidencia);
@@ -50,11 +50,11 @@ async function main() {
 
     const llamada = stubComprensor.llamadas[0];
     assert.strictEqual(typeof llamada.contexto, "string");
-    assert.ok(llamada.contexto.includes("Fixture Portfolio"));
-    assert.ok(llamada.contexto.includes("foto-001"));
-    assert.ok(llamada.contexto.includes("foto-002"));
+    assert.ok(llamada.contexto.includes("Fixture Centros de Entretenimiento"));
+    assert.ok(llamada.contexto.includes("foto-01.jpg"));
+    assert.ok(llamada.contexto.includes("foto-02.jpg"));
 
-    assert.deepStrictEqual(llamada.idsFotografias, ["foto-001", "foto-002"]);
+    assert.deepStrictEqual(llamada.idsFotografias, ["foto-01.jpg", "foto-02.jpg"]);
 
     console.log("✓ DirectorComprensionPortfolio: prueba funcional aislada superada");
 }
