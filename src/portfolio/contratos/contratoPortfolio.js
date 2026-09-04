@@ -39,7 +39,7 @@ class ContratoPortfolio {
         };
     }
 
-    static validar(comprension) {
+    static validar(comprension, opciones = {}) {
         if (!comprension || typeof comprension !== "object" || Array.isArray(comprension)) {
             throw new Error("La comprensión Portfolio debe ser un objeto.");
         }
@@ -64,6 +64,22 @@ class ContratoPortfolio {
             "rasgosDiferenciales"
         ];
 
+        const idsFotografias = opciones.idsFotografias;
+        let idsValidos = null;
+
+        if (idsFotografias !== undefined) {
+            if (!Array.isArray(idsFotografias)) {
+                throw new Error("Los identificadores de fotografías válidos deben proporcionarse como arreglo.");
+            }
+
+            idsValidos = new Set(
+                idsFotografias
+                    .map(String)
+                    .map(id => id.trim())
+                    .filter(Boolean)
+            );
+        }
+
         for (const campo of requeridosArreglo) {
             if (!Array.isArray(comprension[campo])) {
                 throw new Error(`La comprensión Portfolio requiere "${campo}" como arreglo.`);
@@ -86,6 +102,10 @@ class ContratoPortfolio {
                     if (typeof fotografia !== "string" || !fotografia.trim()) {
                         throw new Error(`La evidencia de "${campo}" debe contener identificadores de fotografía válidos.`);
                     }
+
+                    if (idsValidos && !idsValidos.has(fotografia.trim())) {
+                        throw new Error(`La fotografía de evidencia "${fotografia.trim()}" no existe en la evidencia visual disponible.`);
+                    }
                 }
             }
         }
@@ -93,8 +113,8 @@ class ContratoPortfolio {
         return true;
     }
 
-    static normalizar(comprension) {
-        this.validar(comprension);
+    static normalizar(comprension, opciones = {}) {
+        this.validar(comprension, opciones);
 
         const normalizarAfirmaciones = afirmaciones => afirmaciones.map(afirmacion => ({
             texto: afirmacion.texto.trim(),
