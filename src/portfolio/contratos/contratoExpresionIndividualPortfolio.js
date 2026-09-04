@@ -49,7 +49,7 @@ class ContratoExpresionIndividualPortfolio {
         }
 
         if (!Array.isArray(expresion.keywords) || expresion.keywords.length === 0) {
-            throw new Error("La expresión individual Portfolio requiere "keywords" como arreglo no vacío.");
+            throw new Error("La expresión individual Portfolio requiere keywords como arreglo no vacío.");
         }
 
         for (const keyword of expresion.keywords) {
