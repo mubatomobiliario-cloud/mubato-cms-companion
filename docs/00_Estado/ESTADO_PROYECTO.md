@@ -1,17 +1,17 @@
 # MUBATO CMS Companion — Estado del Proyecto
 
 <!-- CONTINUIDAD_AUTO_START -->
-- Generado automáticamente: `2026-09-04 16:14:29.224Z`
-- Commit observado: `fee44ab`
+- Generado automáticamente: `2026-09-04 16:27:22.929Z`
+- Commit observado: `0e75094`
 - Rama: `feat/csv-editorial-v1`
-- Archivos versionados: `156`
+- Archivos versionados: `157`
 - Verificaciones: **OK** — canon documental, bifurcación Parser, contrato de salida y campos Wix protegidos.
 - Últimos commits:
+  - 0e75094 — 2026-09-04 — feat(portfolio): add individual expression context constructor
+  - 69d9305 — 2026-09-04 — chore(continuidad): update canonical checkpoint
   - fee44ab — 2026-09-04 — fix(portfolio): correct individual expression contract syntax
   - 4b0810e — 2026-09-04 — test(portfolio): add individual expression contract test
   - f923bac — 2026-09-04 — chore(continuidad): update canonical checkpoint
-  - c0d1417 — 2026-09-04 — feat(portfolio): add individual expression contract
-  - e58e20b — 2026-09-03 — test(laboratorio): add seven-photo Portfolio Vision runner
 <!-- CONTINUIDAD_AUTO_END -->
 
 > Documento canónico de continuidad. Describe el estado real del repositorio y las decisiones editoriales vigentes.
