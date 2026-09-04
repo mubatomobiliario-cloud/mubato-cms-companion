@@ -1,17 +1,17 @@
 # MUBATO CMS Companion — Matriz Viva de Componentes
 
 <!-- CONTINUIDAD_AUTO_START -->
-- Generado automáticamente: `2026-09-02 23:23:54.968Z`
-- Commit observado: `9f80602`
+- Generado automáticamente: `2026-09-04 16:06:32.249Z`
+- Commit observado: `c0d1417`
 - Rama: `feat/csv-editorial-v1`
-- Archivos versionados: `153`
+- Archivos versionados: `155`
 - Verificaciones: **OK** — canon documental, bifurcación Parser, contrato de salida y campos Wix protegidos.
 - Últimos commits:
+  - c0d1417 — 2026-09-04 — feat(portfolio): add individual expression contract
+  - e58e20b — 2026-09-03 — test(laboratorio): add seven-photo Portfolio Vision runner
+  - b4a935c — 2026-09-02 — test(portfolio): harden comprehension evidence traceability
+  - 9721d62 — 2026-09-02 — chore(continuidad): update canonical checkpoint
   - 9f80602 — 2026-09-02 — feat(portfolio): add evidence traceability to comprehension contract
-  - 44d5650 — 2026-09-02 — test(portfolio): exercise comprehension contract against visual evidence
-  - de28f78 — 2026-09-02 — test(portfolio): validate editorial comprehension contract
-  - 4b3a173 — 2026-09-02 — feat(portfolio): define editorial comprehension contract
-  - ac3deec — 2026-09-02 — test: add isolated functional test for Portfolio context constructor
 <!-- CONTINUIDAD_AUTO_END -->
 
 > Documento canónico de estado funcional. Se actualiza con cada cambio significativo.
