@@ -1,17 +1,17 @@
 # MUBATO CMS Companion — Ledger de Continuidad
 
 <!-- CONTINUIDAD_AUTO_START -->
-- Generado automáticamente: `2026-09-04 22:47:18.545Z`
-- Commit observado: `c77bfe7`
+- Generado automáticamente: `2026-09-07 18:03:10.915Z`
+- Commit observado: `577d40b`
 - Rama: `feat/csv-editorial-v1`
 - Archivos versionados: `165`
 - Verificaciones: **OK** — canon documental, bifurcación Parser, contrato de salida y campos Wix protegidos.
 - Últimos commits:
+  - 577d40b — 2026-09-07 — Parser: tolerar campos sistema Wix duplicados
+  - b4dc028 — 2026-09-04 — chore(continuidad): update canonical checkpoint
   - c77bfe7 — 2026-09-04 — feat(portfolio): add editorial output director
   - 1649b8d — 2026-09-04 — chore(continuidad): update canonical checkpoint
   - ad603e4 — 2026-09-04 — feat(portfolio): add portfolio CSV editorial output
-  - 3cb9f4c — 2026-09-04 — chore(continuidad): update canonical checkpoint
-  - ca065f4 — 2026-09-04 — feat(portfolio): add editorial output bridge
 <!-- CONTINUIDAD_AUTO_END -->
 
 > Cronología canónica de decisiones, implementaciones y validaciones significativas. No sustituye la Matriz Viva ni el Estado del Proyecto.
