@@ -71,6 +71,7 @@ class AnalizadorFotografias {
         foto.elementos = datos.elementos || [];
         foto.iluminacion = datos.iluminacion || "";
         foto.sensacion = datos.sensacion || "";
+        foto.observaciones = datos.observaciones || "";
         foto.confianza = datos.confianza || 0;
 
         foto.analizada = true;

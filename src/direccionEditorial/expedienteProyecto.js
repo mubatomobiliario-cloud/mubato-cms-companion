@@ -72,6 +72,7 @@ class ExpedienteProyecto {
             elementos: Array.isArray(foto.elementos) ? [...foto.elementos] : [],
             iluminacion: foto.iluminacion || null,
             sensacion: foto.sensacion || null,
+            observaciones: foto.observaciones || null,
             confianza: typeof foto.confianza === "number" ? foto.confianza : null
         };
     }
