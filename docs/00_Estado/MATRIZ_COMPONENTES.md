@@ -1,17 +1,17 @@
 # MUBATO CMS Companion — Matriz Viva de Componentes
 
 <!-- CONTINUIDAD_AUTO_START -->
-- Generado automáticamente: `2026-09-07 18:03:10.915Z`
-- Commit observado: `577d40b`
+- Generado automáticamente: `2026-09-07 19:11:29.500Z`
+- Commit observado: `7360c83`
 - Rama: `feat/csv-editorial-v1`
-- Archivos versionados: `165`
+- Archivos versionados: `167`
 - Verificaciones: **OK** — canon documental, bifurcación Parser, contrato de salida y campos Wix protegidos.
 - Últimos commits:
+  - 7360c83 — 2026-09-07 — Portfolio: recuperar comprensor y validar trazabilidad
+  - 9003f19 — 2026-09-07 — Test: tolerancia de campos sistema Wix duplicados
+  - 301ebde — 2026-09-07 — chore(continuidad): update canonical checkpoint
   - 577d40b — 2026-09-07 — Parser: tolerar campos sistema Wix duplicados
   - b4dc028 — 2026-09-04 — chore(continuidad): update canonical checkpoint
-  - c77bfe7 — 2026-09-04 — feat(portfolio): add editorial output director
-  - 1649b8d — 2026-09-04 — chore(continuidad): update canonical checkpoint
-  - ad603e4 — 2026-09-04 — feat(portfolio): add portfolio CSV editorial output
 <!-- CONTINUIDAD_AUTO_END -->
 
 > Documento canónico de estado funcional. Se actualiza con cada cambio significativo.
