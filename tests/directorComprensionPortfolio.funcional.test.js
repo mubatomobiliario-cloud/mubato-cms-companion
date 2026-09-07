@@ -35,7 +35,7 @@ async function main() {
     });
 
     const portfolio = {
-        proyecto: "Fixture Centros de Entretenimiento",
+        nombre: "Fixture Centros de Entretenimiento",
         ciudad: "Bogotá",
         categoria: ["Centros de Entretenimiento"],
         espacios: ["Sala"],
