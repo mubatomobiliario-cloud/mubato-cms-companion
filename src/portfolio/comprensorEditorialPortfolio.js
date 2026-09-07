@@ -60,16 +60,16 @@ ${contexto}
         const respuesta = await this.clienteIA.generarTexto(prompt);
         const comprension = this.parsearJSON(respuesta);
 
-        this.validarEvidenciaFotografica(comprension, idsFotografias);
         ContratoPortfolio.validar(comprension);
+
+        if (Array.isArray(idsFotografias)) {
+            this.validarEvidenciaFotografica(comprension, idsFotografias);
+        }
+
         return ContratoPortfolio.normalizar(comprension);
     }
 
     validarEvidenciaFotografica(comprension, idsFotografias) {
-        if (!Array.isArray(idsFotografias)) {
-            throw new Error("ComprensorEditorialPortfolio requiere los IDs de las fotografías disponibles.");
-        }
-
         const idsDisponibles = new Set(idsFotografias);
         const camposTrazables = [
             "materialidad",
