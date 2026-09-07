@@ -11,15 +11,118 @@ class Parser {
         this.proyectoManager = new ProyectoManager();
     }
 
-    leerCSV(rutaCSV) {
-        const contenido = fs.readFileSync(rutaCSV, "utf8");
+    normalizarEncabezado(encabezado) {
+        return String(encabezado || "")
+            .replace(/^\uFEFF/, "")
+            .trim()
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .replace(/[^a-z0-9]+/g, "");
+    }
 
+    esCampoSistemaWix(encabezado) {
+        const normalizado = this.normalizarEncabezado(encabezado);
+
+        return [
+            "portafoliomubato",
+            "portafoliomubatoitem",
+            "portafoliomubatolist"
+        ].includes(normalizado);
+    }
+
+    prepararEncabezados(contenido) {
         const resultado = Papa.parse(contenido, {
-            header: true,
+            header: false,
             skipEmptyLines: true
         });
 
-        return resultado.data;
+        if (resultado.errors && resultado.errors.length > 0) {
+            throw new Error(
+                `Error al leer el CSV: ${resultado.errors[0].message}`
+            );
+        }
+
+        const filas = resultado.data;
+
+        if (!Array.isArray(filas) || filas.length === 0) {
+            throw new Error("El CSV está vacío.");
+        }
+
+        const encabezados = filas[0].map(encabezado =>
+            String(encabezado || "").replace(/^\uFEFF/, "").trim()
+        );
+
+        const posicionesPorEncabezado = new Map();
+
+        encabezados.forEach((encabezado, indice) => {
+            const clave = this.normalizarEncabezado(encabezado);
+
+            if (!clave) {
+                throw new Error(
+                    `El CSV contiene un encabezado vacío en la columna ${indice + 1}.`
+                );
+            }
+
+            if (!posicionesPorEncabezado.has(clave)) {
+                posicionesPorEncabezado.set(clave, []);
+            }
+
+            posicionesPorEncabezado.get(clave).push(indice);
+        });
+
+        const columnasIgnoradas = new Set();
+
+        for (const [clave, posiciones] of posicionesPorEncabezado.entries()) {
+            if (posiciones.length <= 1) {
+                continue;
+            }
+
+            const encabezado = encabezados[posiciones[0]];
+
+            if (this.esCampoSistemaWix(encabezado)) {
+                posiciones.forEach(indice => columnasIgnoradas.add(indice));
+
+                console.warn(
+                    `⚠ Campo de sistema Wix repetido: "${encabezado}" (${posiciones.length} columnas). Se ignorará y el Parser continuará.`
+                );
+
+                continue;
+            }
+
+            throw new Error(
+                `El CSV contiene un encabezado editorial duplicado: "${encabezado}". No se puede continuar de forma segura.`
+            );
+        }
+
+        return {
+            filas,
+            encabezados,
+            columnasIgnoradas
+        };
+    }
+
+    leerCSV(rutaCSV) {
+        const contenido = fs.readFileSync(rutaCSV, "utf8");
+        const { filas, encabezados, columnasIgnoradas } =
+            this.prepararEncabezados(contenido);
+
+        const datos = filas.slice(1);
+
+        return datos.map(fila => {
+            const objeto = {};
+
+            encabezados.forEach((encabezado, indice) => {
+                if (columnasIgnoradas.has(indice)) {
+                    return;
+                }
+
+                objeto[encabezado] =
+                    fila[indice] === undefined ? "" : fila[indice];
+            });
+
+            return objeto;
+        });
     }
 
     buscarCSV(rutaCarpeta) {
