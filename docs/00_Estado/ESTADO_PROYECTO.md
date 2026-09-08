@@ -1,17 +1,17 @@
 # MUBATO CMS Companion — Estado del Proyecto
 
 <!-- CONTINUIDAD_AUTO_START -->
-- Generado automáticamente: `2026-09-08 21:51:16.612Z`
-- Commit observado: `880d86a`
+- Generado automáticamente: `2026-09-08 21:51:36.905Z`
+- Commit observado: `f3d55d9`
 - Rama: `feat/csv-editorial-v1`
 - Archivos versionados: `172`
 - Verificaciones: **OK** — canon documental, bifurcación Parser, contrato de salida y campos Wix protegidos.
 - Últimos commits:
+  - f3d55d9 — 2026-09-08 — feat: conectar Vision al flujo productivo Portfolio en Electron
+  - d1dc59f — 2026-09-08 — chore(continuidad): update canonical checkpoint
   - 880d86a — 2026-09-08 — feat: integrar Vision al pipeline productivo Portfolio
   - 9aacdbb — 2026-09-08 — chore(continuidad): update canonical checkpoint
   - f0ef540 — 2026-09-08 — refactor: permitir inyectar OpenAIClient en Vision
-  - 068328d — 2026-09-08 — fix: make Portfolio Vision input filename-agnostic
-  - 77a7443 — 2026-09-08 — test: add generic Portfolio Vision evidence runner
 <!-- CONTINUIDAD_AUTO_END -->
 
 > Documento canónico de continuidad. Describe el estado real del repositorio y las decisiones editoriales vigentes.
