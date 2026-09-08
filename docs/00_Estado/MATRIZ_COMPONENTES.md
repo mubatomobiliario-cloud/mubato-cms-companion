@@ -1,17 +1,17 @@
 # MUBATO CMS Companion — Matriz Viva de Componentes
 
 <!-- CONTINUIDAD_AUTO_START -->
-- Generado automáticamente: `2026-09-08 21:51:36.905Z`
-- Commit observado: `f3d55d9`
+- Generado automáticamente: `2026-09-08 21:52:14.614Z`
+- Commit observado: `6fab935`
 - Rama: `feat/csv-editorial-v1`
-- Archivos versionados: `172`
+- Archivos versionados: `173`
 - Verificaciones: **OK** — canon documental, bifurcación Parser, contrato de salida y campos Wix protegidos.
 - Últimos commits:
+  - 6fab935 — 2026-09-08 — chore: retirar herramientas de desarrollo de Electron
+  - 97c6cde — 2026-09-08 — test: verificar Vision productiva de Portfolio sin IA real
+  - fb79968 — 2026-09-08 — chore(continuidad): update canonical checkpoint
   - f3d55d9 — 2026-09-08 — feat: conectar Vision al flujo productivo Portfolio en Electron
   - d1dc59f — 2026-09-08 — chore(continuidad): update canonical checkpoint
-  - 880d86a — 2026-09-08 — feat: integrar Vision al pipeline productivo Portfolio
-  - 9aacdbb — 2026-09-08 — chore(continuidad): update canonical checkpoint
-  - f0ef540 — 2026-09-08 — refactor: permitir inyectar OpenAIClient en Vision
 <!-- CONTINUIDAD_AUTO_END -->
 
 > Documento canónico de estado funcional. Se actualiza con cada cambio significativo.
