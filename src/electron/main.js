@@ -262,6 +262,11 @@ function prepararPortfolioAntesIA(proyecto) {
 
     proyecto.contextoEditorialPortfolio = contexto;
 
+    const coincidenciaObservaciones = contexto.match(/Fotografías recibidas:\s*(\d+)/);
+    const cantidadObservaciones = coincidenciaObservaciones
+        ? Number(coincidenciaObservaciones[1])
+        : 0;
+
     console.log("PORTFOLIO — PRE-IA COMPLETADO");
     console.log("Evidencia visual:", rutaEvidenciaVisual);
     console.log("Fotografías cargadas:", proyecto.cantidadFotografias());
@@ -273,10 +278,7 @@ function prepararPortfolioAntesIA(proyecto) {
         "Hero independiente:",
         proyecto.obtenerHero()?.nombre || "NINGUNO"
     );
-    console.log(
-        "Observaciones Vision:",
-        contexto.evidenciaVisual?.observaciones?.length || 0
-    );
+    console.log("Observaciones Vision transportadas al contexto:", cantidadObservaciones);
     console.log("IA ejecutada: 0");
 
     return contexto;
