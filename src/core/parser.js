@@ -27,8 +27,16 @@ class Parser {
         return [
             "portafoliomubato",
             "portafoliomubatoitem",
-            "portafoliomubatolist"
+            "portafoliomubatolist",
+            "createddate",
+            "updateddate",
+            "owner"
         ].includes(normalizado);
+    }
+
+    esCampoEditorialProtegido(encabezado) {
+        return this.normalizarEncabezado(encabezado) ===
+            "historiasdetransformacion";
     }
 
     prepararEncabezados(contenido) {
@@ -85,6 +93,20 @@ class Parser {
 
                 console.warn(
                     `⚠ Campo de sistema Wix repetido: "${encabezado}" (${posiciones.length} columnas). Se ignorará y el Parser continuará.`
+                );
+
+                continue;
+            }
+
+            if (this.esCampoEditorialProtegido(encabezado)) {
+                if (posiciones.length !== 2) {
+                    throw new Error(
+                        `El campo editorial protegido "${encabezado}" debe aparecer exactamente 2 veces. Se encontraron ${posiciones.length}.`
+                    );
+                }
+
+                console.warn(
+                    `⚠ Campo editorial protegido repetido: "${encabezado}" (2 columnas). No se ignorará ni reinterpretará.`
                 );
 
                 continue;
