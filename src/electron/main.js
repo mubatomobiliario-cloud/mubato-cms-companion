@@ -1,8 +1,10 @@
 const { app, BrowserWindow, ipcMain, dialog, shell } = require("electron");
 const path = require("path");
+const fs = require("fs");
 const { format } = require("util");
 const Parser = require("../core/parser");
 const DirectorProyecto = require("../workflow/directorProyecto");
+const DirectorPortfolio = require("../portfolio/directorPortfolio");
 
 let ventanaPrincipal = null;
 
@@ -221,6 +223,65 @@ function serializarResultadoEditorial(proyecto) {
     };
 }
 
+function resolverEvidenciaVisualPortfolio(proyecto) {
+    const evidenciaExplicita = process.env.MUBATO_PORTFOLIO_EVIDENCIA_VISUAL;
+
+    if (evidenciaExplicita) {
+        const rutaExplicita = path.resolve(evidenciaExplicita);
+        if (!fs.existsSync(rutaExplicita)) {
+            throw new Error(
+                `La evidencia visual Portfolio indicada no existe: ${rutaExplicita}`
+            );
+        }
+
+        console.warn("MODO LAB: usando evidencia visual explícita:", rutaExplicita);
+        return rutaExplicita;
+    }
+
+    const rutaProduccion = path.resolve(
+        proyecto.rutaProyecto,
+        `${proyecto.nombre}.evidencia-visual.json`
+    );
+
+    if (!fs.existsSync(rutaProduccion)) {
+        throw new Error(
+            `No existe evidencia visual Portfolio persistida en la ruta esperada: ${rutaProduccion}`
+        );
+    }
+
+    return rutaProduccion;
+}
+
+function prepararPortfolioAntesIA(proyecto) {
+    const rutaEvidenciaVisual = resolverEvidenciaVisualPortfolio(proyecto);
+    const directorPortfolio = new DirectorPortfolio();
+    const contexto = directorPortfolio.construirContexto(
+        proyecto,
+        rutaEvidenciaVisual
+    );
+
+    proyecto.contextoEditorialPortfolio = contexto;
+
+    console.log("PORTFOLIO — PRE-IA COMPLETADO");
+    console.log("Evidencia visual:", rutaEvidenciaVisual);
+    console.log("Fotografías cargadas:", proyecto.cantidadFotografias());
+    console.log(
+        "Galería curada:",
+        proyecto.obtenerGaleria().map(foto => foto.nombre)
+    );
+    console.log(
+        "Hero independiente:",
+        proyecto.obtenerHero()?.nombre || "NINGUNO"
+    );
+    console.log(
+        "Observaciones Vision:",
+        contexto.evidenciaVisual?.observaciones?.length || 0
+    );
+    console.log("IA ejecutada: 0");
+
+    return contexto;
+}
+
 ipcMain.handle("importarProyecto", async (event, carpeta, rutaCSV) => {
 
     const parser = new Parser();
@@ -255,8 +316,21 @@ ipcMain.handle("ejecutarProyecto", async (event, carpeta, rutaCSV) => {
 
         const parser = new Parser();
         const proyecto = parser.importarCarpeta(carpeta, rutaCSV);
-        const director = new DirectorProyecto();
 
+        if (proyecto.flujoEditorial === "EDITORIAL_PORTFOLIO") {
+            prepararPortfolioAntesIA(proyecto);
+
+            emitirProgreso("======================================");
+            emitirProgreso("✓ PORTFOLIO PRE-IA COMPLETADO");
+            emitirProgreso("✓ NO SE REALIZÓ NINGUNA LLAMADA A IA");
+            emitirProgreso("======================================");
+
+            throw new Error(
+                "PORTFOLIO PRE-IA: frontera de IA alcanzada. La ejecución se detuvo deliberadamente antes de cualquier llamada a IA."
+            );
+        }
+
+        const director = new DirectorProyecto();
         const resultado = await director.ejecutar(proyecto);
 
         console.log("EJECUCIÓN COMPLETA — ELECTRON");
