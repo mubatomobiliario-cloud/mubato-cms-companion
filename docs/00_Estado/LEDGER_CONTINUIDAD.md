@@ -1,17 +1,17 @@
 # MUBATO CMS Companion — Ledger de Continuidad
 
 <!-- CONTINUIDAD_AUTO_START -->
-- Generado automáticamente: `2026-09-08 01:48:48 UTC`
-- Commit observado: `d418823`
+- Generado automáticamente: `2026-09-08 01:59:40.702Z`
+- Commit observado: `237815d`
 - Rama: `feat/csv-editorial-v1`
 - Archivos versionados: `169`
 - Verificaciones: **OK** — canon documental, bifurcación Parser, contrato de salida y campos Wix protegidos.
 - Últimos commits:
+  - 237815d — 2026-09-07 — fix: corregir telemetría de observaciones Portfolio pre-IA
+  - d19b9a5 — 2026-09-08 — chore(continuidad): update canonical checkpoint
   - d418823 — 2026-09-07 — Conectar Electron al preflight Portfolio antes de IA
   - 6520410 — 2026-09-07 — Test: blindar contrato de encabezados Wix y campos protegidos
   - c649704 — 2026-09-08 — chore(continuidad): update canonical checkpoint
-  - 9d1acd5 — 2026-09-07 — Parser: proteger campos Wix y duplicados editoriales conocidos
-  - 548ebb3 — 2026-09-07 — chore(continuidad): update canonical checkpoint
 <!-- CONTINUIDAD_AUTO_END -->
 
 > Cronología canónica de decisiones, implementaciones y validaciones significativas. No sustituye la Matriz Viva ni el Estado del Proyecto.
