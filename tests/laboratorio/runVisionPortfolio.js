@@ -5,34 +5,31 @@ const Parser = require("../../src/core/parser");
 const OpenAIClient = require("../../src/direccionEditorial/openAIClient");
 const PromptVision = require("../../src/vision/promptVision");
 
-function obtenerArgumentos() {
+function obtenerCarpeta() {
     const carpeta = process.argv[2];
-    const rutaCSV = process.argv[3];
 
-    if (!carpeta || !rutaCSV) {
+    if (!carpeta) {
         throw new Error(
-            'Uso: node tests/laboratorio/runVisionPortfolio.js "/ruta/a/carpeta" "/ruta/a/carpeta/archivo.csv"'
+            'Uso: node tests/laboratorio/runVisionPortfolio.js "/ruta/a/carpeta"'
         );
     }
 
-    return {
-        carpeta: path.resolve(carpeta),
-        rutaCSV: path.resolve(rutaCSV)
-    };
+    return path.resolve(carpeta);
 }
 
 async function main() {
-    const { carpeta, rutaCSV } = obtenerArgumentos();
+    const carpeta = obtenerCarpeta();
 
     if (!fs.existsSync(carpeta)) {
         throw new Error(`No existe la carpeta: ${carpeta}`);
     }
 
-    if (!fs.existsSync(rutaCSV)) {
-        throw new Error(`No existe el CSV: ${rutaCSV}`);
-    }
-
     const parser = new Parser();
+
+    // La carpeta es la única entrada física requerida.
+    // El Parser localiza el CSV fuente de Wix por extensión y reglas de entrada;
+    // no se presume ningún nombre de archivo.
+    const rutaCSV = parser.buscarCSV(carpeta);
     const proyecto = parser.importarCarpeta(carpeta, rutaCSV);
 
     if (proyecto.flujoEditorial !== "EDITORIAL_PORTFOLIO") {
@@ -59,7 +56,7 @@ async function main() {
     console.log("LABORATORIO VISION — PORTFOLIO");
     console.log("======================================");
     console.log(`Proyecto: ${proyecto.nombre}`);
-    console.log(`CSV: ${rutaCSV}`);
+    console.log(`CSV localizado: ${rutaCSV}`);
     console.log(`Fotografías de galería: ${fotografias.length}`);
     console.log(`Hero independiente: ${proyecto.obtenerHero()?.nombre || "NINGUNO"}`);
     console.log("");
@@ -67,6 +64,10 @@ async function main() {
     for (let i = 0; i < fotografias.length; i++) {
         const foto = fotografias[i];
         console.log(`[${i + 1}/${fotografias.length}] ${foto.nombre}`);
+
+        if (!fs.existsSync(foto.ruta)) {
+            throw new Error(`No existe la fotografía de galería: ${foto.ruta}`);
+        }
 
         const resultado = await openAI.analizarImagen(foto.ruta, prompt);
 
