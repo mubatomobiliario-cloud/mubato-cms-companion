@@ -1,17 +1,17 @@
 # MUBATO CMS Companion — Matriz Viva de Componentes
 
 <!-- CONTINUIDAD_AUTO_START -->
-- Generado automáticamente: `2026-09-07 20:07:01.838Z`
-- Commit observado: `a667bc3`
+- Generado automáticamente: `2026-09-08 01:15:26.276Z`
+- Commit observado: `9d1acd5`
 - Rama: `feat/csv-editorial-v1`
 - Archivos versionados: `169`
 - Verificaciones: **OK** — canon documental, bifurcación Parser, contrato de salida y campos Wix protegidos.
 - Últimos commits:
+  - 9d1acd5 — 2026-09-07 — Parser: proteger campos Wix y duplicados editoriales conocidos
+  - 548ebb3 — 2026-09-07 — chore(continuidad): update canonical checkpoint
   - a667bc3 — 2026-09-07 — Portfolio: recuperar transporte de evidencia visual
   - 99b1b3f — 2026-09-07 — chore(continuidad): update canonical checkpoint
   - 7d7ea6b — 2026-09-07 — Portfolio: validar trazabilidad solo con IDs disponibles
-  - cdd5624 — 2026-09-07 — Test: alinear fixture Portfolio con nombre
-  - bb3b6c9 — 2026-09-07 — chore(continuidad): update canonical checkpoint
 <!-- CONTINUIDAD_AUTO_END -->
 
 > Documento canónico de estado funcional. Se actualiza con cada cambio significativo.
