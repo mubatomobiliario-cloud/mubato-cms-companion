@@ -84,6 +84,9 @@ class DirectorExpresionIndividualPortfolio {
             if (typeof respuesta.output_text === "string") {
                 return this.parsearJSON(respuesta.output_text);
             }
+            if (typeof respuesta.texto === "string") {
+                return this.parsearJSON(respuesta.texto);
+            }
             return respuesta;
         }
 
