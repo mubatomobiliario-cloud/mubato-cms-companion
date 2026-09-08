@@ -1,17 +1,17 @@
 # MUBATO CMS Companion — Ledger de Continuidad
 
 <!-- CONTINUIDAD_AUTO_START -->
-- Generado automáticamente: `2026-09-08 12:40:52.396Z`
-- Commit observado: `8c15ddb`
+- Generado automáticamente: `2026-09-08 21:50:55.388Z`
+- Commit observado: `f0ef540`
 - Rama: `feat/csv-editorial-v1`
-- Archivos versionados: `171`
+- Archivos versionados: `172`
 - Verificaciones: **OK** — canon documental, bifurcación Parser, contrato de salida y campos Wix protegidos.
 - Últimos commits:
-  - 8c15ddb — 2026-09-08 — fix(portfolio): tolerar campos Wix de sistema duplicados
-  - 06ec938 — 2026-09-08 — chore(continuidad): update canonical checkpoint
-  - d2df1ff — 2026-09-08 — feat(electron): conectar pipeline editorial Portfolio
-  - 114b185 — 2026-09-08 — chore(continuidad): update canonical checkpoint
-  - ccc33c6 — 2026-09-08 — feat(portfolio): conectar pipeline editorial completo
+  - f0ef540 — 2026-09-08 — refactor: permitir inyectar OpenAIClient en Vision
+  - 068328d — 2026-09-08 — fix: make Portfolio Vision input filename-agnostic
+  - 77a7443 — 2026-09-08 — test: add generic Portfolio Vision evidence runner
+  - e35cf67 — 2026-09-08 — test: align Portfolio contract fixture with traceable evidence
+  - 4764ad3 — 2026-09-08 — chore(continuidad): update canonical checkpoint
 <!-- CONTINUIDAD_AUTO_END -->
 
 > Cronología canónica de decisiones, implementaciones y validaciones significativas. No sustituye la Matriz Viva ni el Estado del Proyecto.
