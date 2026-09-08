@@ -1,17 +1,17 @@
 # MUBATO CMS Companion — Ledger de Continuidad
 
 <!-- CONTINUIDAD_AUTO_START -->
-- Generado automáticamente: `2026-09-08 12:38:56.694Z`
-- Commit observado: `ccc33c6`
+- Generado automáticamente: `2026-09-08 12:39:30.003Z`
+- Commit observado: `d2df1ff`
 - Rama: `feat/csv-editorial-v1`
 - Archivos versionados: `171`
 - Verificaciones: **OK** — canon documental, bifurcación Parser, contrato de salida y campos Wix protegidos.
 - Últimos commits:
+  - d2df1ff — 2026-09-08 — feat(electron): conectar pipeline editorial Portfolio
+  - 114b185 — 2026-09-08 — chore(continuidad): update canonical checkpoint
   - ccc33c6 — 2026-09-08 — feat(portfolio): conectar pipeline editorial completo
   - 113428a — 2026-09-08 — chore(continuidad): update canonical checkpoint
   - df9014a — 2026-09-08 — feat(portfolio): restaurar ensamblador editorial Portfolio
-  - 1624967 — 2026-09-08 — chore(continuidad): update canonical checkpoint
-  - 237815d — 2026-09-07 — fix: corregir telemetría de observaciones Portfolio pre-IA
 <!-- CONTINUIDAD_AUTO_END -->
 
 > Cronología canónica de decisiones, implementaciones y validaciones significativas. No sustituye la Matriz Viva ni el Estado del Proyecto.
