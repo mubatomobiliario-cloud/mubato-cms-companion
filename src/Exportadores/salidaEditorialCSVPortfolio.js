@@ -17,12 +17,7 @@ class SalidaEditorialCSVPortfolio {
     static CAMPOS_IDENTIDAD_PREFERIDOS = Object.freeze(["ID", "Proyecto"]);
 
     exportar({ rutaEntrada, rutaSalida, filaPortfolio, editorial }) {
-        this.validarEntradas({
-            rutaEntrada,
-            rutaSalida,
-            filaPortfolio,
-            editorial
-        });
+        this.validarEntradas({ rutaEntrada, rutaSalida, filaPortfolio, editorial });
 
         const contenido = fs.readFileSync(rutaEntrada, "utf8");
         const filas = this.parsearCSV(contenido);
@@ -209,10 +204,44 @@ class SalidaEditorialCSVPortfolio {
         return JSON.stringify(proyectada);
     }
 
+    normalizarEncabezado(encabezado) {
+        return String(encabezado || "")
+            .replace(/^\uFEFF/, "")
+            .trim()
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .replace(/[^a-z0-9]+/g, "");
+    }
+
+    esCampoSistemaWix(encabezado) {
+        return [
+            "portafoliomubato",
+            "portafoliomubatoitem",
+            "portafoliomubatolist",
+            "createddate",
+            "updateddate",
+            "owner"
+        ].includes(this.normalizarEncabezado(encabezado));
+    }
+
+    esCampoEditorialProtegido(encabezado) {
+        return this.normalizarEncabezado(encabezado) ===
+            "historiasdetransformacion";
+    }
+
     crearIndiceEncabezados(encabezados) {
         const indice = {};
         encabezados.forEach((campo, posicion) => {
             if (indice[campo] !== undefined) {
+                if (this.esCampoSistemaWix(campo)) {
+                    return;
+                }
+
+                if (this.esCampoEditorialProtegido(campo)) {
+                    return;
+                }
+
                 throw new Error(`El CSV Portfolio contiene la columna duplicada: ${campo}.`);
             }
             indice[campo] = posicion;
