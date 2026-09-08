@@ -1,17 +1,17 @@
 # MUBATO CMS Companion — Estado del Proyecto
 
 <!-- CONTINUIDAD_AUTO_START -->
-- Generado automáticamente: `2026-09-08 12:39:30.003Z`
-- Commit observado: `d2df1ff`
+- Generado automáticamente: `2026-09-08 12:40:52.396Z`
+- Commit observado: `8c15ddb`
 - Rama: `feat/csv-editorial-v1`
 - Archivos versionados: `171`
 - Verificaciones: **OK** — canon documental, bifurcación Parser, contrato de salida y campos Wix protegidos.
 - Últimos commits:
+  - 8c15ddb — 2026-09-08 — fix(portfolio): tolerar campos Wix de sistema duplicados
+  - 06ec938 — 2026-09-08 — chore(continuidad): update canonical checkpoint
   - d2df1ff — 2026-09-08 — feat(electron): conectar pipeline editorial Portfolio
   - 114b185 — 2026-09-08 — chore(continuidad): update canonical checkpoint
   - ccc33c6 — 2026-09-08 — feat(portfolio): conectar pipeline editorial completo
-  - 113428a — 2026-09-08 — chore(continuidad): update canonical checkpoint
-  - df9014a — 2026-09-08 — feat(portfolio): restaurar ensamblador editorial Portfolio
 <!-- CONTINUIDAD_AUTO_END -->
 
 > Documento canónico de continuidad. Describe el estado real del repositorio y las decisiones editoriales vigentes.
