@@ -8,9 +8,7 @@ const DirectorEditorialPortfolio = require("../portfolio/directorEditorialPortfo
 let ventanaPrincipal = null;
 
 function emitirProgreso(...args) {
-    if (ventanaPrincipal && !ventanaPrincipal.isDestroyed() && ventanaPrincipal.webContents) {
-        ventanaPrincipal.webContents.send("progresoEjecucion", format(...args));
-    }
+    if (ventanaPrincipal && !ventanaPrincipal.isDestroyed() && ventanaPrincipal.webContents) ventanaPrincipal.webContents.send("progresoEjecucion", format(...args));
 }
 
 async function ejecutarConConsolaVisible(fn) {
@@ -36,7 +34,6 @@ function crearVentanaPrincipal() {
     ventanaPrincipal.loadFile(path.join(__dirname, "../renderer/index.html"));
     ventanaPrincipal.webContents.on("did-finish-load", () => console.log("Renderer cargado correctamente."));
     ventanaPrincipal.once("ready-to-show", () => { ventanaPrincipal.show(); ventanaPrincipal.focus(); });
-    ventanaPrincipal.webContents.openDevTools();
 }
 
 app.whenReady().then(() => {
@@ -52,11 +49,7 @@ ipcMain.handle("seleccionarProyecto", async () => {
 
 ipcMain.handle("seleccionarCSV", async (event, carpeta) => {
     if (!carpeta) throw new Error("No se recibió la carpeta del proyecto.");
-    const resultado = await dialog.showOpenDialog({
-        defaultPath: carpeta,
-        properties: ["openFile"],
-        filters: [{ name: "Archivos CSV", extensions: ["csv"] }]
-    });
+    const resultado = await dialog.showOpenDialog({ defaultPath: carpeta, properties: ["openFile"], filters: [{ name: "Archivos CSV", extensions: ["csv"] }] });
     if (resultado.canceled) return null;
     const rutaCSV = path.resolve(resultado.filePaths[0]);
     const rutaCarpeta = path.resolve(carpeta);
@@ -70,14 +63,8 @@ function serializarProyecto(proyecto) {
     const hero = proyecto.obtenerHero();
     const galeria = proyecto.obtenerGaleria();
     return {
-        nombre: proyecto.nombre,
-        codigo: proyecto.codigo,
-        cliente: proyecto.cliente,
-        ciudad: proyecto.ciudad,
-        estado: proyecto.estado,
-        categoria: proyecto.categoria,
-        servicios: proyecto.servicios,
-        espacios: proyecto.espacios,
+        nombre: proyecto.nombre, codigo: proyecto.codigo, cliente: proyecto.cliente, ciudad: proyecto.ciudad,
+        estado: proyecto.estado, categoria: proyecto.categoria, servicios: proyecto.servicios, espacios: proyecto.espacios,
         csvFuente: proyecto.rutaCSV || null,
         heroImagen: hero ? { nombre: hero.nombre, enGaleria: hero.enGaleria, esHero: hero.esHero, wixHeroSrc: hero.wixHeroSrc || null, wixMedia: hero.wixMedia || null } : null,
         galeria: galeria.map(foto => ({ nombre: foto.nombre, enGaleria: foto.enGaleria, esHero: foto.esHero, wixMedia: foto.wixMedia || null })),
@@ -93,17 +80,15 @@ function serializarResultadoEditorial(proyecto) {
         expediente: proyecto.expediente || null,
         salidaEditorialCSV: proyecto.salidaEditorialCSV ? { rutaSalida: proyecto.salidaEditorialCSV.rutaSalida || null } : null,
         editorial: editorial ? {
-            versionEditorial: editorial.versionEditorial || "PORTFOLIO",
-            codigo: editorial.codigo || null,
-            heroTexto: editorial.heroTexto || "",
-            historia: editorial.historia || "",
-            descripcion: editorial.descripcion || "",
-            servicios: editorial.servicios || [],
-            slug: editorial.slug || "",
+            versionEditorial: editorial.versionEditorial || "PORTFOLIO", codigo: editorial.codigo || null,
+            heroTexto: editorial.heroTexto || "", historia: editorial.historia || "", descripcion: editorial.descripcion || "",
+            servicios: editorial.servicios || [], slug: editorial.slug || "",
             seo: editorial.seo || { seoTitle: editorial.seoTitle || "", metaDescription: editorial.metaDescription || "" },
-            galeriaEditorial: Array.isArray(editorial.galeriaEditorial) ? editorial.galeriaEditorial.map(foto => ({ fileName: foto.fileName, title: foto.title, description: foto.description, alt: foto.alt, keywords: foto.keywords, nombreSEO: foto.nombreSEO, esHero: Boolean(foto.esHero), enGaleria: Boolean(foto.enGaleria) })) : [],
-            llamadasIA: editorial.llamadasIA || 0,
-            telemetria: editorial.telemetria || null
+            galeriaEditorial: Array.isArray(editorial.galeriaEditorial) ? editorial.galeriaEditorial.map(foto => ({
+                fileName: foto.fileName, title: foto.title, description: foto.description, alt: foto.alt, keywords: foto.keywords,
+                nombreSEO: foto.nombreSEO, esHero: Boolean(foto.esHero), enGaleria: Boolean(foto.enGaleria)
+            })) : [],
+            llamadasIA: editorial.llamadasIA || 0, telemetria: editorial.telemetria || null
         } : null
     };
 }
