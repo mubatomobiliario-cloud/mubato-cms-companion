@@ -4,6 +4,7 @@ const fs = require("fs");
 const { format } = require("util");
 const Parser = require("../core/parser");
 const DirectorProyecto = require("../workflow/directorProyecto");
+const DirectorEditorialPortfolio = require("../portfolio/directorEditorialPortfolio");
 const DirectorPortfolio = require("../portfolio/directorPortfolio");
 
 let ventanaPrincipal = null;
@@ -48,7 +49,6 @@ async function ejecutarConConsolaVisible(fn) {
 }
 
 function crearVentanaPrincipal() {
-
     ventanaPrincipal = new BrowserWindow({
         width: 1400,
         height: 900,
@@ -79,7 +79,6 @@ function crearVentanaPrincipal() {
 }
 
 app.whenReady().then(() => {
-
     crearVentanaPrincipal();
 
     app.on("activate", () => {
@@ -87,11 +86,9 @@ app.whenReady().then(() => {
             crearVentanaPrincipal();
         }
     });
-
 });
 
 ipcMain.handle("seleccionarProyecto", async () => {
-
     const resultado = await dialog.showOpenDialog({
         properties: ["openDirectory"]
     });
@@ -104,7 +101,6 @@ ipcMain.handle("seleccionarProyecto", async () => {
 });
 
 ipcMain.handle("seleccionarCSV", async (event, carpeta) => {
-
     if (!carpeta) {
         throw new Error("No se recibió la carpeta del proyecto.");
     }
@@ -140,7 +136,6 @@ app.on("window-all-closed", () => {
 });
 
 function serializarProyecto(proyecto) {
-
     const hero = proyecto.obtenerHero();
     const galeria = proyecto.obtenerGaleria();
 
@@ -184,7 +179,6 @@ function serializarProyecto(proyecto) {
 }
 
 function serializarResultadoEditorial(proyecto) {
-
     const editorial = proyecto.resultadoEditorial;
 
     return {
@@ -194,7 +188,7 @@ function serializarResultadoEditorial(proyecto) {
             rutaSalida: proyecto.salidaEditorialCSV.rutaSalida || null
         } : null,
         editorial: editorial ? {
-            versionEditorial: editorial.versionEditorial || null,
+            versionEditorial: editorial.versionEditorial || "PORTFOLIO",
             codigo: editorial.codigo || null,
             heroTexto: editorial.heroTexto || "",
             historia: editorial.historia || "",
@@ -202,8 +196,8 @@ function serializarResultadoEditorial(proyecto) {
             servicios: editorial.servicios || [],
             slug: editorial.slug || "",
             seo: editorial.seo || {
-                seoTitle: "",
-                metaDescription: ""
+                seoTitle: editorial.seoTitle || "",
+                metaDescription: editorial.metaDescription || ""
             },
             galeriaEditorial: Array.isArray(editorial.galeriaEditorial)
                 ? editorial.galeriaEditorial.map(foto => ({
@@ -285,7 +279,6 @@ function prepararPortfolioAntesIA(proyecto) {
 }
 
 ipcMain.handle("importarProyecto", async (event, carpeta, rutaCSV) => {
-
     const parser = new Parser();
     const proyecto = parser.importarCarpeta(carpeta, rutaCSV);
     const resultado = serializarProyecto(proyecto);
@@ -300,7 +293,6 @@ ipcMain.handle("importarProyecto", async (event, carpeta, rutaCSV) => {
 });
 
 ipcMain.handle("ejecutarProyecto", async (event, carpeta, rutaCSV) => {
-
     if (!carpeta) {
         throw new Error("No se recibió una carpeta de proyecto.");
     }
@@ -320,16 +312,22 @@ ipcMain.handle("ejecutarProyecto", async (event, carpeta, rutaCSV) => {
         const proyecto = parser.importarCarpeta(carpeta, rutaCSV);
 
         if (proyecto.flujoEditorial === "EDITORIAL_PORTFOLIO") {
-            prepararPortfolioAntesIA(proyecto);
-
-            emitirProgreso("======================================");
-            emitirProgreso("✓ PORTFOLIO PRE-IA COMPLETADO");
-            emitirProgreso("✓ NO SE REALIZÓ NINGUNA LLAMADA A IA");
-            emitirProgreso("======================================");
-
-            throw new Error(
-                "PORTFOLIO PRE-IA: frontera de IA alcanzada. La ejecución se detuvo deliberadamente antes de cualquier llamada a IA."
+            const rutaEvidenciaVisual = resolverEvidenciaVisualPortfolio(proyecto);
+            const directorPortfolio = new DirectorEditorialPortfolio();
+            const resultado = await directorPortfolio.ejecutar(
+                proyecto,
+                rutaEvidenciaVisual
             );
+
+            console.log("EJECUCIÓN COMPLETA — ELECTRON / PORTFOLIO");
+            console.log("Proyecto:", resultado.nombre);
+            console.log("Salida Editorial:", resultado.salidaEditorialCSV?.rutaSalida || "NO GENERADA");
+
+            emitirProgreso("======================================");
+            emitirProgreso("✓ COMPANION PORTFOLIO COMPLETADO");
+            emitirProgreso("======================================");
+
+            return serializarResultadoEditorial(resultado);
         }
 
         const director = new DirectorProyecto();
@@ -348,7 +346,6 @@ ipcMain.handle("ejecutarProyecto", async (event, carpeta, rutaCSV) => {
 });
 
 ipcMain.handle("mostrarSalidaEditorial", async (event, rutaSalida) => {
-
     if (!rutaSalida) {
         throw new Error("No existe una ruta de salida editorial para mostrar.");
     }
