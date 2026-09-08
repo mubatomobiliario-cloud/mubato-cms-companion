@@ -1,17 +1,17 @@
 # MUBATO CMS Companion — Estado del Proyecto
 
 <!-- CONTINUIDAD_AUTO_START -->
-- Generado automáticamente: `2026-09-08 01:59:40.702Z`
-- Commit observado: `237815d`
+- Generado automáticamente: `2026-09-08 12:38:12.821Z`
+- Commit observado: `df9014a`
 - Rama: `feat/csv-editorial-v1`
-- Archivos versionados: `169`
+- Archivos versionados: `170`
 - Verificaciones: **OK** — canon documental, bifurcación Parser, contrato de salida y campos Wix protegidos.
 - Últimos commits:
+  - df9014a — 2026-09-08 — feat(portfolio): restaurar ensamblador editorial Portfolio
+  - 1624967 — 2026-09-08 — chore(continuidad): update canonical checkpoint
   - 237815d — 2026-09-07 — fix: corregir telemetría de observaciones Portfolio pre-IA
   - d19b9a5 — 2026-09-08 — chore(continuidad): update canonical checkpoint
   - d418823 — 2026-09-07 — Conectar Electron al preflight Portfolio antes de IA
-  - 6520410 — 2026-09-07 — Test: blindar contrato de encabezados Wix y campos protegidos
-  - c649704 — 2026-09-08 — chore(continuidad): update canonical checkpoint
 <!-- CONTINUIDAD_AUTO_END -->
 
 > Documento canónico de continuidad. Describe el estado real del repositorio y las decisiones editoriales vigentes.
