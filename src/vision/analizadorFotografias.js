@@ -5,40 +5,26 @@ const PromptVision = require("./promptVision");
 
 class AnalizadorFotografias {
 
-    constructor() {
-
-        this.openAI = new OpenAIClient();
+    constructor({ openAI = new OpenAIClient() } = {}) {
+        this.openAI = openAI;
         this.promptVision = new PromptVision();
-
     }
 
     async analizar(proyecto) {
-
         console.log("");
         console.log("======================================");
         console.log("ANALIZADOR DE FOTOGRAFÍAS");
         console.log("======================================");
         console.log("");
-
-        console.log(
-            `Fotografías encontradas: ${proyecto.fotografias.length}`
-        );
-
+        console.log(`Fotografías encontradas: ${proyecto.fotografias.length}`);
         console.log("");
 
         for (let i = 0; i < proyecto.fotografias.length; i++) {
-
             const foto = proyecto.fotografias[i];
-
-            console.log(
-                `[${i + 1}/${proyecto.fotografias.length}] ${foto.nombre}`
-            );
-
+            console.log(`[${i + 1}/${proyecto.fotografias.length}] ${foto.nombre}`);
             await this.analizarFotografia(foto);
-
             console.log("✓ Análisis completado");
             console.log("");
-
         }
 
         console.log("======================================");
@@ -47,20 +33,11 @@ class AnalizadorFotografias {
         console.log("");
 
         return proyecto;
-
     }
 
     async analizarFotografia(foto) {
-
         const prompt = this.promptVision.construir();
-
-        const datos = await this.openAI.analizarImagenJSON(
-
-            foto.ruta,
-
-            prompt
-
-        );
+        const datos = await this.openAI.analizarImagenJSON(foto.ruta, prompt);
 
         foto.espacio = datos.espacio || "";
         foto.tipo = datos.tipo || "";
@@ -73,13 +50,10 @@ class AnalizadorFotografias {
         foto.sensacion = datos.sensacion || "";
         foto.observaciones = datos.observaciones || "";
         foto.confianza = datos.confianza || 0;
-
         foto.analizada = true;
 
         return foto;
-
     }
-
 }
 
 module.exports = AnalizadorFotografias;
