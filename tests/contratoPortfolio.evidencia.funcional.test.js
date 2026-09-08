@@ -35,27 +35,30 @@ assert.ok(contexto.includes("La selección de fotografías no es una decisión d
 assert.ok(contexto.includes("Hero Texto: 22–27 palabras."));
 
 // Construcción de una muestra de comprensión basada exclusivamente en la evidencia fixture.
+// Cada afirmación semántica conserva los identificadores de las fotografías que la sostienen.
 // El test no evalúa calidad literaria: verifica que el contrato puede recibir la
-// estructura semántica que el contexto visual permite construir.
+// estructura semántica trazable que el contexto visual permite construir.
 const comprension = {
     nucleo: "Sistema de entretenimiento integrado que articula pantalla, almacenamiento y composición de muro.",
     caracter: "Contemporáneo, ordenado y cálido.",
-    materialidad: ["madera", "melamina", "vidrio"],
-    funcionalidad: ["entretenimiento", "almacenamiento"],
-    relacionesEspaciales: ["muro principal", "sala"],
+    materialidad: [
+        { texto: "madera y melamina", evidencia: ["foto-01.jpg"] },
+        { texto: "madera y vidrio", evidencia: ["foto-02.jpg"] }
+    ],
+    funcionalidad: [
+        { texto: "entretenimiento y almacenamiento", evidencia: ["foto-01.jpg", "foto-02.jpg"] }
+    ],
+    relacionesEspaciales: [
+        { texto: "muro principal en sala", evidencia: ["foto-01.jpg", "foto-02.jpg"] }
+    ],
     experiencia: "Integra tecnología y almacenamiento dentro de una composición visual limpia y amplia.",
-    rasgosDiferenciales: ["integración", "continuidad visual", "combinación de materiales"],
+    rasgosDiferenciales: [
+        { texto: "integración", evidencia: ["foto-01.jpg", "foto-02.jpg"] },
+        { texto: "continuidad visual", evidencia: ["foto-01.jpg", "foto-02.jpg"] },
+        { texto: "combinación de materiales", evidencia: ["foto-01.jpg", "foto-02.jpg"] }
+    ],
     enfoqueNarrativo: "Contar cómo el centro de entretenimiento organiza la tecnología y el almacenamiento dentro del espacio."
 };
-
-assert.deepStrictEqual(
-    comprension.materialidad.sort(),
-    ["madera", "melamina", "vidrio"].sort()
-);
-assert.deepStrictEqual(
-    comprension.funcionalidad.sort(),
-    ["entretenimiento", "almacenamiento"].sort()
-);
 
 assert.doesNotThrow(() => ContratoPortfolio.validar(comprension));
 const normalizada = ContratoPortfolio.normalizar(comprension);
