@@ -112,19 +112,30 @@ según corresponda.
 
 5. No inventes materiales, colores o elementos.
 
-6. Los materiales deben escribirse con nombres normalizados y en singular.
+6. En "materiales" registra únicamente materiales o acabados que puedan identificarse visualmente con suficiente certeza en la fotografía.
 
-Ejemplos:
+7. La apariencia visual NO demuestra por sí sola el material constructivo.
 
-- Madera Natural
-- Roble
-- Mármol
+8. Nunca conviertas una apariencia de madera, una veta o un color en "Madera Natural", "Madera Maciza", "Roble" u otra especie de madera como material, salvo que la fotografía permita identificarlo inequívocamente como tal.
+
+9. Nunca infieras por apariencia que un elemento es MDF, melamina, poliuretano o chapilla natural. Esa información pertenece al conocimiento de fabricación de MUBATO y no debe ser determinada por Vision únicamente a partir de la fotografía.
+
+10. Un piso, revestimiento, muro u otro elemento arquitectónico visible no debe atribuirse automáticamente al mobiliario.
+
+11. No relaciones un material con un elemento específico si esa relación no puede observarse claramente.
+
+12. Los materiales deben escribirse con nombres normalizados y en singular.
+
+Ejemplos de materiales o acabados visualmente identificables:
+
 - Vidrio
-- Metal Negro
+- Metal
+- Tela
+- Mármol
+- Piedra
 - Lino
-- Cuarzo
 
-7. Los colores deben escribirse utilizando nombres básicos.
+13. Los colores deben escribirse utilizando nombres básicos.
 
 Ejemplos:
 
@@ -132,11 +143,12 @@ Ejemplos:
 - Negro
 - Gris
 - Beige
-- Roble
 - Marrón
 - Verde
 
-8. Los elementos deben ser sustantivos visibles.
+14. "Roble" no debe utilizarse como color ni como material. Si la fotografía muestra una apariencia de madera de tono similar, describe el color de forma básica y deja la materialidad sin esa inferencia.
+
+15. Los elementos deben ser sustantivos visibles.
 
 Ejemplos:
 
@@ -147,8 +159,9 @@ Ejemplos:
 - Espejo
 - Silla
 - Lámpara
+- Cabecero
 
-9. observaciones debe ser una frase corta y completamente objetiva.
+16. observaciones debe ser una frase corta y completamente objetiva.
 
 Ejemplos:
 
@@ -156,7 +169,7 @@ Ejemplos:
 - Se observa un objeto personal sobre el mueble.
 - La fotografía presenta ligera inclinación.
 
-10. confianza debe ser un número entero entre 0 y 100.
+17. confianza debe ser un número entero entre 0 y 100.
 
 Nunca utilices decimales.
 
