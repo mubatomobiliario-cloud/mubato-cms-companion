@@ -154,9 +154,7 @@ async function main() {
     console.log("");
 
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "mubato-pipeline-aislamiento-"));
-    const rutaCSV = path.join(tempDir, "entrada.csv");
     const csvOriginal = construirCSVTemporal();
-    fs.writeFileSync(rutaCSV, csvOriginal, "utf8");
 
     try {
         console.log("1. Preparando fixture multiproyecto...");
@@ -164,7 +162,14 @@ async function main() {
         for (const proyecto of PROJECTS) {
             carpetas.set(proyecto, prepararCarpetaProyecto(tempDir, proyecto));
         }
+
+        // Contrato vigente del Parser: el CSV seleccionado debe estar
+        // directamente dentro de la carpeta del proyecto procesado.
+        const rutaCSV = path.join(carpetas.get(TARGET), "entrada.csv");
+        fs.writeFileSync(rutaCSV, csvOriginal, "utf8");
+
         console.log("✓ Tijo, Rolón, Quesada y Araque preparados.");
+        console.log("✓ CSV fixture ubicado dentro de la carpeta de Araque.");
         console.log("✓ Solo Araque queda pendiente para Parser.");
 
         console.log("");
@@ -173,7 +178,7 @@ async function main() {
         const proyecto = parser.importarProyecto(rutaCSV, carpetas.get(TARGET));
         assert(proyecto.nombre === TARGET, `Parser seleccionó ${proyecto.nombre} en vez de ${TARGET}.`);
         assert(proyecto.filaCSV["Proyecto"] === TARGET, "La fila CSV no conserva la identidad de Araque.");
-        assert(proyecto.filaCSV["Código MUBATO"] === "", "Araque no quedó pendiente según el contrato del Parser.");
+        assert(proyecto.filaCSV["Código MUBATO"] !== "", "Araque no recibió el Código MUBATO automático.");
         console.log("✓ Parser → Araque confirmado.");
 
         console.log("");
