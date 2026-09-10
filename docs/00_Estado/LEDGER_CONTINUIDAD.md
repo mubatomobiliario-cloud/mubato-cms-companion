@@ -1,17 +1,17 @@
 # MUBATO CMS Companion — Ledger de Continuidad
 
 <!-- CONTINUIDAD_AUTO_START -->
-- Generado automáticamente: `2026-09-10 01:53:37.354Z`
-- Commit observado: `6deac80`
+- Generado automáticamente: `2026-09-10 20:29:32.249Z`
+- Commit observado: `e6219ac`
 - Rama: `feat/csv-editorial-v1`
-- Archivos versionados: `173`
+- Archivos versionados: `174`
 - Verificaciones: **OK** — canon documental, bifurcación Parser, contrato de salida y campos Wix protegidos.
 - Últimos commits:
-  - 6deac80 — 2026-09-09 — feat(portfolio): cerrar vocabulario MUBATO en expresión individual
-  - 1ffcc2d — 2026-09-10 — chore(continuidad): update canonical checkpoint
-  - 1d9c054 — 2026-09-09 — feat(portfolio): cerrar vocabulario de fabricación MUBATO
-  - b6e4885 — 2026-09-09 — chore(continuidad): update canonical checkpoint
-  - 4c2dbfc — 2026-09-09 — Corrige inferencia visual de materiales en Vision
+  - e6219ac — 2026-09-10 — fix: cerrar conjunto de fotos en comprensión Portfolio
+  - f32e1be — 2026-09-10 — test: corregir comparación de campos editoriales Wix
+  - b833da0 — 2026-09-10 — test: alinear auditoría con contrato de galería Wix
+  - b425130 — 2026-09-10 — test: corregir fixture de preservación de galería
+  - d020755 — 2026-09-10 — test: auditar preservacion completa de galeria Portfolio
 <!-- CONTINUIDAD_AUTO_END -->
 
 > Cronología canónica de decisiones, implementaciones y validaciones significativas. No sustituye la Matriz Viva ni el Estado del Proyecto.
