@@ -16,10 +16,16 @@ class ComprensorEditorialPortfolio {
         this.constructorPrompt = constructorPrompt;
     }
 
-    construirPrompt(contexto) {
+    construirPrompt(contexto, idsFotografias = []) {
         if (typeof contexto !== "string" || !contexto.trim()) {
             throw new Error("ComprensorEditorialPortfolio requiere un contexto editorial válido.");
         }
+        if (!Array.isArray(idsFotografias) || idsFotografias.length === 0) {
+            throw new Error("ComprensorEditorialPortfolio requiere el conjunto cerrado de fotografías disponibles.");
+        }
+
+        const listaIds = idsFotografias.map((id, indice) => `${indice + 1}. ${id}`).join("\n");
+
         const instrucciones = `
 Eres el componente de comprensión editorial de MUBATO para Portfolio.
 
@@ -30,6 +36,16 @@ NO descartes fotografías.
 NO cambies su orden.
 NO inventes atributos que no estén sustentados por la evidencia.
 NO escribas todavía Historia, Hero Texto, Descripción, SEO, Servicios ni Código.
+
+REGLA CRÍTICA DE TRAZABILIDAD FOTOGRÁFICA:
+Las fotografías disponibles forman un CONJUNTO CERRADO.
+Solo puedes utilizar como evidencia los identificadores incluidos en la siguiente lista.
+NO utilices ningún otro identificador, aunque aparezca en otros datos del Portfolio, en el nombre de la pieza o pueda parecer relevante.
+El Hero es independiente de la galería y NO puede utilizarse como evidencia fotográfica de esta comprensión.
+Si una afirmación no puede sustentarse con una fotografía de esta lista, no le asignes evidencia fotográfica.
+
+FOTOGRAFÍAS DISPONIBLES — CONJUNTO CERRADO:
+${listaIds}
 
 Debes producir exclusivamente un JSON válido con esta estructura:
 
@@ -56,7 +72,7 @@ ${contexto}
     }
 
     async comprender(contexto, idsFotografias) {
-        const prompt = this.construirPrompt(contexto);
+        const prompt = this.construirPrompt(contexto, idsFotografias);
         const respuesta = await this.clienteIA.generarTexto(prompt);
         const comprension = this.parsearJSON(respuesta);
 
