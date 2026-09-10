@@ -24,6 +24,7 @@ class ConstructorContextoExpresionIndividualPortfolio {
             this.encabezado(),
             this.seccionPieza(portfolio),
             this.seccionComprension(comprension),
+            this.seccionConocimientoFabricacion(),
             this.seccionFotografia(observacionFotografia),
             this.seccionReglas()
         ].join("\n");
@@ -97,6 +98,23 @@ class ConstructorContextoExpresionIndividualPortfolio {
         ].join("\n");
     }
 
+    seccionConocimientoFabricacion() {
+        return [
+            "",
+            "====================================================",
+            "CONOCIMIENTO DE FABRICACIÓN MUBATO",
+            "====================================================",
+            "",
+            "• Material constructivo base del mobiliario MUBATO: MDF.",
+            "• Acabado habitual del mobiliario MUBATO: pintura en poliuretano.",
+            "• Excepción confirmada: chapilla natural cuando corresponda.",
+            "• Este conocimiento pertenece a MUBATO y no proviene de Vision.",
+            "• Aplicar este conocimiento únicamente al mobiliario MUBATO cuando el contexto permita identificarlo como tal.",
+            "• No atribuir estas características a pisos, muros, revestimientos, accesorios u otros elementos que no sean mobiliario MUBATO.",
+            "• No convertir una apariencia visual de madera en madera natural, madera maciza, roble u otra especie como material constructivo."
+        ].join("\n");
+    }
+
     seccionFotografia(observacion) {
         return [
             "",
@@ -130,6 +148,8 @@ class ConstructorContextoExpresionIndividualPortfolio {
             "• Usar la comprensión central para mantener coherencia, no para inventar detalles de la imagen.",
             "• La fotografía debe conservar su propia especificidad dentro de la colección.",
             "• No inventar personas, necesidades, usos, materiales, espacios o circunstancias no observados.",
+            "• No convertir la apariencia visual en una afirmación de material constructivo cuando la evidencia no lo permita.",
+            "• Cuando se describa mobiliario MUBATO, respetar el conocimiento de fabricación indicado en este contexto.",
             "• No decidir inclusión, selección ni orden de fotografías.",
             "• No modificar la evidencia visual ni la comprensión central.",
             "• Producir title, description, alt, keywords y nombreSEO para esta fotografía."
