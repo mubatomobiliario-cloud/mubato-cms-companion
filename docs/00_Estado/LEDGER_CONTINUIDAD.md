@@ -1,17 +1,17 @@
 # MUBATO CMS Companion — Ledger de Continuidad
 
 <!-- CONTINUIDAD_AUTO_START -->
-- Generado automáticamente: `2026-09-09 22:01:53.610Z`
-- Commit observado: `4c2dbfc`
+- Generado automáticamente: `2026-09-10 01:49:54.119Z`
+- Commit observado: `1d9c054`
 - Rama: `feat/csv-editorial-v1`
 - Archivos versionados: `173`
 - Verificaciones: **OK** — canon documental, bifurcación Parser, contrato de salida y campos Wix protegidos.
 - Últimos commits:
+  - 1d9c054 — 2026-09-09 — feat(portfolio): cerrar vocabulario de fabricación MUBATO
+  - b6e4885 — 2026-09-09 — chore(continuidad): update canonical checkpoint
   - 4c2dbfc — 2026-09-09 — Corrige inferencia visual de materiales en Vision
   - 46afcc2 — 2026-09-09 — test: align Araque fixture with Parser CSV location contract
   - fd764db — 2026-09-08 — chore(continuidad): update canonical checkpoint
-  - 75b21e8 — 2026-09-08 — fix(portfolio): parsear respuesta texto de expresión individual
-  - f670b9e — 2026-09-08 — chore(continuidad): update canonical checkpoint
 <!-- CONTINUIDAD_AUTO_END -->
 
 > Cronología canónica de decisiones, implementaciones y validaciones significativas. No sustituye la Matriz Viva ni el Estado del Proyecto.
