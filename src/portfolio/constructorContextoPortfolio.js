@@ -22,6 +22,7 @@ class ConstructorContextoPortfolio {
             this.seccionPieza(portfolio),
             this.seccionEvidencia(observacionesVision),
             this.seccionFotografias(observacionesVision),
+            this.seccionConocimientoMubato(),
             this.seccionReglas()
         ].join("\n");
     }
@@ -124,6 +125,25 @@ class ConstructorContextoPortfolio {
         ].join("\n");
     }
 
+    seccionConocimientoMubato() {
+        return [
+            "",
+            "====================================================",
+            "CONOCIMIENTO DE FABRICACIÓN MUBATO",
+            "====================================================",
+            "",
+            "Para describir el mobiliario MUBATO, la fuente de verdad de fabricación es:",
+            "• Material constructivo base: MDF.",
+            "• Acabado habitual: pintura en poliuretano.",
+            "• Excepción confirmada: chapilla natural, cuando corresponda a la pieza.",
+            "",
+            "Este conocimiento pertenece a MUBATO y no proviene de Vision.",
+            "No debe aplicarse automáticamente a pisos, muros, revestimientos, accesorios u otros elementos no pertenecientes al mobiliario MUBATO.",
+            "La apariencia visual de madera, veta o color no demuestra por sí sola el material constructivo.",
+            "No utilizar madera maciza, madera natural, roble o melamina como material constructivo del mobiliario MUBATO salvo evidencia o conocimiento explícito que lo justifique."
+        ].join("\n");
+    }
+
     seccionReglas() {
         return [
             "",
@@ -138,7 +158,8 @@ class ConstructorContextoPortfolio {
             "• Hero Texto: 22–27 palabras.",
             "• Descripción: más breve que la de Proyecto y centrada en la pieza o colección.",
             "• SEO se produce en el mismo ciclo editorial, adaptando las reglas SEO de Proyecto al contexto Portfolio.",
-            "• Servicios y Código son determinísticos y no requieren IA."
+            "• Servicios y Código son determinísticos y no requieren IA.",
+            "• Diferenciar siempre la evidencia visual de Vision del conocimiento de fabricación de MUBATO."
         ].join("\n");
     }
 
