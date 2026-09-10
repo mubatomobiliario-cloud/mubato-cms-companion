@@ -79,19 +79,36 @@ const editorial = ensamblador.ensamblar({
 });
 
 const galeriaEnsambler = editorial.galeriaEditorial;
+const camposEditoriales = new Set(["title", "description", "alt"]);
 
 for (let i = 0; i < galeriaEnsambler.length; i += 1) {
     const itemOriginal = galeriaConMetadatos[i];
     const itemEnsambler = galeriaEnsambler[i];
 
     for (const campo of Object.keys(itemOriginal)) {
+        if (camposEditoriales.has(campo)) {
+            continue;
+        }
         if (JSON.stringify(itemEnsambler[campo]) !== JSON.stringify(itemOriginal[campo])) {
             throw new Error(`Ensamblador alteró/perdió el campo ${campo} en posición ${i}.`);
         }
     }
+
+    for (const campo of camposEditoriales) {
+        if (typeof itemEnsambler[campo] !== "string" || !itemEnsambler[campo].trim()) {
+            throw new Error(`Ensamblador no produjo el campo editorial ${campo} en posición ${i}.`);
+        }
+    }
+
+    if (JSON.stringify(itemEnsambler.keywords) !== JSON.stringify(itemOriginal.keywords)) {
+        throw new Error(`Ensamblador perdió keywords en posición ${i}.`);
+    }
+    if (itemEnsambler.nombreSEO !== itemOriginal.nombreSEO) {
+        throw new Error(`Ensamblador perdió nombreSEO en posición ${i}.`);
+    }
 }
 
-console.log("✓ Ensamblador preserva la galería completa y los metadatos internos.");
+console.log("✓ Ensamblador preserva la galería y genera los campos editoriales.");
 
 const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "mubato-qc-galeria-"));
 const rutaSalida = path.join(tempDir, "salida.csv");
