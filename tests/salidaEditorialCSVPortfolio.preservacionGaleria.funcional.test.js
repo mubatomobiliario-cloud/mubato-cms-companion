@@ -41,15 +41,17 @@ if (!Array.isArray(galeriaOriginal) || galeriaOriginal.length === 0) {
 
 const propiedadesOriginales = Object.keys(galeriaOriginal[0]);
 
-// Inyectamos únicamente en memoria dos propiedades editoriales que hoy existen
-// en el ensamblador pero que el exportador está perdiendo, más una propiedad
-// desconocida para comprobar que el principio de preservación es general.
+// Inyectamos las propiedades de prueba DENTRO del JSON que consume el ensamblador.
+// Así comprobamos realmente la preservación desde la Galería General original
+// hasta el ensamblador y, posteriormente, hasta el exportador.
 const galeriaConMetadatos = galeriaOriginal.map((item, posicion) => ({
     ...item,
     keywords: [`kw-${posicion + 1}`, "alcoba principal"],
     nombreSEO: `fotografia-${posicion + 1}`,
     propiedadWixNoConocida: `preservar-${posicion + 1}`
 }));
+
+filaPortfolio["Galería General"] = JSON.stringify(galeriaConMetadatos);
 
 const expresionesIndividuales = galeriaConMetadatos.map((item, posicion) => ({
     fotografia: item.fileName,
@@ -78,9 +80,8 @@ const editorial = ensamblador.ensamblar({
 });
 
 const galeriaEnsambler = editorial.galeriaEditorial;
-const galeriaEntradaExporter = galeriaEnsambler;
 
-for (let i = 0; i < galeriaEntradaExporter.length; i += 1) {
+for (let i = 0; i < galeriaEnsambler.length; i += 1) {
     const itemOriginal = galeriaConMetadatos[i];
     const itemEnsambler = galeriaEnsambler[i];
 
@@ -100,6 +101,8 @@ for (let i = 0; i < galeriaEntradaExporter.length; i += 1) {
         throw new Error(`Ensamblador perdió nombreSEO en posición ${i}.`);
     }
 }
+
+console.log("✓ Ensamblador preserva propiedades Wix y metadatos editoriales.");
 
 const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "mubato-qc-galeria-"));
 const rutaSalida = path.join(tempDir, "salida.csv");
@@ -124,8 +127,8 @@ const preservados = [];
 const agregados = [];
 const sobrescritos = [];
 
-for (let i = 0; i < galeriaEntradaExporter.length; i += 1) {
-    const entrada = galeriaEntradaExporter[i];
+for (let i = 0; i < galeriaEnsambler.length; i += 1) {
+    const entrada = galeriaEnsambler[i];
     const salidaItem = galeriaSalida[i];
 
     for (const campo of Object.keys(entrada)) {
@@ -151,7 +154,7 @@ console.log("==============================================");
 console.log("AUDITORÍA ESTÁTICA — PRESERVACIÓN GALERÍA WIX");
 console.log("==============================================");
 console.log(`CSV: ${rutaEntrada}`);
-console.log(`Fotografías auditadas: ${galeriaEntradaExporter.length}`);
+console.log(`Fotografías auditadas: ${galeriaEnsambler.length}`);
 console.log(`Propiedades originales observadas: ${propiedadesOriginales.join(", ")}`);
 console.log(`Propiedades preservadas: ${preservados.length}`);
 console.log(`Propiedades sobrescritas intencionalmente: ${sobrescritos.length}`);
